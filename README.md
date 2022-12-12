@@ -7,34 +7,34 @@ All features are server authoritative with client prediction.
 
 Features:
   
-  General:
+    General:
     * Efficient item, recipe, crafting serialization.
     * ResourceManager API to aid with resources.
     * CraftingManger API to aid with crafting.
     
-  Resources:
+    Resources:
     * Categories (eg: Equipped, Food, Scraps).
     * Stack limits.
     * Maximum limits.
     
-  Inventory:
+    Inventory:
     * Add, remove items at runtime.
     * State change callbacks.
     * Unlimited bags.
     * Add, remove bags at runtime.
     * Several API functions to find information on inventory.
     
-  Inventory UI:
+    Inventory UI:
     * Stacks.
     * Varying bag size.
     * Searching.
     
-  Crafting:
+    Crafting:
     * Recipes.
     * Craft times.
     * Consecutive craft multiplier.
     
-  Crafting UI:
+    Crafting UI:
     * Recipes list.
     * Recipe preview.
     * Craft, Craft All, Cancel buttons.
@@ -42,11 +42,12 @@ Features:
 
 
 Near Future:
-  Inventory:
+
+    Inventory:
     * Swap item locations.
     * Split and combine stacks.
     * Maximum item limits.
 
-  Inventory UI:
+    Inventory UI:
     * Swap item locations.
     * Split and combine stacks.
