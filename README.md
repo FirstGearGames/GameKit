@@ -20,9 +20,9 @@ Features:
     
     Inventory:
     * Add, remove items at runtime.
-    * State change callbacks.
     * Unlimited bags.
     * Add, remove bags at runtime.
+    * State change callbacks.
     * Several API functions to find information on inventory.
     
     Inventory UI:
