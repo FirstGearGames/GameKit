@@ -22,6 +22,7 @@ Features:
     * Add, remove items at runtime.
     * Unlimited bags.
     * Add, remove bags at runtime.
+    * Varying bag size.    
     * State change callbacks.
     * Several API functions to find information on inventory.
     
