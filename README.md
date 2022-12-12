@@ -34,6 +34,8 @@ Features:
     * Recipes.
     * Craft times.
     * Consecutive craft multiplier.
+    * State change callbacks.
+    * Several API functions to find information on inventory.
     
     Crafting UI:
     * Recipes list.
