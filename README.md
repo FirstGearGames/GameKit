@@ -1,5 +1,6 @@
 # GameKit
 Pre-built commonly needed gameplay elements, with examples.
+
 All features are server authoritative with client prediction.
 
 ![Simple Preview](https://github.com/FirstGearGames/GameKit/blob/main/FirstGearGames/GameKit/Repository/simple_preview.png?raw=true)
