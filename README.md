@@ -52,3 +52,5 @@ Near Future:
     Inventory UI:
     * Swap item locations.
     * Split and combine stacks.
+
+    How about a guide?
