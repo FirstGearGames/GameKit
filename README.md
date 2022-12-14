@@ -1,5 +1,6 @@
 # GameKit
-Pre-built commonly needed gameplay elements, with examples.
+Pre-built commonly needed gameplay elements, with examples. Developed for Fish-Networking.
+https://github.com/FirstGearGames/FishNet
 
 All features are server authoritative with client prediction.
 
