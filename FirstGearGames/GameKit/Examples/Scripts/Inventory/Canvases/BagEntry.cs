@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using TriInspector;
+using GameKit.Examples.Tooltips.Canvases;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -79,6 +80,10 @@ namespace GameKit.Examples.Inventories.Canvases
         /// </summary>
         private InventoryCanvas _inventoryCanvas;
         /// <summary>
+        /// TooltipCanvas to use.
+        /// </summary>
+        private TooltipCanvas _tooltipCanvas;
+        /// <summary>
         /// True if RectTransform needs to be resized.
         /// </summary>
         private bool _resizeRequired;
@@ -92,12 +97,13 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this script for use.
         /// </summary>
-        public void Initialize(InventoryCanvas canvas, Bag bag)
+        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, Bag bag)
         {
             //Destroy any content which may have been placed for testing.
             _content.DestroyChildren<ResourceEntry>(false);
 
-            _inventoryCanvas = canvas;
+            _inventoryCanvas = inventoryCanvas;
+            _tooltipCanvas = tooltipCanvas;
             _bag = bag;
 
             int slots = bag.Slots.Length;
@@ -107,9 +113,9 @@ namespace GameKit.Examples.Inventories.Canvases
                 ResourceEntry re = Instantiate(_resourceEntryPrefab, _content);
                 IResourceData ird = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(bag.Slots[i].ResourceId);
                 if (ird != null)
-                    re.Initialize(_inventoryCanvas, bag.Slots[i]);
+                    re.Initialize(_inventoryCanvas,tooltipCanvas, bag.Slots[i]);
                 else
-                    re.Initialize(_inventoryCanvas);
+                    re.Initialize(_inventoryCanvas, tooltipCanvas);
 
                 ResourceEntries.Add(re);
             }

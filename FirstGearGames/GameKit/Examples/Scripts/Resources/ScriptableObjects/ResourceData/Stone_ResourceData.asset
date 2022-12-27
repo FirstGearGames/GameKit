@@ -15,5 +15,7 @@ MonoBehaviour:
   ResourceType: 6002
   Category: 2
   DisplayName: Stone
+  Description: Sticks and stones may break my bones, so please let's not get violent.
   Icon: {fileID: 1625063731, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 5
+  ItemLimit: -1

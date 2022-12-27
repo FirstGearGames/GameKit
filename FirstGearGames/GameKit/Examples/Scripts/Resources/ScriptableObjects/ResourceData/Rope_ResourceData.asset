@@ -15,5 +15,12 @@ MonoBehaviour:
   ResourceType: 1
   Category: 3
   DisplayName: Rope
+  Description: 'A handy person always has rope.
+
+    And saws, and a torch, and drills.
+
+    Honestly,
+    you can never really have enough tools!'
   Icon: {fileID: 1304250086, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 20
+  ItemLimit: -1

@@ -15,5 +15,7 @@ MonoBehaviour:
   ResourceType: 9002
   Category: 4
   DisplayName: Orange Elixir
+  Description: Oh, you mixed the thing!
   Icon: {fileID: 471749365, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 20
+  ItemLimit: -1

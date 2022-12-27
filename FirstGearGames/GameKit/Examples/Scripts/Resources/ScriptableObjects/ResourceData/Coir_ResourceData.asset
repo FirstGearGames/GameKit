@@ -15,5 +15,7 @@ MonoBehaviour:
   ResourceType: 2
   Category: 3
   DisplayName: Coir
+  Description: We'll just put this in the junk drawer.
   Icon: {fileID: 1093434400, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 40
+  ItemLimit: -1

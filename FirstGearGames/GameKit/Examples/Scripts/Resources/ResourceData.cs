@@ -20,6 +20,11 @@ namespace GameKit.Examples.Resources
         /// </summary>
         public string DisplayName;
         /// <summary>
+        /// Description for the resource.
+        /// </summary>
+        [Multiline]
+        public string Description;
+        /// <summary>
         /// Icon for the resource.
         /// </summary>
         public Sprite Icon;
@@ -43,9 +48,11 @@ namespace GameKit.Examples.Resources
             else
                 return DisplayName;
         }
+        public string GetDescription() => Description;
         public Sprite GetIcon() => Icon;
         public int GetStackLimit() => Stacks;
-        public int GetMaximumLimit() => ItemLimit;    }
+        public int GetMaximumLimit() => ItemLimit;
 
 
+    }
 }

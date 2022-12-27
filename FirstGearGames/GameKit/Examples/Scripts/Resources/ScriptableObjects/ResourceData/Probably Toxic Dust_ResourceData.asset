@@ -15,5 +15,7 @@ MonoBehaviour:
   ResourceType: 4
   Category: 3
   DisplayName: Probably Toxic Dust
+  Description: Not your grandpa's Tumeric.
   Icon: {fileID: -1845184590, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 20
+  ItemLimit: -1

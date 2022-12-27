@@ -15,6 +15,7 @@ MonoBehaviour:
   ResourceType: 9001
   Category: 24
   DisplayName: Crossbow
+  Description: Do you really need an excuse to own a crossbow?
   Icon: {fileID: -71728835, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 1
   ItemLimit: 4

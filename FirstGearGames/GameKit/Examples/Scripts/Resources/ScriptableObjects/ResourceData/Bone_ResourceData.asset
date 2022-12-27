@@ -15,5 +15,7 @@ MonoBehaviour:
   ResourceType: 3001
   Category: 3
   DisplayName: Bone
+  Description: People sure collect some weird things.
   Icon: {fileID: -693445840, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 10
+  ItemLimit: -1

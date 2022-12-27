@@ -10,6 +10,7 @@ using FirstGearGames.Utilities.Objects;
 using TriInspector;
 using System;
 using GameKit.Examples.Resources;
+using GameKit.Examples.Tooltips.Canvases;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -104,6 +105,10 @@ namespace GameKit.Examples.Inventories.Canvases
         /// Inventory being used.
         /// </summary>
         private Inventory _inventory;
+        /// <summary>
+        /// TooltipCanvas to use.
+        /// </summary>
+        private TooltipCanvas _tooltipCanvas;
         #endregion
 
         #region Const.
@@ -113,7 +118,7 @@ namespace GameKit.Examples.Inventories.Canvases
         private float SEARCH_INTERVAL = 0.15f;
         #endregion
 
-        private void Awake()
+        private void Start()
         {
             InitializeOnce();
             Show();
@@ -135,7 +140,10 @@ namespace GameKit.Examples.Inventories.Canvases
         {
             CanvasManager cm = InstanceFinder.NetworkManager.GetInstance<CanvasManager>();
             if (cm != null)
+            {
                 cm.InventoryCanvas = this;
+                _tooltipCanvas = cm.TooltipCanvas;
+            }
 
             //Destroy content children. There may be some present from testing.
             _bagContent.DestroyChildren<BagEntry>(true);
@@ -233,7 +241,7 @@ namespace GameKit.Examples.Inventories.Canvases
         private void Inventory_OnBagSlotUpdated(int bagIndex, int slotIndex, ResourceQuantity rq)
         {
             ResourceEntry re = _bagEntries[bagIndex].ResourceEntries[slotIndex];
-            re.Initialize(this, rq);
+            re.Initialize(this, _tooltipCanvas, rq);
             SetUsedInventorySpaceText();
             _bagEntries[bagIndex].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);
@@ -292,7 +300,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Selects a resource entry.
         /// </summary>
-        public void SelectResourceEntry(ResourceEntry re) 
+        public void SelectResourceEntry(ResourceEntry re)
         {
             throw new NotImplementedException();
         }
@@ -319,7 +327,7 @@ namespace GameKit.Examples.Inventories.Canvases
             foreach (Bag b in _inventory.Bags)
             {
                 BagEntry be = Instantiate(_bagEntryPrefab, _bagContent);
-                be.Initialize(this, b);
+                be.Initialize(this, _tooltipCanvas, b);
                 _bagEntries.Add(be);
             }
 

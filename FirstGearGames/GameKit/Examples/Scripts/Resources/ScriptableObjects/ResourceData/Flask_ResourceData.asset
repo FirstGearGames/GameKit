@@ -15,5 +15,7 @@ MonoBehaviour:
   ResourceType: 3
   Category: 3
   DisplayName: Flask
+  Description: Looks stained from previous uses.
   Icon: {fileID: 1791051367, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 20
+  ItemLimit: -1

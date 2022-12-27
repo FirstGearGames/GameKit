@@ -6,11 +6,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TriInspector;
 using GameKit.Examples.Resources;
+using UnityEngine.EventSystems;
+using GameKit.Examples.Tooltips.Canvases;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
 
-    public class ResourceEntry : MonoBehaviour
+    public class ResourceEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region Public.
         /// <summary>
@@ -47,7 +49,27 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// InventoryCanvas for this entry.
         /// </summary>
-        private InventoryCanvas _canvas;
+        private InventoryCanvas _inventoryCanvas;
+        /// <summary>
+        /// TooltipCanvas to use.
+        /// </summary>
+        private TooltipCanvas _tooltipCanvas;
+        /// <summary>
+        /// True if the pointer is pressing this object.
+        /// </summary>
+        private bool _pressed;
+        /// <summary>
+        /// True if the pointer is hovering over this object.
+        /// </summary>
+        private bool _hovered;
+        /// <summary>
+        /// Where to anchor tooltips.
+        /// </summary>
+        private readonly Vector2 _tooltipPivot = new Vector2(0.5f, 1f);
+        /// <summary>
+        /// Offset to apply for tooltip position.
+        /// </summary>
+        private readonly Vector2 _tooltipOffset = new Vector2(0f, 64f);
         #endregion
 
         private void Awake()
@@ -63,16 +85,17 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(InventoryCanvas canvas, ResourceQuantity rq)
+        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, ResourceQuantity rq)
         {
             //If no data then initialize empty.
             if (rq.IsUnset)
             {
-                Initialize(canvas);
+                Initialize(inventoryCanvas, tooltipCanvas);
                 return;
             }
 
-            _canvas = canvas;
+            _inventoryCanvas = inventoryCanvas;
+            _tooltipCanvas = tooltipCanvas;
             IResourceData = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(rq.ResourceId);
             _icon.sprite = ResourceData.GetIcon();
             _stackText.text = (rq.Quantity > 1) ? $"{rq.Quantity}" : string.Empty;
@@ -83,9 +106,10 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this with no data, resetting values.
         /// </summary>
-        public void Initialize(InventoryCanvas canvas)
+        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas)
         {
-            _canvas = canvas;
+            _inventoryCanvas = inventoryCanvas;
+            _tooltipCanvas = tooltipCanvas;
             IResourceData = null;
             _stackText.text = string.Empty;
             UpdateComponentStates();
@@ -121,7 +145,58 @@ namespace GameKit.Examples.Inventories.Canvases
         /// </summary>
         public void OnClick_Button()
         {
-            _canvas.SelectResourceEntry(this);
+            _inventoryCanvas.SelectResourceEntry(this);
+        }
+
+        /// <summary>
+        /// Called when the pointer enters this objects rect transform.
+        /// </summary>
+        public void OnPointerEnter(PointerEventData eventData) => SetHovered(true);
+        /// <summary>
+        /// Called when the pointer exits this objects rect transform.
+        /// </summary>
+        public void OnPointerExit(PointerEventData eventData) => SetHovered(false);
+        /// <summary>
+        /// Called when the pointer presses this objects rect transform.
+        /// </summary>
+        public void OnPointerDown(PointerEventData eventData) => SetPressed(true);
+        /// <summary>
+        /// Called when the pointer releases this objects rect transform.
+        /// </summary>
+        public void OnPointerUp(PointerEventData eventData) => SetPressed(false);
+
+        /// <summary>
+        /// Sets pressed and updates tooltip if needed.
+        /// </summary>
+        private void SetPressed(bool pressed)
+        {
+            _pressed = pressed;
+            SetTooltip();
+        }
+        /// <summary>
+        /// Sets hovered and updates tooltip if needed.
+        /// </summary>
+        private void SetHovered(bool hovered)
+        {
+            _hovered = hovered;
+            SetTooltip();
+        }
+        /// <summary>
+        /// Shows or hides the tooltip for this entry.
+        /// </summary>
+        private void SetTooltip()
+        {
+            bool show = (ResourceData != null) && (!_pressed && _hovered);
+            if (show)
+            {
+                Vector2 position = new Vector2(transform.position.x, transform.position.y);
+                string description = ResourceData.Description;
+                _tooltipCanvas.Show(this, position - _tooltipOffset, description, _tooltipPivot);
+            }
+            else
+            {
+                _tooltipCanvas.Hide(this);
+            }
         }
     }
 

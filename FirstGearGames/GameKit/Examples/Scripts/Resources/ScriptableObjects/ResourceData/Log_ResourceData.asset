@@ -15,5 +15,7 @@ MonoBehaviour:
   ResourceType: 3002
   Category: 2
   DisplayName: Log
+  Description: Objects are much closer than they appear.
   Icon: {fileID: 982816313, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
   Stacks: 5
+  ItemLimit: -1
