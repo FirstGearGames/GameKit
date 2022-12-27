@@ -13,6 +13,7 @@ Features:
     * Efficient item, recipe, crafting serialization.
     * ResourceManager API to aid with resources.
     * CraftingManger API to aid with crafting.
+    * TooltipCanvas to easily show tooltips anywhere!
     
     Resources:
     * Categories (eg: Equipped, Food, Scraps).
@@ -31,6 +32,7 @@ Features:
     * Stacks.
     * Varying bag size.
     * Searching.
+    * Item tooltips.
     
     Crafting:
     * Recipes.
