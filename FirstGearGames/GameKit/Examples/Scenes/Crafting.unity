@@ -1385,7 +1385,7 @@ MonoBehaviour:
   _text: {fileID: 181673263}
   _width:
     Minimum: 300
-    Maximum: 1400
+    Maximum: 850
   _height:
     Minimum: 50
     Maximum: 800
