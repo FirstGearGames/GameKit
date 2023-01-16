@@ -1,3 +1,7 @@
-!FirstGearGames/*
-!THIRD PARTY NOTICE.md
-*
+#Ignore everything.
+/*
+
+#Except these; we like these.
+!/.gitignore
+!/THIRD PARTY NOTICE.md
+!/FirstGearGames/
