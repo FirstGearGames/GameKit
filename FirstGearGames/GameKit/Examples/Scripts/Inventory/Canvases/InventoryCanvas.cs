@@ -15,9 +15,9 @@ using GameKit.Examples.Tooltips.Canvases;
 namespace GameKit.Examples.Inventories.Canvases
 {
 
-    [DeclareFoldoutGroup("Header", Title = "Header")]
-    [DeclareFoldoutGroup("Collection", Title = "Collection")]
-    [DeclareFoldoutGroup("Footer", Title = "Footer")]
+    [DeclareFoldoutGroup("Header")]
+    [DeclareFoldoutGroup("Collection")]
+    [DeclareFoldoutGroup("Footer")]
     public class InventoryCanvas : MonoBehaviour
     {
         #region Types.

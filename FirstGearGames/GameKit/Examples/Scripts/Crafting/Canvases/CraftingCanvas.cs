@@ -12,9 +12,9 @@ using UnityEngine.UI;
 namespace GameKit.Examples.Crafting.Canvases
 {
 
-    [DeclareFoldoutGroup("Recipes", Title = "Recipes")]
-    [DeclareFoldoutGroup("Preview", Title = "Preview")]
-    [DeclareFoldoutGroup("Crafting", Title = "Crafting")]
+    [DeclareFoldoutGroup("Recipes")]
+    [DeclareFoldoutGroup("Preview")]
+    [DeclareFoldoutGroup("Crafting")]
     public class CraftingCanvas : MonoBehaviour
     {
         /// <summary>

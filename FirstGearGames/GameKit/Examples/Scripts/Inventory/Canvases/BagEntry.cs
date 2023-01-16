@@ -13,9 +13,9 @@ using GameKit.Examples.Tooltips.Canvases;
 namespace GameKit.Examples.Inventories.Canvases
 {
 
-    [DeclareFoldoutGroup("Sizing", Title = "Sizing")]
-    [DeclareFoldoutGroup("Header", Title = "Header")]
-    [DeclareFoldoutGroup("Misc", Title = "Misc")]
+    [DeclareFoldoutGroup("Sizing")]
+    [DeclareFoldoutGroup("Header")]
+    [DeclareFoldoutGroup("Misc")]
     public class BagEntry : MonoBehaviour
     {
         #region Public.

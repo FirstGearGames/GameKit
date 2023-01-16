@@ -9,8 +9,8 @@ using FirstGearGames.Utilities.Structures;
 namespace GameKit.Examples.Tooltips.Canvases
 {
 
-    [DeclareFoldoutGroup("Components", Title = "Components")]
-    [DeclareFoldoutGroup("Sizing", Title = "Sizing")]
+    [DeclareFoldoutGroup("Components")]
+    [DeclareFoldoutGroup("Sizing")]
     public class TooltipCanvas : MonoBehaviour
     {
         #region Serialized.
