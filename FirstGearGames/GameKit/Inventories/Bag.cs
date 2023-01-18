@@ -37,7 +37,6 @@ namespace GameKit.Inventories
         /// </summary>
         public ResourceQuantity[] Slots { get; protected set; } = new ResourceQuantity[0];
         #endregion
-
         public Bag() { }
         public Bag(int space)
         {

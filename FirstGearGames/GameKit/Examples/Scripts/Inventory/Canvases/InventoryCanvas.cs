@@ -11,6 +11,7 @@ using TriInspector;
 using System;
 using GameKit.Examples.Resources;
 using GameKit.Examples.Tooltips.Canvases;
+using UnityEngine.UI;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -20,31 +21,6 @@ namespace GameKit.Examples.Inventories.Canvases
     [DeclareFoldoutGroup("Footer")]
     public class InventoryCanvas : MonoBehaviour
     {
-        #region Types.
-        private class BaggedResource
-        {
-            /// <summary>
-            /// Bag the resource is in.
-            /// </summary>
-            public readonly Bag Bag;
-            /// <summary>
-            /// Index of resource in the bag.
-            /// </summary>
-            public readonly int Index;
-            /// <summary>
-            /// ResourceEntry for this bagged resource.
-            /// </summary>
-            public ResourceEntry Entry;
-
-            public BaggedResource(Bag bag, int index, ResourceEntry entry)
-            {
-                Bag = bag;
-                Index = index;
-                Entry = entry;
-            }
-        }
-        #endregion
-
         #region Serialized.
         /// <summary>
         /// TextMeshPro to show which category is selected.
@@ -59,6 +35,12 @@ namespace GameKit.Examples.Inventories.Canvases
         [SerializeField, Group("Header")]
         private TMP_InputField _searchInput;
 
+        /// <summary>
+        /// ScrollRect to disable when dragging entries.
+        /// </summary>
+        [PropertyTooltip("ScrollRect to disable when dragging entries.")]
+        [SerializeField, Group("Collection")]
+        private ScrollRect _scrollRect;
         /// <summary>
         /// Prefab to use for resource entries.
         /// </summary>
@@ -109,6 +91,14 @@ namespace GameKit.Examples.Inventories.Canvases
         /// TooltipCanvas to use.
         /// </summary>
         private TooltipCanvas _tooltipCanvas;
+        /// <summary>
+        /// Entry currently being held.
+        /// </summary>
+        private ResourceEntry _heldEntry;
+        /// <summary>
+        /// Last entry to be hovered over.
+        /// </summary>
+        private ResourceEntry _hoveredEntry;
         #endregion
 
         #region Const.
@@ -241,7 +231,7 @@ namespace GameKit.Examples.Inventories.Canvases
         private void Inventory_OnBagSlotUpdated(int bagIndex, int slotIndex, ResourceQuantity rq)
         {
             ResourceEntry re = _bagEntries[bagIndex].ResourceEntries[slotIndex];
-            re.Initialize(this, _tooltipCanvas, rq);
+            re.Initialize(this, _tooltipCanvas, rq, new BaggedResource(bagIndex, slotIndex));
             SetUsedInventorySpaceText();
             _bagEntries[bagIndex].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);
@@ -295,6 +285,9 @@ namespace GameKit.Examples.Inventories.Canvases
         public void Hide()
         {
             _visible = false;
+            _heldEntry = null;
+            _hoveredEntry = null;
+            _scrollRect.enabled = true;
         }
 
         /// <summary>
@@ -334,6 +327,51 @@ namespace GameKit.Examples.Inventories.Canvases
             SetUsedInventorySpaceText();
         }
 
+        /// <summary>
+        /// Called when a bag entry is pressed.
+        /// </summary>
+        /// <param name="entry">Entry being held.</param>
+        public void OnHeld_ResourceEntry(ResourceEntry entry)
+        {
+            if (entry.ResourceData == null)
+                return;
+            Debug.Log("Held " + entry.ResourceData.DisplayName);
+
+            _heldEntry = entry;
+            _scrollRect.enabled = false;
+        }
+
+        /// <summary>
+        /// Called when a bag entry is no longer held.
+        /// </summary>
+        /// <param name="entry">The entry which the pointer was released over.</param>
+        public void OnRelease_ResourceEntry(ResourceEntry entry)
+        {
+            /* Tell inventory to try and move, swap, or
+             * stack items. Inventory performs error checking
+             * so no need to here. */
+            if (_heldEntry != null && _hoveredEntry != null)
+                _inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot);
+     
+            _heldEntry = null;
+            _scrollRect.enabled = true;
+        }
+
+        /// <summary>
+        /// Called when a resource is hovered over.
+        /// </summary>
+        public void OnEnter_ResourceEntry(ResourceEntry entry)
+        {
+            _hoveredEntry = entry;
+        }
+
+        /// <summary>
+        /// Called when a resource is hovered over.
+        /// </summary>
+        public void OnExit_ResourceEntry(ResourceEntry entry) 
+        {
+            _hoveredEntry = null;
+        }
     }
 
 

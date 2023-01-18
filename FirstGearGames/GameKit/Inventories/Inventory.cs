@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using TriInspector;
+using FishNet.Managing.Server;
+using FishNet.Managing.Logging;
 
 namespace GameKit.Inventories
 {
@@ -414,6 +416,46 @@ namespace GameKit.Inventories
             }
         }
 
+        /// <summary>
+        /// Moves a resource from one bag slot to another.
+        /// </summary>
+        /// <param name="from">Information on where the resource is coming from.</param>
+        /// <param name="to">Information on where the resource is going.</param>
+        public void MoveResource(BaggedResource from, BaggedResource to)
+        {
+            //Did not move...
+            if (from.BagIndex == to.BagIndex && from.SlotIndex == to.SlotIndex)
+                return;
+
+            //From or to information is invalid.
+            if (!IsValidBagSlot(from.BagIndex, from.SlotIndex) || !IsValidBagSlot(to.BagIndex, to.SlotIndex))
+            {
+                //Exploit attempt kick.
+                if (base.IsServer)
+                    base.Owner.Kick(KickReason.ExploitAttempt, LoggingType.Common, $"Connection Id {base.Owner.ClientId} tried to move a bag item to an invalid slot.");
+            }
+
+            Debug.Log(from.SlotIndex + ", " + to.SlotIndex);
+
+        }
+
+
+        /// <summary>
+        /// Returns if a slot exists.
+        /// </summary>
+        /// <param name="bagIndex">Bag index to check.</param>
+        /// <param name="slotIndex">Slot index to check.</param>
+        /// <returns></returns>
+        private bool IsValidBagSlot(int bagIndex, int slotIndex)
+        {
+            if (bagIndex < 0 || bagIndex >= Bags.Count)
+                return false;
+            if (slotIndex < 0 || slotIndex >= Bags[bagIndex].Slots.Length)
+                return false;
+
+            //All conditions pass.
+            return true;
+        }
     }
 
 

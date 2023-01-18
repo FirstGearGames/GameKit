@@ -8,6 +8,7 @@ using TriInspector;
 using GameKit.Examples.Resources;
 using UnityEngine.EventSystems;
 using GameKit.Examples.Tooltips.Canvases;
+using GameKit.Inventories;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -23,6 +24,10 @@ namespace GameKit.Examples.Inventories.Canvases
         /// Custom ResourceData for IResourceData.
         /// </summary>
         public ResourceData ResourceData => (ResourceData)IResourceData;
+        /// <summary>
+        /// Bag and slot index where this resource sits.
+        /// </summary>
+        public BaggedResource BagSlot { get; private set; }
         #endregion
 
         #region Serialized.
@@ -85,15 +90,16 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, ResourceQuantity rq)
+        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, ResourceQuantity rq, BaggedResource bagSlot)
         {
             //If no data then initialize empty.
             if (rq.IsUnset)
             {
-                Initialize(inventoryCanvas, tooltipCanvas);
+                Initialize(inventoryCanvas, tooltipCanvas, bagSlot);
                 return;
             }
 
+            SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
             IResourceData = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(rq.ResourceId);
@@ -106,13 +112,24 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this with no data, resetting values.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas)
+        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, BaggedResource bagSlot)
         {
+            SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
             IResourceData = null;
             _stackText.text = string.Empty;
             UpdateComponentStates();
+        }
+
+        /// <summary>
+        /// Sets which bag and slot index this entry is within.
+        /// </summary>
+        /// <param name="bagIndex">Bag index of this entry.</param>
+        /// <param name="slotIndex">Slot index of this entry.</param>
+        public void SetBagSlot(BaggedResource bagSlot)
+        {
+            BagSlot = bagSlot;
         }
 
         /// <summary>
@@ -170,6 +187,15 @@ namespace GameKit.Examples.Inventories.Canvases
         /// </summary>
         private void SetPressed(bool pressed)
         {
+            //If changed update inventory canvas.
+            if (pressed != _pressed)
+            {
+                if (pressed)
+                    _inventoryCanvas.OnHeld_ResourceEntry(this);
+                else
+                    _inventoryCanvas.OnRelease_ResourceEntry(this);
+            }
+
             _pressed = pressed;
             SetTooltip();
         }
@@ -178,6 +204,15 @@ namespace GameKit.Examples.Inventories.Canvases
         /// </summary>
         private void SetHovered(bool hovered)
         {
+            //If changed update inventory canvas.
+            if (_hovered != hovered)
+            {
+                if (hovered)
+                    _inventoryCanvas.OnEnter_ResourceEntry(this);
+                else
+                    _inventoryCanvas.OnExit_ResourceEntry(this);
+            }
+
             _hovered = hovered;
             SetTooltip();
         }

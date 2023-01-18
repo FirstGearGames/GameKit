@@ -112,6 +112,11 @@ namespace GameKit.Examples.Inventories.Canvases
             {
                 ResourceEntry re = Instantiate(_resourceEntryPrefab, _content);
                 IResourceData ird = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(bag.Slots[i].ResourceId);
+                //todo
+                /*
+                * Add public int BagIndex {get;private} and set
+                * when bag is added to inventory. Pass this into
+                * init with slot index. */
                 if (ird != null)
                     re.Initialize(_inventoryCanvas,tooltipCanvas, bag.Slots[i]);
                 else
@@ -166,6 +171,9 @@ namespace GameKit.Examples.Inventories.Canvases
 
             _rectTransform.sizeDelta = new Vector2(_rectTransform.sizeDelta.x, result);
         }
+
+
+
     }
 
 
