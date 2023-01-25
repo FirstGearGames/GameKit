@@ -7,6 +7,10 @@ namespace GameKit.Inventories
     {
         #region Public.
         /// <summary>
+        /// Index of this bag within Inventory.
+        /// </summary>
+        public int Index { get; private set; }
+        /// <summary>
         /// Maximum space in this bag.
         /// </summary>
         public int MaximumSlots => Slots.Length;
@@ -38,16 +42,17 @@ namespace GameKit.Inventories
         public ResourceQuantity[] Slots { get; protected set; } = new ResourceQuantity[0];
         #endregion
         public Bag() { }
-        public Bag(int space)
+
+        public Bag(int space, int index)
         {
-            Initialize(space);
+            Initialize(space, index);
         }
 
         /// <summary> 
         /// Initializes this bag with available space.
         /// </summary>
         /// <param name="maxSpace"></param>
-        public void Initialize(int maxSpace)
+        public void Initialize(int maxSpace, int index)
         {
             Slots = new ResourceQuantity[maxSpace];
             for (int i = 0; i < maxSpace; i++)
@@ -55,6 +60,8 @@ namespace GameKit.Inventories
                 Slots[i] = new ResourceQuantity(-1, 0);
                 Slots[i].MakeUnset();
             }
+
+            Index = index;
         }
 
     }

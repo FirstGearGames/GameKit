@@ -335,7 +335,6 @@ namespace GameKit.Examples.Inventories.Canvases
         {
             if (entry.ResourceData == null)
                 return;
-            Debug.Log("Held " + entry.ResourceData.DisplayName);
 
             _heldEntry = entry;
             _scrollRect.enabled = false;

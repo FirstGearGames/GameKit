@@ -16,6 +16,11 @@ namespace GameKit.Inventories
     {
         #region Public.
         /// <summary>
+        /// Called after bags are added or removed.
+        /// </summary>
+        public event BagsChangedDel OnBagsChannged;
+        public delegate void BagsChangedDel(bool added, Bag bag);
+        /// <summary>
         /// Called when resources cannot be added due to a full inventory.
         /// </summary>
         public event InventoryFullDel OnInventoryFull;
@@ -119,11 +124,8 @@ namespace GameKit.Inventories
         private void InitializeOnce()
         {
             //Add default bags.
-            foreach (int item in _defaultBagSizes)
-            {
-                Bag b = new Bag(item);
-                Bags.Add(b);
-            }
+            foreach (int space in _defaultBagSizes)
+                AddBag(space);
 
             Crafter crafter = GetComponent<Crafter>();
             crafter.OnCraftingResult += Crafter_OnCraftingResult;
@@ -132,7 +134,7 @@ namespace GameKit.Inventories
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
-            _resourceManager = base.NetworkManager.GetInstance<ResourceManager > ();
+            _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
         }
 
         /// <summary>
@@ -147,6 +149,17 @@ namespace GameKit.Inventories
             bool canUpdateResources = (asServer || (!asServer && !base.IsHost));
             if (canUpdateResources && result == CraftingResult.Completed)
                 UpdateResourcesFromRecipe(r);
+        }
+
+        /// <summary>
+        /// Adds a Bag to Inventory.
+        /// </summary>
+        /// <param name="space">Amount of space to give the bag.</param>
+        public void AddBag(int space)
+        {
+            Bag b = new Bag(space, Bags.Count);
+            Bags.Add(b);
+            OnBagsChannged?.Invoke(true, b);
         }
 
         /// <summary>
@@ -421,22 +434,53 @@ namespace GameKit.Inventories
         /// </summary>
         /// <param name="from">Information on where the resource is coming from.</param>
         /// <param name="to">Information on where the resource is going.</param>
-        public void MoveResource(BaggedResource from, BaggedResource to)
+        /// <returns>True if the move was successful.</returns>
+        public bool MoveResource(BaggedResource from, BaggedResource to)
         {
             //Did not move...
             if (from.BagIndex == to.BagIndex && from.SlotIndex == to.SlotIndex)
-                return;
+                return false;
 
-            //From or to information is invalid.
-            if (!IsValidBagSlot(from.BagIndex, from.SlotIndex) || !IsValidBagSlot(to.BagIndex, to.SlotIndex))
+            ResourceQuantity fromRq;
+            ResourceQuantity toRq;
+            bool fromFound = GetResourceQuantity(from.BagIndex, from.SlotIndex, out fromRq);
+            bool toFound = GetResourceQuantity(to.BagIndex, to.SlotIndex, out toRq);
+            //A problem occurred when finding bag and slot.
+            if (!fromFound || !toFound)
             {
                 //Exploit attempt kick.
                 if (base.IsServer)
                     base.Owner.Kick(KickReason.ExploitAttempt, LoggingType.Common, $"Connection Id {base.Owner.ClientId} tried to move a bag item to an invalid slot.");
+                else
+                    return false;
             }
 
-            Debug.Log(from.SlotIndex + ", " + to.SlotIndex);
+            //If the to is empty just simply move.
+            if (toRq.IsUnset)
+            {
+                SwapEntries();
+            }
+            //If different items in each slot they cannot be stacked, so swap.
+            else if (fromRq.ResourceId != toRq.ResourceId)
+            {
+                SwapEntries();
+            }   
+            //Same resource if here. Try to stack.
+            else
+            {
+                //error left intentionally to finish this.
+            }
 
+            return true;
+
+            //Swaps the to and from entries.
+            void SwapEntries()
+            {
+                Bags[from.BagIndex].Slots[from.SlotIndex] = toRq;
+                Bags[to.BagIndex].Slots[to.SlotIndex] = fromRq;
+                OnBagSlotUpdated?.Invoke(from.BagIndex, from.SlotIndex, toRq);
+                OnBagSlotUpdated?.Invoke(to.BagIndex, to.SlotIndex, fromRq);
+            }
         }
 
 
@@ -455,6 +499,29 @@ namespace GameKit.Inventories
 
             //All conditions pass.
             return true;
+        }
+
+        /// <summary>
+        /// Gets a ResourceQuantity using a bag and slot index.
+        /// </summary>
+        /// <param name="bagIndex">Bag index.</param>
+        /// <param name="slotIndex">Slot index.</param>
+        /// <param name="rq">ResourceQuantity found at indexes. This may be default if the slot is not occupied.</param>
+        /// <returns>True if the bag and slot index was valid.</returns>
+        public bool GetResourceQuantity(int bagIndex, int slotIndex, out ResourceQuantity rq)
+        {
+            //Invalid information.
+            if (!IsValidBagSlot(bagIndex, slotIndex))
+            {
+                rq = default;
+                return false;
+            }
+            //Valid.
+            else
+            {
+                rq = Bags[bagIndex].Slots[slotIndex];
+                return true;
+            }
         }
     }
 

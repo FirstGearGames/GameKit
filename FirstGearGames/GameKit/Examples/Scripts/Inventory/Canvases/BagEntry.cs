@@ -117,10 +117,11 @@ namespace GameKit.Examples.Inventories.Canvases
                 * Add public int BagIndex {get;private} and set
                 * when bag is added to inventory. Pass this into
                 * init with slot index. */
+                BaggedResource baggedResource = new BaggedResource(_bag.Index, i);
                 if (ird != null)
-                    re.Initialize(_inventoryCanvas,tooltipCanvas, bag.Slots[i]);
+                    re.Initialize(_inventoryCanvas, tooltipCanvas, bag.Slots[i], baggedResource);
                 else
-                    re.Initialize(_inventoryCanvas, tooltipCanvas);
+                    re.Initialize(_inventoryCanvas, tooltipCanvas, baggedResource);
 
                 ResourceEntries.Add(re);
             }
