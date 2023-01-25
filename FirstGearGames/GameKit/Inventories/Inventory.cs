@@ -468,8 +468,39 @@ namespace GameKit.Inventories
             //Same resource if here. Try to stack.
             else
             {
-                //error left intentionally to finish this.
+                //Since the smae resource stack limit can be from either from or to.
+                IResourceData rd = _resourceManager.GetIResourceData(fromRq.ResourceId);                
+                int stackLimit = rd.GetStackLimit();
+                //If the two or from resourcequantity is at limit already then just swap.
+                if (toRq.Quantity >= stackLimit || fromRq.Quantity >= stackLimit)
+                {
+                    SwapEntries();
+                }
+                //Can move stack.
+                else
+                {
+                    //Set the move amount to max possible amount to complete the stack, or from quantity.
+                    int moveAmount = Mathf.Min((stackLimit - toRq.Quantity), fromRq.Quantity);
+                    /* If move amount is less than to quantity then the full stack could
+                     * not be moved. When this occurs fill to stack, and leave remaining. */
+                    if (moveAmount < fromRq.Quantity)
+                    {
+                        Bags[to.BagIndex].Slots[to.SlotIndex] = new ResourceQuantity(toRq.ResourceId, toRq.Quantity + moveAmount);
+                        int remaining = (fromRq.Quantity - moveAmount);
+                        Bags[from.BagIndex].Slots[from.SlotIndex] = new ResourceQuantity(fromRq.ResourceId, remaining);
+                    }
+                    //If can fit all then add onto to quantity and unset from bag/slot.
+                    else
+                    {
+                        Bags[to.BagIndex].Slots[to.SlotIndex] = new ResourceQuantity(toRq.ResourceId, toRq.Quantity + fromRq.Quantity);
+                        Bags[from.BagIndex].Slots[from.SlotIndex] = new ResourceQuantity();
+                    }
+                }
             }
+
+            //Invoke changes.
+            OnBagSlotUpdated?.Invoke(from.BagIndex, from.SlotIndex, Bags[from.BagIndex].Slots[from.SlotIndex]);
+            OnBagSlotUpdated?.Invoke(to.BagIndex, to.SlotIndex, Bags[to.BagIndex].Slots[to.SlotIndex]);
 
             return true;
 
@@ -478,8 +509,6 @@ namespace GameKit.Inventories
             {
                 Bags[from.BagIndex].Slots[from.SlotIndex] = toRq;
                 Bags[to.BagIndex].Slots[to.SlotIndex] = fromRq;
-                OnBagSlotUpdated?.Invoke(from.BagIndex, from.SlotIndex, toRq);
-                OnBagSlotUpdated?.Invoke(to.BagIndex, to.SlotIndex, fromRq);
             }
         }
 
