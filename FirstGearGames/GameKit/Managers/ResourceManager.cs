@@ -37,9 +37,9 @@ namespace GameKit.Resources.Managers
         private Dictionary<int, IResourceCategoryData> _resourceCategoryDatasCache = new Dictionary<int, IResourceCategoryData>();
         #endregion
 
-        public override void OnStartServer()
+        public override void OnStartNetwork()
         {
-            base.OnStartServer();
+            base.OnStartNetwork();
             base.NetworkManager.RegisterInstance(this);
         }
 

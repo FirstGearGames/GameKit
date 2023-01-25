@@ -129,6 +129,7 @@ namespace GameKit.Examples.Crafting.Canvases
             EnableButtons(false);
 
             ClientInstance.OnClientChange += ClientInstance_OnClientChange;
+            ClientInstance_OnClientChange(ClientInstance.Instance, true);
         }
 
         private void OnDestroy()
@@ -164,12 +165,14 @@ namespace GameKit.Examples.Crafting.Canvases
         }
 
         /// <summary>
-        /// Called when a ClientInstance is started or stopped.
+        /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
         private void ClientInstance_OnClientChange(ClientInstance instance, bool started)
         {
+            if (instance == null)
+                return;
             //Do not do anything if this is not the instance owned by local client.
-            if (!instance.Owner.IsLocalClient)
+            if (!instance.IsOwner)
                 return;
 
             if (started)

@@ -471,7 +471,7 @@ namespace GameKit.Inventories
                 //Since the smae resource stack limit can be from either from or to.
                 IResourceData rd = _resourceManager.GetIResourceData(fromRq.ResourceId);                
                 int stackLimit = rd.GetStackLimit();
-                //If the two or from resourcequantity is at limit already then just swap.
+                //If the to or from resourcequantity is at limit already then just swap.
                 if (toRq.Quantity >= stackLimit || fromRq.Quantity >= stackLimit)
                 {
                     SwapEntries();

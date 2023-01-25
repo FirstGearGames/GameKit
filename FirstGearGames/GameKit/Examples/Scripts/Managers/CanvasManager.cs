@@ -57,9 +57,9 @@ namespace GameKit.Examples.Managers
         private Stack<ResizeData> _resizeDatasStack = new Stack<ResizeData>();
         #endregion
 
-        public override void OnStartServer()
+        public override void OnStartNetwork()
         {
-            base.OnStartServer();
+            base.OnStartNetwork();
             base.NetworkManager.RegisterInstance(this);
         }
 

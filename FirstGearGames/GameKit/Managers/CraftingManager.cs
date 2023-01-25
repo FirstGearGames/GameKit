@@ -28,9 +28,9 @@ namespace GameKit.Crafting.Managers
         private Dictionary<int, IRecipe> _recipesCached = new Dictionary<int, IRecipe>();
         #endregion
 
-        public override void OnStartServer()
+        public override void OnStartNetwork()
         {
-            base.OnStartServer();
+            base.OnStartNetwork();
             base.NetworkManager.RegisterInstance(this);
         }
 
