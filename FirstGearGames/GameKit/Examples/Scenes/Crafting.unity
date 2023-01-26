@@ -4369,6 +4369,7 @@ GameObject:
   - component: {fileID: 1533198125}
   - component: {fileID: 1533198124}
   - component: {fileID: 1533198123}
+  - component: {fileID: 1533198128}
   m_Layer: 5
   m_Name: ChangeResourcesCanvas
   m_TagString: Untagged
@@ -4471,6 +4472,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8b6578b17ca4d246af94ab48fed8b95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 0
+  _addedNetworkObject: {fileID: 0}
+  _networkObjectCache: {fileID: 0}
+--- !u!114 &1533198128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1533198122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <IsNested>k__BackingField: 1
+  <ComponentIndex>k__BackingField: 0
+  _networkBehaviours: []
+  <ParentNetworkObject>k__BackingField: {fileID: 0}
+  <ChildNetworkObjects>k__BackingField: []
+  _isNetworked: 1
+  _isGlobal: 0
+  _initializeOrder: 0
+  _predictedSpawningType: 0
+  _defaultDespawnType: 0
+  NetworkObserver: {fileID: 0}
+  <PrefabId>k__BackingField: -1
+  <SpawnableCollectionId>k__BackingField: 0
+  _scenePathHash: 3603751356
+  <SceneId>k__BackingField: 15477994217083213549
+  <AssetPathHash>k__BackingField: 0
+  _sceneNetworkObjects:
+  - {fileID: 1533198128}
+  - {fileID: 0}
+  - {fileID: 2142677667}
 --- !u!1 &1579999213
 GameObject:
   m_ObjectHideFlags: 0
@@ -6638,6 +6674,7 @@ MonoBehaviour:
   <SceneId>k__BackingField: 15477994218089828738
   <AssetPathHash>k__BackingField: 0
   _sceneNetworkObjects:
+  - {fileID: 0}
   - {fileID: 2142677667}
 --- !u!4 &2142677669
 Transform:

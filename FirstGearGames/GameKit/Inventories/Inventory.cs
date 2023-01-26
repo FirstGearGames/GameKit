@@ -554,5 +554,4 @@ namespace GameKit.Inventories
         }
     }
 
-
 }

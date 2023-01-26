@@ -1,3 +1,4 @@
+using FishNet.Serializing;
 using GameKit.Resources;
 
 namespace GameKit.Inventories
@@ -64,7 +65,30 @@ namespace GameKit.Inventories
             Index = index;
         }
 
+        /// <summary>
+        /// Sets a new value to Slots.
+        /// </summary>
+        /// <param name="slots">New value.</param>
+        public void SetSlots(ResourceQuantity[] slots) => Slots = slots;
     }
 
+
+    internal static class BagSerializers
+    {
+        public static void WriteBag(this Writer w, Bag value)
+        {
+            w.WriteInt32(value.Index);
+            w.WriteArray<ResourceQuantity>(value.Slots);
+        }
+        public static Bag ReadBag(this Reader r)
+        {
+            int index = r.ReadInt32();
+            ResourceQuantity[] rgs = r.ReadArrayAllocated<ResourceQuantity>();
+
+            Bag bag = new Bag(rgs.Length, index);
+            bag.SetSlots(rgs);
+            return bag;
+        }
+    }
 
 }

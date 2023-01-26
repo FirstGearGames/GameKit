@@ -1,3 +1,4 @@
+using FishNet.Object;
 using GameKit.Examples.Crafting.Canvases;
 using GameKit.Examples.Resources;
 using GameKit.Inventories;
@@ -7,14 +8,28 @@ using UnityEngine;
 namespace GameKit.Crafting.Testing
 {
 
-    public class ChangeResourcesCanvas : MonoBehaviour
+    public class ChangeResourcesCanvas : NetworkBehaviour
     {
 
         public void AddRandomResources()
         {
+            //Client has to ask server to add.
+            if (base.IsClientOnly)
+            {
+                ServerAdd();
+                return;
+            }
+            else if (!base.IsServer)
+            {
+                return;
+            }
+
             Inventory inv = GameObject.FindObjectOfType<Inventory>();
             if (inv == null)
+            {
+                Debug.Log("Player inventory was not found.");
                 return;
+            }
 
             List<ResourceType> resources = new List<ResourceType>();
             System.Array pidValues = System.Enum.GetValues(typeof(ResourceType));
@@ -35,22 +50,44 @@ namespace GameKit.Crafting.Testing
             }
 
             CraftingCanvas cmt = GameObject.FindObjectOfType<CraftingCanvas>();
-            cmt.RefreshAvailableRecipes();
+            cmt?.RefreshAvailableRecipes();
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        private void ServerAdd()
+        {
+            AddRandomResources();
+        }
 
         public void RemoveRandomResources()
         {
+            //Client has to ask server to remove.
+            if (base.IsClientOnly)
+            {
+                ServerRemove();
+                return;
+            }
+            else if (!base.IsServer)
+            {
+                return;
+            }
+
             Inventory inv = GameObject.FindObjectOfType<Inventory>();
             if (inv == null)
+            {
+                Debug.Log("Player inventory was not found.");
                 return;
+            }
 
             List<ResourceType> resources = new List<ResourceType>();
             foreach (int rId in inv.ResourceQuantities.Keys)
                 resources.Add((ResourceType)rId);
 
             if (resources.Count == 0)
+            {
+                Debug.Log("No resources to remove.");
                 return;
+            }
 
             for (int i = 0; i < 5; i++)
             {
@@ -61,9 +98,15 @@ namespace GameKit.Crafting.Testing
             }
 
             CraftingCanvas cmt = GameObject.FindObjectOfType<CraftingCanvas>();
-            cmt.RefreshAvailableRecipes();
+            cmt?.RefreshAvailableRecipes();
         }
 
+
+        [ServerRpc(RequireOwnership = false)]
+        private void ServerRemove()
+        {
+            RemoveRandomResources();
+        }
 
 
     }
