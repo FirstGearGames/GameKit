@@ -1,3 +1,4 @@
+using FishNet.Connection;
 using FishNet.Object;
 using GameKit.Examples.Crafting.Canvases;
 using GameKit.Examples.Resources;
@@ -53,11 +54,7 @@ namespace GameKit.Crafting.Testing
             cmt?.RefreshAvailableRecipes();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void ServerAdd()
-        {
-            AddRandomResources();
-        }
+
 
         public void RemoveRandomResources()
         {
@@ -97,17 +94,34 @@ namespace GameKit.Crafting.Testing
                 inv.ModifiyResourceQuantity((int)resources[index], -count);
             }
 
+            RefreshAvailableRecipes();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void ServerAdd(NetworkConnection caller = null)
+        {
+            AddRandomResources();
+            TargetRefreshAvailableRecipes(caller);
+        }
+        [ServerRpc(RequireOwnership = false)]
+        private void ServerRemove(NetworkConnection caller = null)
+        {
+            RemoveRandomResources();
+            TargetRefreshAvailableRecipes(caller);
+        }
+
+        [TargetRpc]
+        private void TargetRefreshAvailableRecipes(NetworkConnection c)
+        {
+            RefreshAvailableRecipes();
+        }
+
+
+        private void RefreshAvailableRecipes()
+        {
             CraftingCanvas cmt = GameObject.FindObjectOfType<CraftingCanvas>();
             cmt?.RefreshAvailableRecipes();
         }
-
-
-        [ServerRpc(RequireOwnership = false)]
-        private void ServerRemove()
-        {
-            RemoveRandomResources();
-        }
-
 
     }
 
