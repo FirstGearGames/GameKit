@@ -8,6 +8,7 @@ using UnityEngine;
 using TriInspector;
 using FishNet.Managing.Server;
 using FishNet.Managing.Logging;
+using FishNet.Connection;
 
 namespace GameKit.Inventories
 {
@@ -258,6 +259,9 @@ namespace GameKit.Inventories
             else
                 ResourceQuantities[resourceId] = resourceCount;
 
+            if (!base.Owner.IsLocalClient && removed > 0)
+                TargetModifyResourceQuantity(base.Owner, resourceId, (int)-removed);
+
             CompleteResourceQuantityChange(resourceId, resourceCount);
             return (quantity - removed);
         }
@@ -348,7 +352,29 @@ namespace GameKit.Inventories
             int resourceCount = GetResourceCount(baggedResources, resourceId);
             ResourceQuantities[resourceId] = resourceCount;
             CompleteResourceQuantityChange(resourceId, resourceCount);
+
+            /* Only send to update inventory
+             * if the owner of this is not the clientHost.
+             * IsLocalClient would return false if server
+             * only because client is obviously not
+             * running as server only. */
+            uint added = (qPositive - (uint)quantity);
+            if (!base.Owner.IsLocalClient && added > 0)
+                TargetModifyResourceQuantity(base.Owner, resourceId, (int)added);
+
             return quantity;
+        }
+
+        /// <summary>
+        /// Sends a resource change to the client.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="resourceId">Resource being modified.</param>
+        /// <param name="quantity">Quantity being added or removed.</param>
+        [TargetRpc]
+        private void TargetModifyResourceQuantity(NetworkConnection c, int resourceId, int quantity)
+        {
+            ModifiyResourceQuantity(resourceId, quantity);
         }
 
         /// <summary>
@@ -464,12 +490,12 @@ namespace GameKit.Inventories
             else if (fromRq.ResourceId != toRq.ResourceId)
             {
                 SwapEntries();
-            }   
+            }
             //Same resource if here. Try to stack.
             else
             {
                 //Since the smae resource stack limit can be from either from or to.
-                IResourceData rd = _resourceManager.GetIResourceData(fromRq.ResourceId);                
+                IResourceData rd = _resourceManager.GetIResourceData(fromRq.ResourceId);
                 int stackLimit = rd.GetStackLimit();
                 //If the to or from resourcequantity is at limit already then just swap.
                 if (toRq.Quantity >= stackLimit || fromRq.Quantity >= stackLimit)
