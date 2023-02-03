@@ -2,6 +2,8 @@ BSD 2-Clause License
 
 Copyright (c) 2022, Benjamin Berwick
 
+This software was designed for Fish-Networking on Unity https://github.com/FirstGearGames/FishNet
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
