@@ -29,7 +29,8 @@ Features:
     * Several API functions to find information on inventory.
     
     Inventory UI:
-    * Stacks.
+    * Stacking items.
+    * Moving and swapping items.
     * Varying bag size.
     * Searching.
     * Item tooltips.
@@ -51,12 +52,10 @@ Features:
 Near Future:
 
     Inventory:
-    * Swap item locations.
     * Split and combine stacks.
     * Maximum item limits.
 
     Inventory UI:
-    * Swap item locations.
     * Split and combine stacks.
 
     How about a guide?
