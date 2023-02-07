@@ -117,6 +117,15 @@ namespace GameKit.Examples.Inventories.Canvases
         private void Update()
         {
             TrySearch();
+            MoveDraggableImage();
+        }
+
+        private void MoveDraggableImage()
+        {
+            if (_draggableImage == null)
+                return;
+
+            _draggableImage.UpdatePosition(Input.mousePosition);
         }
 
         private void OnDestroy()
@@ -336,9 +345,20 @@ namespace GameKit.Examples.Inventories.Canvases
             if (entry.ResourceData == null)
                 return;
 
+            if (_draggableImage == null)
+            {
+                CanvasManager cm = InstanceFinder.NetworkManager.GetInstance<CanvasManager>();
+                _draggableImage = Instantiate(cm.DraggableImagePrefab);
+            }
+
+            _draggableImage.Show(entry.ResourceData.GetIcon(), false, entry.transform.position, Quaternion.identity);
+
             _heldEntry = entry;
             _scrollRect.enabled = false;
+
         }
+
+        private DraggableImage _draggableImage = null;
 
         /// <summary>
         /// Called when a bag entry is no longer held.
@@ -351,7 +371,10 @@ namespace GameKit.Examples.Inventories.Canvases
              * so no need to here. */
             if (_heldEntry != null && _hoveredEntry != null)
                 _inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot);
-     
+
+            if (_draggableImage != null)
+                Destroy(_draggableImage.gameObject);
+
             _heldEntry = null;
             _scrollRect.enabled = true;
         }
@@ -367,7 +390,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Called when a resource is hovered over.
         /// </summary>
-        public void OnExit_ResourceEntry(ResourceEntry entry) 
+        public void OnExit_ResourceEntry(ResourceEntry entry)
         {
             _hoveredEntry = null;
         }
