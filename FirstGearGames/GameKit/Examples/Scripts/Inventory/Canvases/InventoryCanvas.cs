@@ -358,7 +358,7 @@ namespace GameKit.Examples.Inventories.Canvases
 
         }
 
-        private DraggableImage _draggableImage = null;
+        private FloatingImage _draggableImage = null;
 
         /// <summary>
         /// Called when a bag entry is no longer held.

@@ -57,7 +57,7 @@ namespace GameKit.Examples.Managers
         private Stack<ResizeData> _resizeDatasStack = new Stack<ResizeData>();
         #endregion
 
-        public DraggableImage DraggableImagePrefab;
+        public FloatingImage DraggableImagePrefab;
 
         public override void OnStartNetwork()
         {
