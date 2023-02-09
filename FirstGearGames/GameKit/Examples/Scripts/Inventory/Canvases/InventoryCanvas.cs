@@ -99,6 +99,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// Last entry to be hovered over.
         /// </summary>
         private ResourceEntry _hoveredEntry;
+        private FloatingImageSettings _floatingImageSettings;
         #endregion
 
         #region Const.
@@ -144,6 +145,7 @@ namespace GameKit.Examples.Inventories.Canvases
                 _tooltipCanvas = cm.TooltipCanvas;
             }
 
+            _floatingImageSettings = new FloatingImageSettings(SpaceType.UserInterface, _bagEntryPrefab.GridLayoutGroup.cellSize);
             //Destroy content children. There may be some present from testing.
             _bagContent.DestroyChildren<BagEntry>(true);
 
@@ -351,7 +353,7 @@ namespace GameKit.Examples.Inventories.Canvases
                 _draggableImage = Instantiate(cm.DraggableImagePrefab);
             }
 
-            _draggableImage.Show(entry.ResourceData.GetIcon(), false, entry.transform.position, Quaternion.identity);
+            _draggableImage.Show(entry.ResourceData.GetIcon(), _floatingImageSettings, entry.transform);
 
             _heldEntry = entry;
             _scrollRect.enabled = false;

@@ -45,10 +45,10 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// LayoutGroup for resource entries.
         /// </summary>
+        public GridLayoutGroup GridLayoutGroup => _gridLayoutGroup;
         [PropertyTooltip("LayoutGroup for resource entries.")]
         [SerializeField, Group("Sizing")]
-        private GridLayoutGroup _gridLayoutGroup;
-
+        private GridLayoutGroup _gridLayoutGroup;        
         /// <summary>
         /// Text to show bag information.
         /// </summary>
@@ -164,10 +164,10 @@ namespace GameKit.Examples.Inventories.Canvases
             _resizeRequired = false;
 
             float headerHeight = _bagHeader.sizeDelta.y;
-            float layoutSpacing = _gridLayoutGroup.spacing.y;
+            float layoutSpacing = GridLayoutGroup.spacing.y;
             int cellCount = _content.childCount;
-            float cellSizeY = _gridLayoutGroup.cellSize.y;
-            int rows = Mathf.CeilToInt((float)cellCount / (float)_gridLayoutGroup.constraintCount);
+            float cellSizeY = GridLayoutGroup.cellSize.y;
+            int rows = Mathf.CeilToInt((float)cellCount / (float)GridLayoutGroup.constraintCount);
             float result = headerHeight + layoutSpacing + (rows * cellSizeY) + (rows * layoutSpacing);
 
             _rectTransform.sizeDelta = new Vector2(_rectTransform.sizeDelta.x, result);
