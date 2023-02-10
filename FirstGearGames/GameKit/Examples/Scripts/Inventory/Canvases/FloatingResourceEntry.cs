@@ -1,3 +1,4 @@
+using GameKit.Utilities;
 using TMPro;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ namespace GameKit.Examples.Inventories.Canvases
         public virtual void Initialize(Sprite sprite, Vector3? sizeOverride, int itemCount)
         {
             base.SetSprite(sprite, sizeOverride);
-            _itemCountText.text = itemCount.ToString();
+            _itemCountText.text = (itemCount > 1) ? itemCount.ToString() : string.Empty;
         }
 
     }

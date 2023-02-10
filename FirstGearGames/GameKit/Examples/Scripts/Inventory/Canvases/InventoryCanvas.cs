@@ -367,16 +367,21 @@ namespace GameKit.Examples.Inventories.Canvases
             if (entry.ResourceData == null)
                 return;
 
-            //If not yet initialized.
-            if (_floatingInventoryItem.IsHiding)
-            {
-                _floatingInventoryItem.Initialize(entry.ResourceData.GetIcon(), _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
-                _floatingInventoryItem.Show(entry.transform);
-            }
-
+            TryInitializeFloatingInventoryItem();
             _heldEntry = entry;
             _scrollRect.enabled = false;
 
+            /* Tries to initialize the floating inventory item
+             * if it has not already been done so. */
+            void TryInitializeFloatingInventoryItem()
+            {
+                if (_floatingInventoryItem.IsHiding)
+                {
+                    _floatingInventoryItem.Initialize(entry.ResourceData.GetIcon(), _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
+                    _floatingInventoryItem.Show(entry.transform);
+                    entry.CanvasGroup.SetActive(false, true);
+                }
+            }
         }
 
 
@@ -394,6 +399,7 @@ namespace GameKit.Examples.Inventories.Canvases
 
             _floatingInventoryItem.Hide();
 
+            _heldEntry?.CanvasGroup.SetActive(true, true);
             _heldEntry = null;
             _scrollRect.enabled = true;
         }

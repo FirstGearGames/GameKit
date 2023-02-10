@@ -36,6 +36,12 @@ namespace GameKit.Examples.Inventories.Canvases
 
         #region Serialized.
         /// <summary>
+        /// CanvasGroup for this resource entry.
+        /// </summary>
+        public CanvasGroup CanvasGroup => _canvasGroup;
+        [SerializeField]
+        private CanvasGroup _canvasGroup;
+        /// <summary>
         /// Button on the entry.
         /// </summary>
         [SerializeField]
