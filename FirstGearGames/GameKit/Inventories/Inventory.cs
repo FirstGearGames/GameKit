@@ -149,7 +149,7 @@ namespace GameKit.Inventories
             //Only update if as server, or as client and not host. This prevents double updating as host.
             bool canUpdateResources = (asServer || (!asServer && !base.IsHost));
             if (canUpdateResources && result == CraftingResult.Completed)
-                UpdateResourcesFromRecipe(r);
+                UpdateResourcesFromRecipe(r, false);
         }
 
         /// <summary>
@@ -178,16 +178,19 @@ namespace GameKit.Inventories
         /// <summary>
         /// Adds or removes a resource quantity. Values can be negative to subtract quantity.
         /// </summary>
+        /// <param name="resourceId">Resource being modified.</param>
+        /// <param name="quantity">Number of items to remove or add.</param>
+        /// <param name="sendToClient">True to send the changes to the client.</param>
         /// <returns>Quantity which could not be added or removed due to space limitations or missing resources.</returns>
-        public int ModifiyResourceQuantity(int resourceId, int quantity)
+        public int ModifiyResourceQuantity(int resourceId, int quantity, bool sendToClient = true)
         {
             if (quantity == 0)
                 return 0;
 
             if (quantity < 0)
-                return RemoveResourceQuantity(resourceId, (uint)(quantity * -1));
+                return RemoveResourceQuantity(resourceId, (uint)(quantity * -1), sendToClient);
             else
-                return AddResourceQuantity(resourceId, (uint)quantity);
+                return AddResourceQuantity(resourceId, (uint)quantity, sendToClient);
         }
 
         /// <summary>
@@ -196,7 +199,7 @@ namespace GameKit.Inventories
         /// <param name="resourceId">Resource to remove.</param>
         /// <param name="quantity">Amount to remove. Value must be positive.</param>
         /// <returns>Quantity which could not be removed due to missing resources.</returns>
-        private int RemoveResourceQuantity(int resourceId, uint qPositive)
+        private int RemoveResourceQuantity(int resourceId, uint qPositive, bool sendToClient)
         {
             int quantity = (int)qPositive;
 
@@ -259,7 +262,7 @@ namespace GameKit.Inventories
             else
                 ResourceQuantities[resourceId] = resourceCount;
 
-            if (!base.Owner.IsLocalClient && removed > 0)
+            if (sendToClient && !base.Owner.IsLocalClient && removed > 0)
                 TargetModifyResourceQuantity(base.Owner, resourceId, (int)-removed);
 
             CompleteResourceQuantityChange(resourceId, resourceCount);
@@ -272,7 +275,7 @@ namespace GameKit.Inventories
         /// <param name="resourceId">Resource to add.</param>
         /// <param name="qPositive">Quantity of resources to add.</param>
         /// <returns>Quantity which could not be added due to no available space.</returns>
-        private int AddResourceQuantity(int resourceId, uint qPositive)
+        private int AddResourceQuantity(int resourceId, uint qPositive, bool sendToClient)
         {
             int quantity = (int)qPositive;
 
@@ -359,7 +362,7 @@ namespace GameKit.Inventories
              * only because client is obviously not
              * running as server only. */
             uint added = (qPositive - (uint)quantity);
-            if (!base.Owner.IsLocalClient && added > 0)
+            if (sendToClient && !base.Owner.IsLocalClient && added > 0)
                 TargetModifyResourceQuantity(base.Owner, resourceId, (int)added);
 
             return quantity;
@@ -413,14 +416,14 @@ namespace GameKit.Inventories
         /// Updates inventory resources using a recipe.
         /// This removes required resources while adding created.
         /// </summary>
-        private void UpdateResourcesFromRecipe(IRecipe r)
+        private void UpdateResourcesFromRecipe(IRecipe r, bool sendToClient = true)
         {
             //Remove needed resources first so space used is removed.
             foreach (ResourceQuantity rq in r.GetRequiredResources())
                 ModifiyResourceQuantity(rq.ResourceId, -rq.Quantity);
 
             ResourceQuantity recipeResult = r.GetResult();
-            ModifiyResourceQuantity(recipeResult.ResourceId, recipeResult.Quantity);
+            ModifiyResourceQuantity(recipeResult.ResourceId, recipeResult.Quantity, sendToClient);
             OnBulkResourcesUpdated?.Invoke();
         }
 
