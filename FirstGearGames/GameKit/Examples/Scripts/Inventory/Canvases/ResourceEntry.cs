@@ -28,9 +28,19 @@ namespace GameKit.Examples.Inventories.Canvases
         /// Bag and slot index where this resource sits.
         /// </summary>
         public BaggedResource BagSlot { get; private set; }
+        /// <summary>
+        /// Current number of items on the stack.
+        /// </summary>
+        public int StackCount { get; private set; }
         #endregion
 
         #region Serialized.
+        /// <summary>
+        /// CanvasGroup for this resource entry.
+        /// </summary>
+        public CanvasGroup CanvasGroup => _canvasGroup;
+        [SerializeField]
+        private CanvasGroup _canvasGroup;
         /// <summary>
         /// Button on the entry.
         /// </summary>
@@ -104,7 +114,8 @@ namespace GameKit.Examples.Inventories.Canvases
             _tooltipCanvas = tooltipCanvas;
             IResourceData = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(rq.ResourceId);
             _icon.sprite = ResourceData.GetIcon();
-            _stackText.text = (rq.Quantity > 1) ? $"{rq.Quantity}" : string.Empty;
+            StackCount = rq.Quantity;
+            _stackText.text = (StackCount > 1) ? $"{rq.Quantity}" : string.Empty;
 
             UpdateComponentStates();
         }

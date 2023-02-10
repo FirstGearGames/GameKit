@@ -283,18 +283,6 @@ namespace GameKit.Examples.Crafting.Canvases
         }
 
         /// <summary>
-        /// Crafts the recipe once.
-        /// </summary>
-        public void OnClick_CraftOne()
-        {
-            if (GetCraftableCount() == 0)
-                return;
-
-            _craftableCount = 1;
-            BeginCrafting();
-        }
-
-        /// <summary>
         /// Changes enable state on buttons based on if crafting.
         /// </summary>
         /// <param name="crafting"></param>
@@ -315,6 +303,18 @@ namespace GameKit.Examples.Crafting.Canvases
                 return 0;
 
             return _crafter.GetCraftableQuantiy(_selectedRecipe).Quantity;
+        }
+
+        /// <summary>
+        /// Crafts the recipe once.
+        /// </summary>
+        public void OnClick_CraftOne()
+        {
+            if (GetCraftableCount() == 0)
+                return;
+
+            _craftableCount = 1;
+            BeginCrafting();
         }
 
         /// <summary>
@@ -341,15 +341,12 @@ namespace GameKit.Examples.Crafting.Canvases
 
             _crafter.OnCraftingProgressed -= Crafter_OnCraftingProgressed;
             _crafter.OnCraftingResult -= Crafter_OnCraftingResult;
-
-            _crafter.OnCraftingResult += Crafter_OnCraftingResult;
             _crafter.OnCraftingProgressed += Crafter_OnCraftingProgressed;
+            _crafter.OnCraftingResult += Crafter_OnCraftingResult;
 
             _inventory.OnBulkResourcesUpdated -= Inventory_OnBulkResourcesUpdated;
-
             _inventory.OnBulkResourcesUpdated += Inventory_OnBulkResourcesUpdated;
             _crafter.CraftRecipe_Client(_selectedRecipe, _craftableCount);
-
         }
 
         /// <summary>

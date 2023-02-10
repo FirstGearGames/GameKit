@@ -12,6 +12,7 @@ using System;
 using GameKit.Examples.Resources;
 using GameKit.Examples.Tooltips.Canvases;
 using UnityEngine.UI;
+using FirstGearGames.Utilities;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -53,6 +54,12 @@ namespace GameKit.Examples.Inventories.Canvases
         [PropertyTooltip("Transform to place instantiated bags.")]
         [SerializeField, Group("Collection")]
         private Transform _bagContent;
+        /// <summary>
+        /// FloatingImage prefab to use to show moving of item entries.
+        /// </summary>
+        [Tooltip("FloatingImage prefab to use to show moving of item entries.")]
+        [SerializeField, Group("Collection")]
+        private FloatingResourceEntry _floatingInventoryItemPrefab;
 
         /// <summary>
         /// Text to show amount of space used in the inventory.
@@ -99,6 +106,10 @@ namespace GameKit.Examples.Inventories.Canvases
         /// Last entry to be hovered over.
         /// </summary>
         private ResourceEntry _hoveredEntry;
+        /// <summary>
+        /// Currently instantiated floating inventory item.
+        /// </summary>
+        private FloatingResourceEntry _floatingInventoryItem;
         #endregion
 
         #region Const.
@@ -107,6 +118,14 @@ namespace GameKit.Examples.Inventories.Canvases
         /// </summary>
         private float SEARCH_INTERVAL = 0.15f;
         #endregion
+
+        private void Awake()
+        {
+            _floatingInventoryItem = Instantiate(_floatingInventoryItemPrefab);
+            _floatingInventoryItem.Hide();
+            //Attach floating to this canvas so the rect transforms on it works.
+            _floatingInventoryItem.transform.SetParentAndKeepTransformValues(transform);
+        }
 
         private void Start()
         {
@@ -117,6 +136,18 @@ namespace GameKit.Examples.Inventories.Canvases
         private void Update()
         {
             TrySearch();
+            MoveFloatingInventoryItem();
+        }
+
+        /// <summary>
+        /// Moves the current floating inventory item to mouse position.
+        /// </summary>
+        private void MoveFloatingInventoryItem()
+        {
+            if (_floatingInventoryItem.IsHiding)
+                return;
+
+            _floatingInventoryItem.UpdatePosition(Input.mousePosition);
         }
 
         private void OnDestroy()
@@ -336,9 +367,23 @@ namespace GameKit.Examples.Inventories.Canvases
             if (entry.ResourceData == null)
                 return;
 
+            TryInitializeFloatingInventoryItem();
             _heldEntry = entry;
             _scrollRect.enabled = false;
+
+            /* Tries to initialize the floating inventory item
+             * if it has not already been done so. */
+            void TryInitializeFloatingInventoryItem()
+            {
+                if (_floatingInventoryItem.IsHiding)
+                {
+                    _floatingInventoryItem.Initialize(entry.ResourceData.GetIcon(), _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
+                    _floatingInventoryItem.Show(entry.transform);
+                    entry.CanvasGroup.SetActive(false, true);
+                }
+            }
         }
+
 
         /// <summary>
         /// Called when a bag entry is no longer held.
@@ -351,7 +396,10 @@ namespace GameKit.Examples.Inventories.Canvases
              * so no need to here. */
             if (_heldEntry != null && _hoveredEntry != null)
                 _inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot);
-     
+
+            _floatingInventoryItem.Hide();
+
+            _heldEntry?.CanvasGroup.SetActive(true, true);
             _heldEntry = null;
             _scrollRect.enabled = true;
         }
@@ -367,7 +415,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Called when a resource is hovered over.
         /// </summary>
-        public void OnExit_ResourceEntry(ResourceEntry entry) 
+        public void OnExit_ResourceEntry(ResourceEntry entry)
         {
             _hoveredEntry = null;
         }

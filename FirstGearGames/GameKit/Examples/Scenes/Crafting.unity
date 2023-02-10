@@ -2670,7 +2670,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 10110384}
   m_HandleRect: {fileID: 10110383}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4525,7 +4525,7 @@ MonoBehaviour:
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
   _scenePathHash: 1548918035
-  <SceneId>k__BackingField: 6652552304556961478
+  <SceneId>k__BackingField: 6652552307104321479
   <AssetPathHash>k__BackingField: 0
   _sceneNetworkObjects:
   - {fileID: 1533198128}
@@ -5499,6 +5499,8 @@ MonoBehaviour:
     type: 3}
   _bagContent: {fileID: 1848269062}
   _inventorySpaceText: {fileID: 1081093382}
+  _floatingInventoryItemPrefab: {fileID: 5709590043255187623, guid: 1dac750f6701f03479684b2d69af4b85,
+    type: 3}
 --- !u!114 &1851100414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6740,7 +6742,7 @@ MonoBehaviour:
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
   _scenePathHash: 1548918035
-  <SceneId>k__BackingField: 6652552306509331721
+  <SceneId>k__BackingField: 6652552304941492655
   <AssetPathHash>k__BackingField: 0
   _sceneNetworkObjects:
   - {fileID: 1533198128}
@@ -6806,3 +6808,4 @@ MonoBehaviour:
   _componentIndexCache: 2
   _addedNetworkObject: {fileID: 2142677667}
   _networkObjectCache: {fileID: 2142677667}
+  DraggableImagePrefab: {fileID: 0}

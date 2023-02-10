@@ -244,6 +244,7 @@ GameObject:
   - component: {fileID: 4973337344622655361}
   - component: {fileID: 7955992009957617209}
   - component: {fileID: 3772438177290869249}
+  - component: {fileID: -7969071702398835630}
   m_Layer: 5
   m_Name: ResourceEntry
   m_TagString: Untagged
@@ -286,6 +287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa240273027d5d248800c124a3a2daf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _canvasGroup: {fileID: -7969071702398835630}
   _button: {fileID: 3772438177290869249}
   _icon: {fileID: 4973337345897501642}
   _stackText: {fileID: 8244550299198716989}
@@ -353,6 +355,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &-7969071702398835630
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4973337344622655375}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4973337345897501640
 GameObject:
   m_ObjectHideFlags: 0
