@@ -349,13 +349,13 @@ namespace OldFartGames.Gameplay.Dependencies
         /// Sends a message to a specific player.
         /// </summary>
         [Client]
-        public bool SendDirectChatToServer(int targetId, string message)
+        public bool SendDirectChatToServer(NetworkConnection target, string message)
         {
             NetworkConnection selfConn = base.ClientManager.Connection;
-            if (!CanSendMessage(MessageTargetTypes.Tell, selfConn, targetId, message, false, out _))
+            if (!CanSendMessage(MessageTargetTypes.Tell, selfConn, target, message, false, out _))
                 return false;
 
-            ServerSendChat(MessageTargetTypes.Tell, targetId, message);
+            ServerSendChat(MessageTargetTypes.Tell, target, message);
             return true;
         }
 
@@ -368,10 +368,10 @@ namespace OldFartGames.Gameplay.Dependencies
         {
             MessageTargetTypes targetType = (teamOnly) ? MessageTargetTypes.Team : MessageTargetTypes.All;
 
-            if (!CanSendMessage(targetType, base.ClientManager.Connection, -1, message, false, out _))
+            if (!CanSendMessage(targetType, base.ClientManager.Connection, null, message, false, out _))
                 return false;
 
-            ServerSendChat(targetType, -1, message);
+            ServerSendChat(targetType, null, message);
             return true;
         }
 
@@ -474,7 +474,7 @@ namespace OldFartGames.Gameplay.Dependencies
                 return;
 
             bool outbound = senderConn.IsLocalClient;
-            GlobalManager.SysOpManager.FilterChatString(ref message);
+            //fix GlobalManager.SysOpManager.FilterChatString(ref message);
             OnIncomingChatMessage?.Invoke(new IncomingChatMessage(targetType, conn, senderConn, message, outbound));
         }
 
@@ -489,7 +489,7 @@ namespace OldFartGames.Gameplay.Dependencies
                 return;
 
             bool outbound = false;
-            GlobalManager.SysOpManager.FilterChatString(ref message);
+            //fix GlobalManager.SysOpManager.FilterChatString(ref message);
             OnIncomingChatMessage?.Invoke(new IncomingChatMessage(MessageTargetTypes.Tell, conn, senderConn, message, outbound));
         }
 
@@ -503,7 +503,7 @@ namespace OldFartGames.Gameplay.Dependencies
                 return;
 
             bool outbound = true;
-            GlobalManager.SysOpManager.FilterChatString(ref message);
+            //fix GlobalManager.SysOpManager.FilterChatString(ref message);
             OnIncomingChatMessage?.Invoke(new IncomingChatMessage(MessageTargetTypes.Tell, conn, targetConn, message, outbound));
         }
 

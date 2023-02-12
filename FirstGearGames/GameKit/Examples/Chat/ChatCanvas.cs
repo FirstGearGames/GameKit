@@ -24,7 +24,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
     {
         #region Serialized.
         [SerializeField, Group("Misc")]
-        private IChatHotkeys _hotkeys;
+        private ChatHotkeys _hotkeys;
         /// <summary>
         /// Sets which ChatManager to use.
         /// </summary>
@@ -57,7 +57,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         [Tooltip("Maximum number of messages to be displayed at once.")]
         [SerializeField, Group("Misc")]
         private ushort _maximumMessages = 100;
-       
+
         /// <summary>
         /// Text for outbound messages.
         /// </summary>
@@ -129,7 +129,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// <summary>
         /// Client which a tell is to be sent to.
         /// </summary>
-        private int _tellClientId = -1;
+        private NetworkConnection _tellClient;
         /// <summary>
         /// Last value for outbound text on value change. This value is after modifications.
         /// </summary>
@@ -213,9 +213,10 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         private void CheckChatHotkeys()
         {
             //Checks which are allowed while blocking is enabled.
-            if (GlobalManager.CanvasManager.BlockingCanvasOpen)
+            //fix if (GlobalManager.CanvasManager.BlockingCanvasOpen)
+            if (1 == 2)
             {
-                if (_outboundSelected && NInput.Keyboard.GetKeyPressed(Key.Escape))
+                if (_outboundSelected && _hotkeys.GetEscapePressed())
                 {
                     SetOutboundSelection(false);
                     EventSystem.current.SetSelectedGameObject(null);
@@ -224,11 +225,11 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             //Checks only allowed while not blocking.
             else
             {
-                if (NInput.Keyboard.GetKeyPressed(Key.Enter))
+                if (_hotkeys.GetEnterPressed())
                 {
                     SetOutboundSelection(true);
                 }
-                else if (NInput.Keyboard.GetKeyPressed(Key.Slash) || NInput.Keyboard.GetKeyPressed(Key.Backslash))
+                else if (_hotkeys.GetSlashPressed() || _hotkeys.GetBackslashPressed())
                 {
                     _outboundText.text = "/";
                     _outboundText.caretPosition = _outboundText.text.Length;
@@ -242,7 +243,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// </summary>
         private void CheckChangeChatType()
         {
-            if (_outboundSelected && NInput.Keyboard.GetKeyPressed(Key.Tab))
+            if (_outboundSelected && _hotkeys.GetTabPressed())
             {
                 int highestValue = EnumFN.GetHighestValue<MessageTargetTypes>();
                 int nextValue = ((int)_currentTargetType + 1);
@@ -262,7 +263,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             //Update with and color of target text.
             Color c;
             float width;
-            if (_tellClientId != INVALID_TELL_CLIENTID && _currentTargetType == MessageTargetTypes.Tell)
+            if (_tellClient != null && _currentTargetType == MessageTargetTypes.Tell)
             {
                 c = _directColor;
                 //Update width to fit tell name.
@@ -314,7 +315,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// </summary>
         public void ShowMessage(MessageTargetTypes targetType, TeamTypes playerType, string playerName, string message, bool outbound, NetworkConnection sender = null)
         {
-         
+
             Color c;
             // Color c;
             if (targetType == MessageTargetTypes.Tell)
@@ -412,7 +413,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             if (entity == null)
                 return;
 
-            _tellClientId = entity.GetConnection().ClientId;
+            _tellClient = entity.GetConnection();
             UpdateToTellTarget(entity.GetEntityName());
             SetOutboundSelection(true);
         }
@@ -438,7 +439,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             bool sendResult = false;
             if (_currentTargetType == MessageTargetTypes.Tell)
             {
-                sendResult = _chatManager.SendDirectChatToServer(_tellClientId, message);
+                sendResult = _chatManager.SendDirectChatToServer(_tellClient, message);
             }
             else if (_currentTargetType == MessageTargetTypes.All)
             {
@@ -503,7 +504,6 @@ namespace OldFartGames.Gameplay.Canvases.Chats
                     tellFound = true;
                     break;
                 }
-
             }
             if (!tellFound)
                 return;
@@ -513,28 +513,49 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             if (words.Length < 3)
                 return;
 
-            int foundId = -1;
+            NetworkConnection foundConnection = null;
             string name = words[1].ToLower();
-            //Find name in all client instances.
-            foreach (KeyValuePair<int, ClientInstance> kvp in ClientInstance.ClientInstances)
-            {
-                ClientInstance ci = kvp.Value;
-                //if (ci.Owner.IsLocalClient)
-                //    continue;
 
-                if (ci.PlayerName.ToLower() != name)
+            NetworkConnection localConnection = InstanceFinder.ClientManager.Connection;
+            //Find name in all chat entities.
+            foreach (KeyValuePair<NetworkConnection, IChatEntity> item in _chatManager.ChatEntities)
+            {
+                if (item.Key == localConnection)
                     continue;
 
-                //If here then found the player.
-                foundId = kvp.Key;
-                words[1] = ci.PlayerName;
-                break;
+                //Partial match.
+                string lowerEntityName = item.Value.GetEntityName().ToLower();
+                //Partial or full match found.
+                if (lowerEntityName.Contains(name))
+                {
+                    //Exact match found.
+                    if (lowerEntityName == name)
+                    {
+                        words[1] = item.Value.GetEntityName();
+                        break;
+                    }
+                    /* If foundPlayerName already has value
+                     * then a partial match was previously found.
+                     * This is now two or more partial matches when
+                     * cannot be made out to who the client wants to
+                     * send a message to. In this case, do not auto
+                     * complete the send. */
+                    if (foundConnection != null)
+                    {
+                        foundConnection = null;
+                        break;
+                    }
+                    else
+                    {
+                        foundConnection = item.Value.GetConnection();
+                    }
+                }
             }
 
             //If found.
-            if (foundId != INVALID_TELL_CLIENTID)
+            if (foundConnection != null)
             {
-                _tellClientId = foundId;
+                _tellClient = foundConnection;
                 UpdateToTellTarget(words[1]);
                 string wordsWithoutName = string.Join(" ", words, 2, words.Length - 2);
                 SetOutboundText(wordsWithoutName, false);
@@ -573,12 +594,12 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             if (select)
             {
                 _outboundText.ActivateInputField();
-                GlobalManager.CanvasManager.AddBlockingCanvas(this);
+                //fix GlobalManager.CanvasManager.AddBlockingCanvas(this);
             }
             else
             {
                 _outboundText.DeactivateInputField();
-                GlobalManager.CanvasManager.RemoveBlockingCanvas(this);
+                //fix GlobalManager.CanvasManager.RemoveBlockingCanvas(this);
 
             }
         }
