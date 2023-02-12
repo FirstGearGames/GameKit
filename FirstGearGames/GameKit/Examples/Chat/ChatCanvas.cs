@@ -4,98 +4,108 @@ using FishNet;
 using FishNet.Connection;
 using FishNet.Utility;
 using FishNet.Utility.Extension;
-using OldFartGames.Clients;
 using OldFartGames.Gameplay.Dependencies;
-using OldFartGames.Global.Managers;
 using System.Collections.Generic;
 using TMPro;
+using TriInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace OldFartGames.Gameplay.Canvases.Chats
 {
-
+    /// <summary>
+    /// Used to display chat and take chat input from the local client.
+    /// </summary>
+    [DeclareFoldoutGroup("Misc")]
+    [DeclareFoldoutGroup("Outbound")]
+    [DeclareFoldoutGroup("Colors")]
     public class ChatCanvas : MonoBehaviour
     {
         #region Serialized.
-        [Header("Misc")]
+        [SerializeField, Group("Misc")]
+        private IChatHotkeys _hotkeys;
+        /// <summary>
+        /// Sets which ChatManager to use.
+        /// </summary>
+        /// <param name="value">New Value.</param>
+        public void SetChatManager(ChatManager value) => _chatManager = value;
+        [Tooltip("ChatManager to use.")]
+        [SerializeField, Group("Misc")]
+        private ChatManager _chatManager;
         /// <summary>
         /// Scrollbar for the chat.
         /// </summary>
         [Tooltip("Scrollbar for the chat.")]
-        [SerializeField]
+        [SerializeField, Group("Misc")]
         private Scrollbar _scrollbar;
         /// <summary>
         /// Transform to child messages under.
         /// </summary>
         [Tooltip("Transform to child messages under.")]
-        [SerializeField]
+        [SerializeField, Group("Misc")]
         private Transform _content;
         /// <summary>
         /// Prefab to spawn for messages.
         /// </summary>
         [Tooltip("Prefab to spawn for messages.")]
-        [SerializeField]
+        [SerializeField, Group("Misc")]
         private ChatEntry _entryPrefab;
         /// <summary>
         /// Maximum number of messages to be displayed at once.
         /// </summary>
         [Tooltip("Maximum number of messages to be displayed at once.")]
-        [SerializeField]
+        [SerializeField, Group("Misc")]
         private ushort _maximumMessages = 100;
-
-        [Header("Outbound")]
+       
         /// <summary>
         /// Text for outbound messages.
         /// </summary>
         [Tooltip("Text for outbound messages.")]
-        [SerializeField]
+        [SerializeField, Group("Outbound")]
         private TMP_InputField _outboundText;
         /// <summary>
         /// Maximum length a message may be.
         /// </summary>
         [Tooltip("Maximum length a message may be.")]
-        [SerializeField]
+        [SerializeField, Group("Outbound")]
         private ushort _maximumMessageSize = 500;
         /// <summary>
         /// Text to show current message target.
         /// </summary>
         [Tooltip("Text to show current message target.")]
-        [SerializeField]
+        [SerializeField, Group("Outbound")]
         private TextMeshProUGUI _messageTargetText;
 
-        [Header("Colors")]
         /// <summary>
         /// Name color for messages from self.
         /// </summary>
         [Tooltip("Name color for messages from self.")]
-        [SerializeField]
+        [SerializeField, Group("Colors")]
         private Color _selfColor;
         /// <summary>
         /// Name color for messages from enemies.
         /// </summary>
         [Tooltip("Name color for messages from enemies.")]
-        [SerializeField]
+        [SerializeField, Group("Colors")]
         private Color _enemyColor;
         /// <summary>
         /// Name color for messages from friendlies.
         /// </summary>
         [Tooltip("Name color for messages from friendlies.")]
-        [SerializeField]
+        [SerializeField, Group("Colors")]
         private Color _friendlyColor;
         /// <summary>
         /// Name color for messages from others when spectating.
         /// </summary>
         [Tooltip("Name color for messages from others when spectating.")]
-        [SerializeField]
+        [SerializeField, Group("Colors")]
         private Color _directColor;
         /// <summary>
         /// Color for messages.
         /// </summary>
         [Tooltip("Color for messages.")]
-        [SerializeField]
+        [SerializeField, Group("Colors")]
         private Color _messageColor;
         #endregion
 
@@ -172,8 +182,8 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             if (InstanceFinder.IsClient)
 #endif
             {
-                GameplayDependencies.ChatManager.OnBlockedChatMessage += ChatManager_OnBlockedChatMessage;
-                GameplayDependencies.ChatManager.OnIncomingChatMessage += ChatManager_OnIncomingChatMessage;
+                _chatManager.OnBlockedChatMessage += ChatManager_OnBlockedChatMessage;
+                _chatManager.OnIncomingChatMessage += ChatManager_OnIncomingChatMessage;
             }
         }
 
@@ -275,21 +285,11 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// </summary>
         private void ChatManager_OnIncomingChatMessage(IncomingChatMessage obj)
         {
-            //Get the player info.
-            ClientInstance ci = ClientInstance.ReturnClientInstance(obj.Sender);
-            ClientInstance selfCi = ClientInstance.ReturnClientInstance();
-            if (ci == null || selfCi == null)
-                return;
+            IChatEntity entity = _chatManager.GetChatEntity(obj.Sender);
+            TeamTypes tt = entity.GetTeamType();
+            string entityName = entity.GetEntityName();
 
-            PlayerTypes pt;
-            if (ci.Owner.IsLocalClient)
-                pt = PlayerTypes.Self;
-            else if (ci.PlayerTeam.Team == selfCi.PlayerTeam.Team)
-                pt = PlayerTypes.Friendly;
-            else
-                pt = PlayerTypes.Enemy;
-
-            ShowMessage(obj.TargetType, pt, ci.PlayerName, obj.Message, obj.Outbound, obj.Sender);
+            ShowMessage(obj.TargetType, tt, entityName, obj.Message, obj.Outbound, obj.Sender);
         }
 
         /// <summary>
@@ -297,9 +297,8 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// </summary>
         private void ChatManager_OnBlockedChatMessage(BlockedChatMessage obj)
         {
-            //This should always be self.
-            ClientInstance ci = ClientInstance.ReturnClientInstance(obj.Sender);
-            if (ci == null || !ci.Owner.IsLocalClient)
+            NetworkConnection blockedConn = obj.Sender;
+            if (blockedConn == null || !blockedConn.IsLocalClient)
                 return;
 
             if (obj.Reason == BlockedChatReason.InvalidTargetId)
@@ -313,30 +312,24 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// <summary>
         /// Shows a message from a player.
         /// </summary>
-        public void ShowMessage(MessageTargetTypes targetType, PlayerTypes playerType, string playerName, string message, bool outbound, NetworkConnection sender = null)
+        public void ShowMessage(MessageTargetTypes targetType, TeamTypes playerType, string playerName, string message, bool outbound, NetworkConnection sender = null)
         {
-            ClientInstance selfCi = ClientInstance.ReturnClientInstance();
-            if (selfCi == null)
-                return;
+         
             Color c;
             // Color c;
             if (targetType == MessageTargetTypes.Tell)
             {
                 c = _directColor;
             }
-            else if (playerType == PlayerTypes.Self)
+            else if (playerType == TeamTypes.Self)
             {
                 c = _selfColor;
             }
-            else if (selfCi.SpecialHandler.Spectate.Spectating)
-            {
-                c = _friendlyColor;
-            }
-            else if (playerType == PlayerTypes.Enemy)
+            else if (playerType == TeamTypes.Enemy)
             {
                 c = _enemyColor;
             }
-            else if (playerType == PlayerTypes.Friendly)
+            else if (playerType == TeamTypes.Friendly)
             {
                 c = _friendlyColor;
             }
@@ -415,12 +408,12 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// <param name="ce"></param>
         public void ChatEntry_Clicked(ChatEntry ce)
         {
-            ClientInstance ci = ClientInstance.ReturnClientInstance(ce.Sender);
-            if (ci == null)
+            IChatEntity entity = _chatManager.GetChatEntity(ce.Sender);
+            if (entity == null)
                 return;
 
-            _tellClientId = ci.Owner.ClientId;
-            UpdateToTellTarget(ci.PlayerName);
+            _tellClientId = entity.GetConnection().ClientId;
+            UpdateToTellTarget(entity.GetEntityName());
             SetOutboundSelection(true);
         }
 
@@ -431,9 +424,6 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         {
             message = message.Trim();
             if (message == string.Empty)
-                return;
-            ClientInstance selfCi = ClientInstance.ReturnClientInstance();
-            if (selfCi == null)
                 return;
 
             /* Make sure the user doesn't do a dumb, protect them from sending tells in public.
@@ -448,15 +438,15 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             bool sendResult = false;
             if (_currentTargetType == MessageTargetTypes.Tell)
             {
-                sendResult = GameplayDependencies.ChatManager.SendDirectChatToServer(_tellClientId, message);
+                sendResult = _chatManager.SendDirectChatToServer(_tellClientId, message);
             }
             else if (_currentTargetType == MessageTargetTypes.All)
             {
-                sendResult = GameplayDependencies.ChatManager.SendMultipleChatToServer(false, message);
+                sendResult = _chatManager.SendMultipleChatToServer(false, message);
             }
             else if (_currentTargetType == MessageTargetTypes.Team)
             {
-                sendResult = GameplayDependencies.ChatManager.SendMultipleChatToServer(true, message);
+                sendResult = _chatManager.SendMultipleChatToServer(true, message);
             }
             else
             {
@@ -467,7 +457,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
                 return;
 
             _outboundText.text = string.Empty;
-            SetOutboundSelection(GlobalManager.UserSettings.KeepChatSelected);
+            SetOutboundSelection(_chatManager.GetKeepChatSelected());
         }
 
         /// <summary>

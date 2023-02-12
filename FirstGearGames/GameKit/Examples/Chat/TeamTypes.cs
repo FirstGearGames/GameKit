@@ -2,7 +2,7 @@
 namespace OldFartGames.Gameplay.Canvases.Chats
 {
 
-    public enum PlayerTypes : byte
+    public enum TeamTypes : byte
     {
         Unset = 0,
         Self = 1,
