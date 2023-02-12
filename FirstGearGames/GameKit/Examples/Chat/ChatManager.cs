@@ -168,6 +168,18 @@ namespace OldFartGames.Gameplay.Dependencies
         private const float CLIENT_TIME_WINDOW_MULTIPLIER = 1.25f;
         #endregion
 
+        public override void OnStartNetwork()
+        {
+            base.OnStartNetwork();
+            base.NetworkManager.RegisterInstance(this);
+        }
+
+        public override void OnStopNetwork()
+        {
+            base.OnStopNetwork();
+            base.NetworkManager.UnregisterInstance<ChatManager>();
+        }
+
         public override void OnSpawnServer(NetworkConnection connection)
         {
             base.OnSpawnServer(connection);

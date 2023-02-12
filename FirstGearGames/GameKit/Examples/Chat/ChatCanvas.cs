@@ -23,16 +23,18 @@ namespace OldFartGames.Gameplay.Canvases.Chats
     public class ChatCanvas : MonoBehaviour
     {
         #region Serialized.
+        /// <summary>
+        /// Hotkey checker for the chat.
+        /// </summary>
+        [Tooltip("Hotkey checker for the chat.")]
         [SerializeField, Group("Misc")]
         private ChatHotkeys _hotkeys;
         /// <summary>
-        /// Sets which ChatManager to use.
+        /// CanvasGroup for the entire chat canvas.
         /// </summary>
-        /// <param name="value">New Value.</param>
-        public void SetChatManager(ChatManager value) => _chatManager = value;
-        [Tooltip("ChatManager to use.")]
+        [Tooltip("CanvasGroup for the entire chat canvas.")]
         [SerializeField, Group("Misc")]
-        private ChatManager _chatManager;
+        private CanvasGroup _canvasGroup;
         /// <summary>
         /// Scrollbar for the chat.
         /// </summary>
@@ -111,6 +113,10 @@ namespace OldFartGames.Gameplay.Canvases.Chats
 
         #region Private.
         /// <summary>
+        /// ChatManager to use.
+        /// </summary>
+        private ChatManager _chatManager;
+        /// <summary>
         /// Messages added to content.
         /// </summary>
         private Queue<ChatEntry> _contentMessages = new Queue<ChatEntry>();
@@ -157,6 +163,8 @@ namespace OldFartGames.Gameplay.Canvases.Chats
 
         private void Awake()
         {
+            //Disable canvasgroup until chatmanager is registered.
+            _canvasGroup.SetActive(false, true);
             _scrollbarFixer = new ScrollbarValueFixer(_scrollbar);
             _targetTextLayoutElement = _messageTargetText.GetComponentInParent<LayoutElement>();
 
@@ -173,6 +181,20 @@ namespace OldFartGames.Gameplay.Canvases.Chats
 
         private void Start()
         {
+            InstanceFinder.NetworkManager.RegisterInvokeOnInstance<ChatManager>(On_ChatManager);
+        }
+
+        private void OnDestroy()
+        {
+            InstanceFinder.NetworkManager?.UnregisterInvokeOnInstance<ChatManager>(On_ChatManager);
+        }
+
+        /// <summary>
+        /// Called when the ChatManager is registered.
+        /// </summary>
+        private void On_ChatManager(Component c)
+        {
+            _chatManager = (ChatManager)c;
 #if !UNITY_EDITOR
             /* Only check if client when not editor.
             * This is because client will always be true
@@ -182,6 +204,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             if (InstanceFinder.IsClient)
 #endif
             {
+                _canvasGroup.SetActive(true, true);
                 _chatManager.OnBlockedChatMessage += ChatManager_OnBlockedChatMessage;
                 _chatManager.OnIncomingChatMessage += ChatManager_OnIncomingChatMessage;
             }
@@ -201,6 +224,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             CheckChatHotkeys();
             CheckChangeChatType();
         }
+
         private void LateUpdate()
         {
             if (!ApplicationState.IsQuitting())

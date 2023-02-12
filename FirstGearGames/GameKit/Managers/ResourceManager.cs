@@ -43,6 +43,12 @@ namespace GameKit.Resources.Managers
             base.NetworkManager.RegisterInstance(this);
         }
 
+        public override void OnStopNetwork()
+        {
+            base.OnStopNetwork();
+            base.NetworkManager.UnregisterInstance<ResourceManager>();
+        }
+
         /// <summary>
         /// Adds data to ResourceDatas.
         /// </summary>

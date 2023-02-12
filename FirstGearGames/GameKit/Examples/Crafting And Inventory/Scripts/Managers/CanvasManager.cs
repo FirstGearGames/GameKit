@@ -63,6 +63,12 @@ namespace GameKit.Examples.Managers
             base.NetworkManager.RegisterInstance(this);
         }
 
+        public override void OnStopNetwork()
+        {
+            base.OnStopNetwork();
+            base.NetworkManager.UnregisterInstance<CanvasManager>();
+        }
+
         private void Update()
         {
             Resize();

@@ -34,6 +34,12 @@ namespace GameKit.Crafting.Managers
             base.NetworkManager.RegisterInstance(this);
         }
 
+        public override void OnStopNetwork()
+        {
+            base.OnStopNetwork();
+            base.NetworkManager.UnregisterInstance<CraftingManager>();
+        }
+
         /// <summary>
         /// Adds recipe to Recipes.
         /// </summary>
