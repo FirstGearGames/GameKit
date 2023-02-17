@@ -105,13 +105,13 @@ namespace OldFartGames.Gameplay.Dependencies
 
         #region Public.
         /// <summary>
-        /// Called when a chat message is received on clients.
+        /// Called when a chat message is received. This may execute on server or client.
         /// </summary>
         public event Action<IncomingChatMessage, bool> OnIncomingChatMessage;
         /// <summary>
         /// Called when a chat message is blocked. This may execute on server or client.
         /// </summary>
-        public event Action<BlockedChatMessage> OnBlockedChatMessage;
+        public event Action<BlockedChatMessage, bool> OnBlockedChatMessage;
         /// <summary>
         /// Currently registered chat entities.
         /// </summary>
@@ -252,7 +252,6 @@ namespace OldFartGames.Gameplay.Dependencies
         {
             ChatEntity ce = RetrieveChatEntity(conn, $"Player{conn.ClientId}");
             ChatEntities[conn] = ce;
-            Debug.Log("Count " + ChatEntities.Count);
         }
 
         /// <summary>
@@ -283,6 +282,15 @@ namespace OldFartGames.Gameplay.Dependencies
             }
 
             ChatEntities.Remove(conn);
+        }
+
+        /// <summary>
+        /// Gets the chat entity for the local client.
+        /// </summary>
+        /// <returns></returns>
+        public IChatEntity GetChatEntity()
+        {
+            return GetChatEntity(base.ClientManager.Connection);
         }
 
         /// <summary>
@@ -496,7 +504,7 @@ namespace OldFartGames.Gameplay.Dependencies
 
             if (blockedReason != BlockedChatReason.Unset)
             {
-                OnBlockedChatMessage?.Invoke(new BlockedChatMessage(targetType, sender, message, blockedReason));
+                OnBlockedChatMessage?.Invoke(new BlockedChatMessage(targetType, sender, message, blockedReason), asServer);
                 return false;
             }
             else
@@ -566,7 +574,7 @@ namespace OldFartGames.Gameplay.Dependencies
                 if (blockedReason == BlockedChatReason.InvalidTargetId)
                 {
                     BlockedChatMessage msg = new BlockedChatMessage(targetType, sender, message, blockedReason);
-                    TargetSendBlockedChatMessage(msg);
+                    TargetSendBlockedChatMessage(sender, msg);
                 }
                 return;
             }
@@ -592,16 +600,13 @@ namespace OldFartGames.Gameplay.Dependencies
                 HashSet<NetworkConnection> observers = base.Observers;
                 foreach (NetworkConnection c in observers)
                 {
-                    //Skip entry if observer is sender.
-                    if (c == sender)
-                        continue;
-
                     IChatEntity observerEntity = GetChatEntity(c);
                     //Skip entry if enity could not be found for observer.
                     if (observerEntity == null)
                         continue;
 
-                    if (senderEntity.GetTeamType(c) == TeamTypes.Friendly)
+                    //If sending to sender or teammate.
+                    if (c == sender || senderEntity.GetTeamType(c) == TeamTypes.Friendly)
                         TargetReceiveGroupChat(c, targetType, sender, message);
                 }
             }
@@ -628,13 +633,6 @@ namespace OldFartGames.Gameplay.Dependencies
                 TargetReceiveDirectChat(target, sender, message);
             }
         }
-
-        private void TargetSendBlockedChatMessage(BlockedChatMessage msg)
-        {
-            throw new NotImplementedException();
-        }
-
-
 
         /// <summary>
         /// Sends a message to a specific player.
@@ -680,12 +678,13 @@ namespace OldFartGames.Gameplay.Dependencies
         }
 
         /// <summary>
-        /// Informs a client that their chat was blocked.
+        /// Called when the server informs a client that their chat was not sent.
         /// </summary>
+        /// <param name="msg">Information about the blocked message.</param>
         [TargetRpc(ValidateTarget = false)]
-        private void TargetSendBlockedChatReason(NetworkConnection conn, BlockedChatMessage msg)
+        private void TargetSendBlockedChatMessage(NetworkConnection conn, BlockedChatMessage msg)
         {
-            OnBlockedChatMessage?.Invoke(msg);
+            OnBlockedChatMessage?.Invoke(msg, false);
         }
 
 

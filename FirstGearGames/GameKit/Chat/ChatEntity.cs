@@ -5,12 +5,18 @@ public class ChatEntity : IChatEntity
 {
 
     public NetworkConnection Connection { get; private set; }
-    public string EntityName {get;private set; }
+    public string EntityName { get; private set; }
 
     public string GetEntityName() => EntityName;
     public NetworkConnection GetConnection() => Connection;
     public TeamTypes GetTeamType() => TeamTypes.Friendly;
-    public TeamTypes GetTeamType(NetworkConnection otherConnection) => TeamTypes.Friendly;
+    public TeamTypes GetTeamType(NetworkConnection otherConnection)
+    {
+        if (otherConnection == Connection)
+            return TeamTypes.Self;
+        else
+            return TeamTypes.Friendly;
+    }
 
     public ChatEntity() { }
     public ChatEntity(NetworkConnection connection, string entityName)

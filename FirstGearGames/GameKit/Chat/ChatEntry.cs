@@ -35,7 +35,6 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         private ChatCanvas _canvas;
         #endregion
 
-
         /// <summary>
         /// Sets sender value.
         /// </summary>
@@ -94,10 +93,8 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// </summary>
         public void OnClick()
         {
-            if (Sender == null)
+            if (Sender == null || Sender.IsLocalClient)
                 return;
-            //if (Sender == null || Sender.IsLocalClient)
-            //    return;
 
             _canvas.ChatEntry_Clicked(this);
         }

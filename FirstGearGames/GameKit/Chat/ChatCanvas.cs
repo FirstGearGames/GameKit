@@ -318,9 +318,9 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             if (asServer)
                 return;
 
-            //Only display the chat if client.
-            IChatEntity entity = _chatManager.GetChatEntity(obj.Sender);
-            TeamTypes tt = entity.GetTeamType();
+            IChatEntity selfEntity = _chatManager.GetChatEntity();
+            TeamTypes tt = selfEntity.GetTeamType(obj.Sender);
+            IChatEntity entity = _chatManager.GetChatEntity(obj.Sender);            
             string entityName = entity.GetEntityName();
 
             ShowMessage(obj.TargetType, tt, entityName, obj.Message, obj.Outbound, obj.Sender);
@@ -329,8 +329,10 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// <summary>
         /// Called when an outgoing message is blocked.
         /// </summary>
-        private void ChatManager_OnBlockedChatMessage(BlockedChatMessage obj)
+        private void ChatManager_OnBlockedChatMessage(BlockedChatMessage obj, bool asServer)
         {
+            if (asServer)
+                return;
             NetworkConnection blockedConn = obj.Sender;
             if (blockedConn == null || !blockedConn.IsLocalClient)
                 return;
@@ -590,7 +592,8 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// </summary>
         private void SetOutboundSelection(bool select)
         {
-            _outboundSelected = true;
+            Debug.Log(select);
+            _outboundSelected = select;
             if (select)
             {
                 _outboundText.ActivateInputField();
