@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using OldFartGames.Gameplay.Canvases.Chats;
 using FishNet;
 using TriInspector;
+using FishNet.Transporting;
 
 namespace OldFartGames.Gameplay.Dependencies
 {
@@ -178,13 +179,25 @@ namespace OldFartGames.Gameplay.Dependencies
             base.NetworkManager.RegisterInstance(this);
         }
 
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            //No need to also track client side if server.
+            if (!base.IsServer)
+            {
+                //Listen for future clients.
+                base.ClientManager.OnRemoteConnectionState += ClientManager_OnRemoteConnectionState;
+                //Add all current clients as chat entities.
+                foreach (NetworkConnection conn in base.ClientManager.Clients.Values)
+                    AddChatEntity(conn);
+            }
+        }
+
         public override void OnSpawnServer(NetworkConnection connection)
         {
             base.OnSpawnServer(connection);
             _clientChatFrequencies[connection] = RetrieveChatFrequencyData();
-
-            ChatEntity ce = RetrieveChatEntity(connection, $"Player{connection.ClientId}");
-            ChatEntities[connection] = ce;
+            AddChatEntity(connection);
         }
 
         public override void OnDespawnServer(NetworkConnection connection)
@@ -202,13 +215,44 @@ namespace OldFartGames.Gameplay.Dependencies
             {
                 StoreChatEntity((ChatEntity)ce);
                 ChatEntities.Remove(connection);
-            }            
+            }
+        }
+
+        public override void OnStopClient()
+        {
+            base.OnStopClient();
+            base.ClientManager.OnRemoteConnectionState -= ClientManager_OnRemoteConnectionState;
         }
 
         public override void OnStopNetwork()
         {
             base.OnStopNetwork();
             base.NetworkManager.UnregisterInstance<ChatManager>();
+            ChatEntities.Clear();
+        }
+
+        /// <summary>
+        /// Called when a client other than self connects.
+        /// This is only available when using ServerManager.ShareIds.
+        /// </summary>
+        private void ClientManager_OnRemoteConnectionState(RemoteConnectionStateArgs obj)
+        {
+            if (obj.ConnectionState == RemoteConnectionState.Started)
+            {
+                if (base.ClientManager.Clients.TryGetValue(obj.ConnectionId, out NetworkConnection conn))
+                    AddChatEntity(conn);
+            }
+        }
+
+        /// <summary>
+        /// Adds a chat entity for a connection.
+        /// </summary>
+        /// <param name="conn">Connection to add for.</param>
+        private void AddChatEntity(NetworkConnection conn)
+        {
+            ChatEntity ce = RetrieveChatEntity(conn, $"Player{conn.ClientId}");
+            ChatEntities[conn] = ce;
+            Debug.Log("Count " + ChatEntities.Count);
         }
 
         /// <summary>
@@ -254,6 +298,79 @@ namespace OldFartGames.Gameplay.Dependencies
                 return default;
         }
 
+        /// <summary>
+        /// Returns a chat entity for name.
+        /// </summary>
+        /// <param name="name">Name to match.</param>
+        /// <param name="allowPartial">True to allow partial matches.</param>
+        /// <param name="excludedConnections">Entities to ignore if connection is within this value.</param>
+        /// <returns>Returns entity found. If multiple partial matches occur then null is returned.</returns>
+        public IChatEntity GetChatEntity(string name, bool allowPartial, HashSet<NetworkConnection> excludedConnections)
+        {
+            IChatEntity foundEntity = null;
+            //Find name in all chat entities.
+            foreach (KeyValuePair<NetworkConnection, IChatEntity> item in ChatEntities)
+            {
+                if (excludedConnections != null && excludedConnections.Contains(item.Key))
+                    continue;
+
+                //Partial match.
+                string lowerEntityName = item.Value.GetEntityName().ToLower();
+                //Partial or full match found.
+                if (lowerEntityName.Contains(name))
+                {
+                    //Exact match found.
+                    if (lowerEntityName == name)
+                    {
+                        return item.Value;
+                    }
+                    else if (allowPartial)
+                    {
+                        /* If foundPlayerName already has value
+                         * then a partial match was previously found.
+                         * This is now two or more partial matches when
+                         * cannot be made out to who the client wants to
+                         * send a message to. In this case, do not auto
+                         * complete the send. */
+                        if (foundEntity != null)
+                        {
+                            foundEntity = null;
+                            break;
+                        }
+                        else
+                        {
+                            foundEntity = item.Value;
+                        }
+                    }
+                }
+            }
+
+            return foundEntity;
+        }
+
+        /// <summary>
+        /// Returns all chat entities that partially or full match name.
+        /// </summary>
+        /// <param name="name">Name to match.</param>
+        /// <returns>Returns entities found.</returns>
+        public List<IChatEntity> GetChatEntities(string name, List<NetworkConnection> excludedConnections)
+        {
+            List<IChatEntity> result = new List<IChatEntity>();
+            //Find name in all chat entities.
+            foreach (KeyValuePair<NetworkConnection, IChatEntity> item in ChatEntities)
+            {
+                if (excludedConnections != null && excludedConnections.Contains(item.Key))
+                    continue;
+
+                //Partial match.
+                string lowerEntityName = item.Value.GetEntityName().ToLower();
+                //Partial or full match found.
+                if (lowerEntityName.Contains(name))
+                    result.Add(item.Value);
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Gets a ChatFrequencyData from the pool, or returns a new one when none are available.
@@ -383,7 +500,7 @@ namespace OldFartGames.Gameplay.Dependencies
                 return false;
             }
             else
-            { 
+            {
                 return true;
             }
         }

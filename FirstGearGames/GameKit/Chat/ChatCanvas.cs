@@ -145,6 +145,10 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         /// </summary>
         private LayoutElement _targetTextLayoutElement;
         /// <summary>
+        /// Connections to exclude when auto completing a tell.
+        /// </summary>
+        private HashSet<NetworkConnection> _excludedTellConnections = new HashSet<NetworkConnection>();
+        /// <summary>
         /// Strings which can be used as tell headers.
         /// </summary>
         private readonly string[] _tellCommands = new string[] { "/tell ", "/w ", };
@@ -542,49 +546,16 @@ namespace OldFartGames.Gameplay.Canvases.Chats
             if (words.Length < 3)
                 return;
 
-            NetworkConnection foundConnection = null;
             string name = words[1].ToLower();
 
-            NetworkConnection localConnection = InstanceFinder.ClientManager.Connection;
-            //Find name in all chat entities.
-            foreach (KeyValuePair<NetworkConnection, IChatEntity> item in _chatManager.ChatEntities)
-            {
-                if (item.Key == localConnection)
-                    continue;
-
-                //Partial match.
-                string lowerEntityName = item.Value.GetEntityName().ToLower();
-                //Partial or full match found.
-                if (lowerEntityName.Contains(name))
-                {
-                    //Exact match found.
-                    if (lowerEntityName == name)
-                    {
-                        words[1] = item.Value.GetEntityName();
-                        break;
-                    }
-                    /* If foundPlayerName already has value
-                     * then a partial match was previously found.
-                     * This is now two or more partial matches when
-                     * cannot be made out to who the client wants to
-                     * send a message to. In this case, do not auto
-                     * complete the send. */
-                    if (foundConnection != null)
-                    {
-                        foundConnection = null;
-                        break;
-                    }
-                    else
-                    {
-                        foundConnection = item.Value.GetConnection();
-                    }
-                }
-            }
-
+            _excludedTellConnections.Clear();
+            _excludedTellConnections.Add(InstanceFinder.ClientManager.Connection);
+            IChatEntity foundEntity = _chatManager.GetChatEntity(name, true, _excludedTellConnections);
             //If found.
-            if (foundConnection != null)
+            if (foundEntity != null)
             {
-                _tellClient = foundConnection;
+                _tellClient = foundEntity.GetConnection();
+                words[1] = foundEntity.GetEntityName();
                 UpdateToTellTarget(words[1]);
                 string wordsWithoutName = string.Join(" ", words, 2, words.Length - 2);
                 SetOutboundText(wordsWithoutName, false);
