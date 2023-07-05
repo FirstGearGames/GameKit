@@ -93,20 +93,10 @@ namespace GameKit.Utilities
             gameObject.SetActive(false);
         }
 
-        //presumed world space if world object, or mouse space if not.
+       
         public virtual void UpdatePosition(Vector3 position)
         {
             transform.position = position;
-            //if (_worldObject)
-            //{
-            //    WorldRoot.transform.position = position;
-            //}
-            //else
-            //{
-            //    //position.z = 0f;
-            //    RectTransform rt = _imageRenderer.GetComponent<RectTransform>();
-            //    rt.position = position;
-            //}
         }
 
         public virtual void UpdateRotation(Quaternion rotation)

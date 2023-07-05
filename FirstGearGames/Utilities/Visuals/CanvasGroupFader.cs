@@ -18,21 +18,31 @@ namespace FirstGearGames.Utilities.Objects
 
         #region Private.
         /// <summary>
-        /// True if showing, which will fade in. False to fade out.
+        /// True if showing, which will fade in. False to fade out. Null if not fading at all.
         /// </summary>
-        private bool? _showing;
-        /// <summary>
-        /// Coroutine for fading.
-        /// </summary>
-        private Coroutine _fadeCoroutine;
+        private bool? _isShowing;
         #endregion
 
         #region Const.
         /// <summary>
-        /// How long to fade in and out.
+        /// How long to fad ein.
         /// </summary>
-        private const float FADE_DURATION = 0.1f;
+        private const float FADE_IN_DURATION = 0.1f;
+        /// <summary>
+        /// How long to fade out.
+        /// </summary>
+        private const float FADE_OUT_DURATION = 0.3f;
         #endregion
+
+        private void OnDisable()
+        {
+            ResetSettings();
+        }
+
+        private void Update()
+        {
+            Fade();
+        }
 
         /// <summary>
         /// Shows CanvasGroup with a fade.
@@ -58,33 +68,35 @@ namespace FirstGearGames.Utilities.Objects
         /// <param name="showing"></param>
         private void SetShowing(bool showing)
         {
-            if (_showing != null && showing == _showing.Value)
+            //If set to the same value.
+            if (_isShowing.HasValue && showing == _isShowing.Value)
                 return;
 
-            _showing = showing;
-            if (_fadeCoroutine == null)
-                _fadeCoroutine = StartCoroutine(__Fade());
+            _isShowing = showing;
         }
 
         /// <summary>
         /// Fades in or out over time.
         /// </summary>
         /// <returns></returns>
-        private IEnumerator __Fade()
+        private void Fade()
         {
-            float rate = (1f / FADE_DURATION);
-            float targetAlpha;
+            if (!_isShowing.HasValue)
+                return;
 
-            do
-            {
-                targetAlpha = (_showing.Value == true) ? 1f : 0f;
-                CanvasGroup.alpha = Mathf.MoveTowards(CanvasGroup.alpha, targetAlpha, rate * Time.deltaTime);
-                yield return null;
-            } while (CanvasGroup.alpha != targetAlpha);
+            bool fadingIn = (_isShowing.Value);
+            float duration = (fadingIn) ? FADE_IN_DURATION : FADE_OUT_DURATION;
+            float rate = (1f / duration);
+            float targetAlpha = (fadingIn) ? 1f : 0f;
 
-            //Once complete update canvas group access.
-            SetCanvasGroupActiveWithoutAlpha(_showing.Value);
-            _fadeCoroutine = null;
+            CanvasGroup.alpha = Mathf.MoveTowards(CanvasGroup.alpha, targetAlpha, rate * Time.deltaTime);
+
+            //If complete.
+            if (CanvasGroup.alpha == targetAlpha)
+            {             
+                SetCanvasGroupActiveWithoutAlpha(fadingIn);
+                ResetSettings();
+            }
         }
 
         /// <summary>
@@ -93,6 +105,14 @@ namespace FirstGearGames.Utilities.Objects
         private void SetCanvasGroupActiveWithoutAlpha(bool active)
         {
             CanvasGroup.SetActive(active, false);
+        }
+
+        /// <summary>
+        /// Resets settings as if first being used.
+        /// </summary>
+        private void ResetSettings()
+        {
+            _isShowing = null;
         }
     }
 
