@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GameKit.Examples.Inventories.Canvases
 {
 
-    public class FloatingResourceEntry : FloatingOverlayImage
+    public class FloatingResourceEntry : FloatingImage
     {
         /// <summary>
         /// Text used to show the items count.

@@ -5,7 +5,7 @@ namespace GameKit.Utilities.Types.OverlayContainers
 {
 
 
-    public class FloatingOverlayImage : FloatingOverlayContainer
+    public class FloatingImage : FloatingContainer
     {
         /// <summary>
         /// Renderer to apply sprite on.

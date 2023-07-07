@@ -6,7 +6,7 @@ namespace GameKit.Utilities.Types.OverlayContainers
 {
 
 
-    public class FloatingOverlayContainer : CanvasGroupFader
+    public class FloatingContainer : CanvasGroupFader
     {
 
         #region Serialized.
