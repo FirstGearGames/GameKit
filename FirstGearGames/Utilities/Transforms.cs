@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FirstGearGames.Utilities.Objects
@@ -20,26 +21,6 @@ namespace FirstGearGames.Utilities.Objects
                     MonoBehaviour.Destroy(child.gameObject);
             }
         }
-
-
-        /// <summary>
-        /// Destroys all children under the specified transform which have component T.
-        /// </summary>
-        /// <param name="t"></param>
-        public static void DestroyChildren<T>(this Transform t, bool destroyImmediately = false) where T : MonoBehaviour
-        {
-            List<T> results = new List<T>();
-            t.GetComponentsInChildren<T>(true, results);
-            foreach (T item in results)
-            {
-                MonoBehaviour mb = (MonoBehaviour)item;
-                if (destroyImmediately)
-                    MonoBehaviour.DestroyImmediate(mb.gameObject);
-                else
-                    MonoBehaviour.Destroy(mb.gameObject);
-            }
-        }
-
 
         /// <summary>
         /// Gets components in children and optionally parent.

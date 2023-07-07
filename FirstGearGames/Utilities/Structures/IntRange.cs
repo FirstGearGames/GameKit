@@ -37,6 +37,20 @@ namespace FirstGearGames.Utilities.Structures
         {
             return Ints.RandomInclusiveRange(Minimum, Maximum);
         }
+
+        /// <summary>
+        /// Returns value clamped within minimum and maximum.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public int Clamp(int value)
+        {
+            if (value < Minimum)
+                return Minimum;
+            if (value > Maximum)
+                return Maximum;
+            return value;
+        }
     }
 
 
