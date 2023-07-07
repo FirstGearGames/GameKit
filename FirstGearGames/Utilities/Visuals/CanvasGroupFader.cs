@@ -4,9 +4,35 @@ using UnityEngine;
 namespace FirstGearGames.Utilities.Objects
 {
 
-
     public class CanvasGroupFader : MonoBehaviour
     {
+        #region Types.
+        /// <summary>
+        /// Current fade state or goal for this class.
+        /// </summary>
+        public enum FadeGoalType
+        {
+            Unset = 0,
+            Hidden = 1,
+            Visible = 2,
+        }
+        #endregion
+
+        #region Public.
+        /// <summary>
+        /// Current goal for the fader.
+        /// </summary>
+        public FadeGoalType FadeGoal { get; private set; } = FadeGoalType.Unset;
+        /// <summary>
+        /// True if hidden or in the process of hiding.
+        /// </summary>
+        public bool IsHiding => (FadeGoal == FadeGoalType.Hidden);
+        /// <summary>
+        /// True if visible. Will be true long as the CanvasGroup has alpha. Also see IsHiding.
+        /// </summary>
+        public bool IsVisible => (CanvasGroup.alpha > 0f);
+        #endregion
+
         #region Serialized.
         /// <summary>
         /// CanvasGroup to fade in and out.
@@ -18,9 +44,9 @@ namespace FirstGearGames.Utilities.Objects
 
         #region Private.
         /// <summary>
-        /// True if showing, which will fade in. False to fade out. Null if not fading at all.
+        /// True if a fade cycle has completed at least once.
         /// </summary>
-        private bool? _isShowing;
+        private bool _completedOnce;
         #endregion
 
         #region Const.
@@ -34,12 +60,18 @@ namespace FirstGearGames.Utilities.Objects
         private const float FADE_OUT_DURATION = 0.3f;
         #endregion
 
-        private void OnDisable()
+        protected virtual void OnEnable()
         {
-            ResetSettings();
+            FadeGoal = (CanvasGroup.alpha > 0f) ? FadeGoalType.Visible : FadeGoalType.Hidden;
         }
 
-        private void Update()
+        protected virtual void OnDisable()
+        {
+            bool fadingIn = (FadeGoal == FadeGoalType.Visible);
+            CanvasGroup.SetActive(fadingIn, true);
+        }
+
+        protected virtual void Update()
         {
             Fade();
         }
@@ -68,11 +100,7 @@ namespace FirstGearGames.Utilities.Objects
         /// <param name="showing"></param>
         private void SetShowing(bool showing)
         {
-            //If set to the same value.
-            if (_isShowing.HasValue && showing == _isShowing.Value)
-                return;
-
-            _isShowing = showing;
+            FadeGoal = (showing) ? FadeGoalType.Visible : FadeGoalType.Hidden;
         }
 
         /// <summary>
@@ -81,21 +109,42 @@ namespace FirstGearGames.Utilities.Objects
         /// <returns></returns>
         private void Fade()
         {
-            if (!_isShowing.HasValue)
+            //Should not be possible.
+            if (FadeGoal == FadeGoalType.Unset)
+            {
+                Debug.LogError($"Fade goal is unset. This should not be possible.");
+                return;
+            }
+
+            bool fadingIn = (FadeGoal == FadeGoalType.Visible);
+            float duration;
+            float targetAlpha;
+            if (fadingIn)
+            {
+                targetAlpha = 1f;
+                duration = FADE_IN_DURATION;
+            }
+            else
+            {
+                targetAlpha = 0f;
+                duration = FADE_OUT_DURATION;
+            }
+
+            /* Already at goal and had completed an iteration at least once.
+             * This is checked because even if at alpha we want to 
+             * complete the cycle if not done once so that all
+             * local states and canvasgroup settings are proper. */
+            if (_completedOnce && CanvasGroup.alpha == targetAlpha)
                 return;
 
-            bool fadingIn = (_isShowing.Value);
-            float duration = (fadingIn) ? FADE_IN_DURATION : FADE_OUT_DURATION;
             float rate = (1f / duration);
-            float targetAlpha = (fadingIn) ? 1f : 0f;
-
             CanvasGroup.alpha = Mathf.MoveTowards(CanvasGroup.alpha, targetAlpha, rate * Time.deltaTime);
 
             //If complete.
             if (CanvasGroup.alpha == targetAlpha)
             {             
                 SetCanvasGroupActiveWithoutAlpha(fadingIn);
-                ResetSettings();
+                _completedOnce = true;
             }
         }
 
@@ -107,13 +156,6 @@ namespace FirstGearGames.Utilities.Objects
             CanvasGroup.SetActive(active, false);
         }
 
-        /// <summary>
-        /// Resets settings as if first being used.
-        /// </summary>
-        private void ResetSettings()
-        {
-            _isShowing = null;
-        }
     }
 
 

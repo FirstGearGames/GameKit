@@ -1,8 +1,7 @@
-
 using System;
-using UnityEngine.UI;
+using UnityEngine;
 
-namespace GameKit.Utilities.FloatingOptionMenus
+namespace GameKit.Utilities.OptionMenus
 {
     public class ImageButtonData : ButtonData, IDisposable
     {
@@ -10,20 +9,20 @@ namespace GameKit.Utilities.FloatingOptionMenus
         /// <summary>
         /// Image to display.
         /// </summary>
-        public Image DisplayImage { get; protected set; } = null;
+        public Sprite DisplayImage { get; protected set; } = null;
         #endregion
 
         /// <summary>
         /// Initializes this for use.
         /// </summary>
-        /// <param name="image">Image to use on the button.</param>
+        /// <param name="sprite">Image to use on the button.</param>
         /// <param name="text">Text to display on the button.</param>
         /// <param name="callback">Callback when OnPressed is called.</param>
         /// <param name="key">Optional key to include within the callback.</param>
-        public void Initialize(Image image, string text, PressedDelegate callback, string key = "")
+        public void Initialize(Sprite sprite, string text, PressedDelegate callback, string key = "")
         {
             base.Initialize(text, callback, key);
-            DisplayImage = image;
+            DisplayImage = sprite;
         }
 
         public override void Dispose()

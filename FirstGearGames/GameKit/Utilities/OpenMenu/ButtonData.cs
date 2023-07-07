@@ -1,7 +1,7 @@
 
 using System;
 
-namespace GameKit.Utilities.FloatingOptionMenus
+namespace GameKit.Utilities.OptionMenus
 {
     public class ButtonData : IDisposable
     {

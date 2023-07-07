@@ -1,27 +1,45 @@
 using FirstGearGames.Utilities.Objects;
 using FishNet;
+using FishNet.Utility.Performance;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 
-namespace GameKit.Utilities.FloatingOptionMenus
+namespace GameKit.Utilities.OptionMenus
 {
 
     public class FloatingOptionMenu : CanvasGroupFader
     {
+        #region Serialized.
         /// <summary>
-        /// True if not visible, or in the process of resetting.
+        /// Prefab to use for each button.
         /// </summary>
-        public bool IsHiding => !IsVisible;
+        [Tooltip("Prefab to use for each button.")]
+        [SerializeField]
+        private OptionMenuButton _buttonPrefab;
         /// <summary>
-        /// True if visible. Could be true if in the progress of resetting as well; see IsResetting and IsHiding.
+        /// Transform to add buttons to.
         /// </summary>
-        public bool IsVisible { get; protected set; }
-        
+        [Tooltip("Transform to add buttons to.")]
+        [SerializeField]
+        private Transform _content;
+        #endregion
+
+        #region Private.
+        /// <summary>
+        /// Current buttons.
+        /// </summary>
+        private ButtonData[] _buttons;
+        #endregion
+
         public virtual void Show(Vector3 position, Quaternion rotation, Vector3 scale, params ButtonData[] buttonDatas)
         {
-            gameObject.SetActive(true);
-            IsVisible = true;
+            base.Show();
+            transform.SetPositionAndRotation(position, rotation);
+            transform.localScale = scale;
+            //Remove all current buttons then add new ones.
+            RemoveButtons();
+            AddButtons(buttonDatas);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,10 +64,28 @@ namespace GameKit.Utilities.FloatingOptionMenus
             Show(startingPoint.position, startingPoint.rotation, startingPoint.localScale, buttonDatas);
         }
 
-        public void Hide()
+        public override void Hide()
         {
-            IsVisible = false;
-            gameObject.SetActive(false);
+            base.Hide();
+        }
+
+        private void AddButtons(params ButtonData[] buttonDatas)
+        {
+
+        }
+
+        /// <summary>
+        /// Removes all buttons.
+        /// </summary>
+        private void RemoveButtons()
+        {
+            if (_buttons == null)
+                return;
+
+            foreach (ButtonData item in _buttons)
+                DisposableObjectCaches<ButtonData>.Store(item);
+
+
         }
 
     }
