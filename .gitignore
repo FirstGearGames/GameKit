@@ -1,5 +1,5 @@
 #Ignore everything.
-/*
+#/*
 
 #Except these; we like these.
 !/.gitignore
