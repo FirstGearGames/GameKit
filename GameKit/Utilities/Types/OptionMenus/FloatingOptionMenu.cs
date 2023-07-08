@@ -82,7 +82,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 return;
 
             foreach (ButtonData item in _buttons)
-                DisposableObjectCaches<ButtonData>.Store(item);
+                GameKit.Utilities.DisposableObjectCaches<ButtonData>.Store(item);
 
 
         }

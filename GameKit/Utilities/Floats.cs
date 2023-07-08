@@ -190,13 +190,14 @@ namespace GameKit.Utilities
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static float RandomlyFlip(float value)
+        public static float RandomlyFlip(this float value)
         {
             if (Ints.RandomInclusiveRange(0, 1) == 0)
                 return value;
             else
                 return (value *= -1f);
         }
+
     }
 
 

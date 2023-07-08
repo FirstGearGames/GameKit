@@ -67,13 +67,13 @@ namespace GameKit.Utilities
         {
             if (!includeParent)
             {
-                List<T> current = CollectionCaches<T>.RetrieveList();
+                List<T> current = GameKit.Utilities.CollectionCaches<T>.RetrieveList();
                 for (int i = 0; i < parent.childCount; i++)
                 {
                     parent.GetChild(i).GetComponentsInChildren(includeInactive, current);
                     results.AddRange(current);
                 }
-                CollectionCaches<T>.Store(current);
+                GameKit.Utilities.CollectionCaches<T>.Store(current);
             }
             else
             {
