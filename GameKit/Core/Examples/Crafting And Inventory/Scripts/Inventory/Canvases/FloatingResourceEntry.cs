@@ -17,6 +17,17 @@ namespace GameKit.Examples.Inventories.Canvases
         protected TextMeshProUGUI ItemCountText;
         #endregion
 
+        #region Protected.
+        /// <summary>
+        /// How long it should take to fade in the CanvasGroup.
+        /// </summary>
+        protected override float FadeInDuration => 0f;
+        /// <summary>
+        /// How long it should take to fade out the CanvasGroup.
+        /// </summary>
+        override protected float FadeOutDuration => 0f;
+        #endregion
+
         /// <summary>
         /// Sets which sprite to use.
         /// </summary>
@@ -28,22 +39,8 @@ namespace GameKit.Examples.Inventories.Canvases
             ItemCountText.text = (itemCount > 1) ? itemCount.ToString() : string.Empty;
         }
 
-        public override void ShowImmediately()
-        {
-            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 1f);
-        }
-        public override void HideImmediately()
-        {
-            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 0f);
-        }
-        public override void Show()
-        {
-            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 1f);
-        }
-        public override void Hide()
-        {
-            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 0f);
-        }
+        //Do not modify interactable state of canvasgroup.
+        protected override void SetCanvasGroupBlockingType(CanvasGroupBlockingType blockingType) { }
 
     }
 

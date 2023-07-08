@@ -66,8 +66,10 @@ namespace GameKit.Utilities.Types
 
         protected virtual void OnDisable()
         {
-            bool fadingIn = (FadeGoal == FadeGoalType.Visible);
-            CanvasGroup.SetActive(fadingIn, true);
+            if (FadeGoal == FadeGoalType.Visible)
+                ShowImmediately();
+            else
+                HideImmediately();
         }
 
         protected virtual void Update()
@@ -80,8 +82,8 @@ namespace GameKit.Utilities.Types
         /// </summary>
         public virtual void ShowImmediately()
         {
-            SetShowing(true);
-            CanvasGroup.SetActive(true, true);
+            SetFadeGoal(true);
+            CompleteFade(true);
         }
 
         /// <summary>
@@ -89,8 +91,8 @@ namespace GameKit.Utilities.Types
         /// </summary>
         public virtual void HideImmediately()
         {
-            SetShowing(false);
-            CanvasGroup.SetActive(false, true);
+            SetFadeGoal(false);
+            CompleteFade(false);
         }
 
         /// <summary>
@@ -101,7 +103,7 @@ namespace GameKit.Utilities.Types
             if (FadeInDuration <= 0f)
                 ShowImmediately();
             else
-                SetShowing(true);
+                SetFadeGoal(true);
         }
 
         /// <summary>
@@ -116,18 +118,18 @@ namespace GameKit.Utilities.Types
             else
             {
                 //Immediately make unclickable so players cannot hit UI objects as it's fading out.
-                SetCanvasGroupActiveWithoutAlpha(false);
-                SetShowing(false);
+                SetCanvasGroupBlockingType(CanvasGroupBlockingType.Block);
+                SetFadeGoal(false);
             }
         }
 
         /// <summary>
         /// Sets showing and begins fading if required.
         /// </summary>
-        /// <param name="showing"></param>
-        private void SetShowing(bool showing)
+        /// <param name="fadeIn"></param>
+        private void SetFadeGoal(bool fadeIn)
         {
-            FadeGoal = (showing) ? FadeGoalType.Visible : FadeGoalType.Hidden;
+            FadeGoal = (fadeIn) ? FadeGoalType.Visible : FadeGoalType.Hidden;
         }
 
         /// <summary>
@@ -169,18 +171,38 @@ namespace GameKit.Utilities.Types
 
             //If complete.
             if (CanvasGroup.alpha == targetAlpha)
-            {
-                SetCanvasGroupActiveWithoutAlpha(fadingIn);
-                _completedOnce = true;
-            }
+                CompleteFade(fadingIn);
         }
 
         /// <summary>
-        /// Changes CanvasGroup active state without changing alpha.
+        /// Called when the fade completes.
         /// </summary>
-        private void SetCanvasGroupActiveWithoutAlpha(bool active)
+        protected virtual void CompleteFade(bool fadingIn)
         {
-            CanvasGroup.SetActive(active, false);
+            CanvasGroupBlockingType blockingType;
+            float alpha;
+            if (fadingIn)
+            {
+                blockingType = CanvasGroupBlockingType.Block;
+                alpha = 1f;
+            }
+            else
+            {
+                blockingType = CanvasGroupBlockingType.DoNotBlock;
+                alpha = 0f;
+            }
+
+            SetCanvasGroupBlockingType(blockingType);
+            CanvasGroup.alpha = alpha;
+            _completedOnce = true;
+        }
+
+        /// <summary>
+        /// Changes the CanvasGroups interactable and bloacking state.
+        /// </summary>
+        protected virtual void SetCanvasGroupBlockingType(CanvasGroupBlockingType blockingType)
+        {
+            CanvasGroup.SetBlockingType(blockingType);
         }
 
     }

@@ -87,7 +87,7 @@ namespace GameKit.Examples.Tooltips.Canvases
             _text.text = text;
             _canvasManager.Resize(new CanvasManager.ResizeDelegate(Resize));
             _desiredPosition = position;
-            _canvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 0.9f);
+            _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0.9f);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace GameKit.Examples.Tooltips.Canvases
         public void Hide()
         {
             _caller = null;
-            _canvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 0f);
+            _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0f);
         }
 
         /// <summary>

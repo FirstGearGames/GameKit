@@ -6,25 +6,34 @@ namespace GameKit.Utilities
     /// <summary>
     /// Ways a CanvasGroup can have it's blocking properties modified.
     /// </summary>
-    public enum CanvasGroupBlockingTypes
+    public enum CanvasGroupBlockingType
     {
-        DoNotBlock = 0,
-        Block = 1,
+        Unchanged = 0,
+        DoNotBlock = 1,
+        Block = 2,
     }
 
     public static class CanvaseGroups
     {
+
+        public static void SetBlockingType(this CanvasGroup group, CanvasGroupBlockingType blockingType)
+        {
+            if (blockingType == CanvasGroupBlockingType.Unchanged)
+                return;
+
+            bool block = (blockingType == CanvasGroupBlockingType.Block);
+            group.blocksRaycasts = block;
+            group.interactable = block;
+        }
 
         /// <summary>
         /// Sets a CanvasGroup blocking type and alpha.
         /// </summary>
         /// <param name="blockingType">How to handle interactions.</param>
         /// <param name="alpha">Alpha for CanvasGroup.</param>
-        public static void SetActive(this CanvasGroup group, CanvasGroupBlockingTypes blockingType, float alpha)
+        public static void SetActive(this CanvasGroup group, CanvasGroupBlockingType blockingType, float alpha)
         {
-            bool block = (blockingType == CanvasGroupBlockingTypes.Block);
-            group.blocksRaycasts = block;
-            group.interactable = block;
+            group.SetBlockingType(blockingType);
             group.alpha = alpha;
         }
 
