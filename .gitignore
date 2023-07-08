@@ -4,4 +4,4 @@
 #Except these; we like these.
 !/.gitignore
 !/THIRD PARTY NOTICE.md
-!/FirstGearGames/
+!/GameKit/
