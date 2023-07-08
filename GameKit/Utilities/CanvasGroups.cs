@@ -3,10 +3,30 @@
 
 namespace GameKit.Utilities
 {
-
+    /// <summary>
+    /// Ways a CanvasGroup can have it's blocking properties modified.
+    /// </summary>
+    public enum CanvasGroupBlockingTypes
+    {
+        DoNotBlock = 0,
+        Block = 1,
+    }
 
     public static class CanvaseGroups
     {
+
+        /// <summary>
+        /// Sets a CanvasGroup blocking type and alpha.
+        /// </summary>
+        /// <param name="blockingType">How to handle interactions.</param>
+        /// <param name="alpha">Alpha for CanvasGroup.</param>
+        public static void SetActive(this CanvasGroup group, CanvasGroupBlockingTypes blockingType, float alpha)
+        {
+            bool block = (blockingType == CanvasGroupBlockingTypes.Block);
+            group.blocksRaycasts = block;
+            group.interactable = block;
+            group.alpha = alpha;
+        }
 
         /// <summary>
         /// Sets a canvasGroup active with specified alpha.

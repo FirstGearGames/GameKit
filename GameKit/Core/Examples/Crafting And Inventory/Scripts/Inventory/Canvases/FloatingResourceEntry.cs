@@ -1,3 +1,4 @@
+using GameKit.Utilities;
 using GameKit.Utilities.Types.OverlayContainers;
 using TMPro;
 using UnityEngine;
@@ -7,12 +8,14 @@ namespace GameKit.Examples.Inventories.Canvases
 
     public class FloatingResourceEntry : FloatingImage
     {
+        #region Serialized.
         /// <summary>
         /// Text used to show the items count.
         /// </summary>
         [Tooltip("Text used to show the items count.")]
         [SerializeField]
-        protected TextMeshProUGUI _itemCountText;
+        protected TextMeshProUGUI ItemCountText;
+        #endregion
 
         /// <summary>
         /// Sets which sprite to use.
@@ -22,7 +25,24 @@ namespace GameKit.Examples.Inventories.Canvases
         public virtual void Initialize(Sprite sprite, Vector3? sizeOverride, int itemCount)
         {
             base.SetSprite(sprite, sizeOverride);
-            _itemCountText.text = (itemCount > 1) ? itemCount.ToString() : string.Empty;
+            ItemCountText.text = (itemCount > 1) ? itemCount.ToString() : string.Empty;
+        }
+
+        public override void ShowImmediately()
+        {
+            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 1f);
+        }
+        public override void HideImmediately()
+        {
+            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 0f);
+        }
+        public override void Show()
+        {
+            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 1f);
+        }
+        public override void Hide()
+        {
+            base.CanvasGroup.SetActive(CanvasGroupBlockingTypes.DoNotBlock, 0f);
         }
 
     }

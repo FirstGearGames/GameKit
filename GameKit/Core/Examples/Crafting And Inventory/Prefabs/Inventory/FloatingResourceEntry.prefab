@@ -263,9 +263,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d316e3d4e05b2b849ab2c2137fe6ab88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ResetSpeed: 5
+  CanvasGroup: {fileID: 4344033496559801992}
+  _rectTransform: {fileID: 5709590043255187625}
   Renderer: {fileID: 5709590042382978285}
-  _itemCountText: {fileID: 8670230564800537370}
+  ItemCountText: {fileID: 8670230564800537370}
 --- !u!225 &4344033496559801992
 CanvasGroup:
   m_ObjectHideFlags: 0

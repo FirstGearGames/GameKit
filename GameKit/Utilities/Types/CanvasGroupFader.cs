@@ -41,22 +41,22 @@ namespace GameKit.Utilities.Types
         protected CanvasGroup CanvasGroup;
         #endregion
 
+        #region Protected.
+        /// <summary>
+        /// How long it should take to fade in the CanvasGroup.
+        /// </summary>
+        protected virtual float FadeInDuration { get; set; } = 0.1f;
+        /// <summary>
+        /// How long it should take to fade out the CanvasGroup.
+        /// </summary>
+        protected virtual float FadeOutDuration { get; set; } = 0.3f;
+        #endregion
+
         #region Private.
         /// <summary>
         /// True if a fade cycle has completed at least once.
         /// </summary>
         private bool _completedOnce;
-        #endregion
-
-        #region Const.
-        /// <summary>
-        /// How long to fad ein.
-        /// </summary>
-        private const float FADE_IN_DURATION = 0.1f;
-        /// <summary>
-        /// How long to fade out.
-        /// </summary>
-        private const float FADE_OUT_DURATION = 0.3f;
         #endregion
 
         protected virtual void OnEnable()
@@ -98,7 +98,10 @@ namespace GameKit.Utilities.Types
         /// </summary>
         public virtual void Show()
         {
-            SetShowing(true);
+            if (FadeInDuration <= 0f)
+                ShowImmediately();
+            else
+                SetShowing(true);
         }
 
         /// <summary>
@@ -106,9 +109,16 @@ namespace GameKit.Utilities.Types
         /// </summary>
         public virtual void Hide()
         {
-            //Immediately make unclickable so players cannot hit UI objects as it's fading out.
-            SetCanvasGroupActiveWithoutAlpha(false);
-            SetShowing(false);
+            if (FadeOutDuration <= 0f)
+            {
+                HideImmediately();
+            }
+            else
+            {
+                //Immediately make unclickable so players cannot hit UI objects as it's fading out.
+                SetCanvasGroupActiveWithoutAlpha(false);
+                SetShowing(false);
+            }
         }
 
         /// <summary>
@@ -139,12 +149,12 @@ namespace GameKit.Utilities.Types
             if (fadingIn)
             {
                 targetAlpha = 1f;
-                duration = FADE_IN_DURATION;
+                duration = FadeInDuration;
             }
             else
             {
                 targetAlpha = 0f;
-                duration = FADE_OUT_DURATION;
+                duration = FadeOutDuration;
             }
 
             /* Already at goal and had completed an iteration at least once.
@@ -159,7 +169,7 @@ namespace GameKit.Utilities.Types
 
             //If complete.
             if (CanvasGroup.alpha == targetAlpha)
-            {             
+            {
                 SetCanvasGroupActiveWithoutAlpha(fadingIn);
                 _completedOnce = true;
             }
