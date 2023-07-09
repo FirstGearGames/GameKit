@@ -67,7 +67,7 @@ namespace GameKit.Crafting
             //If crafting isn't active then confirm cancel.
             if (!_serverCraftingProgress.Active)
             {
-                SendFailedCraftingResult(null, CraftingResult.Canceled);
+                SendFailedCraftingResult(r, CraftingResult.Canceled);
                 return;
             }
             //Can cancel.
@@ -127,17 +127,26 @@ namespace GameKit.Crafting
         [Server]
         private void SendFailedCraftingResult(IRecipe r, CraftingResult result)
         {
-            float unscaledTime = Time.unscaledTime;
-            //Recently failed another craft attempt, likely trying to cheat.
-            if (_failedActionTime != -1f && (unscaledTime - _failedActionTime) <= FAILED_TIME_LIMIT)
+            //If owner is clientHost just send response.
+            if (base.Owner.IsLocalClient)
             {
-                base.Owner.Kick(KickReason.UnusualActivity, LoggingType.Common, $"Connection Id {base.Owner.ClientId} has been kicked for too many failed crafting attempts.");
+                TargetCraftingResult(base.Owner, r, result);
             }
-            //First failed attempt.
+            //Otherwise perform security checks.
             else
             {
-                _failedActionTime = unscaledTime;
-                TargetCraftingResult(base.Owner, r, result);
+                float unscaledTime = Time.unscaledTime;
+                //Recently failed another craft attempt, likely trying to cheat.
+                if (_failedActionTime != -1f && (unscaledTime - _failedActionTime) <= FAILED_TIME_LIMIT)
+                {
+                    base.Owner.Kick(KickReason.UnusualActivity, LoggingType.Common, $"Connection Id {base.Owner.ClientId} has been kicked for too many failed crafting attempts.");
+                }
+                //First failed attempt.
+                else
+                {
+                    _failedActionTime = unscaledTime;
+                    TargetCraftingResult(base.Owner, r, result);
+                }
             }
         }
 
