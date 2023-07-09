@@ -260,7 +260,19 @@ namespace GameKit.Examples.Inventories.Canvases
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Inventory_OnBagSlotUpdated(int bagIndex, int slotIndex, ResourceQuantity rq)
         {
+
             ResourceEntry re = _bagEntries[bagIndex].ResourceEntries[slotIndex];
+
+            /* If the new resource is not the same as existing then
+             * try to hide the tooltip using existing reference. If the
+             * modified bag is the one showing the tooltip then the tooltip
+             * will reset, which we want due to item change. 
+             * Keep in mind that calling hide from the object which
+             * did not call Show will result in the tooltip ignoring
+             * the command. */
+            if (re.IResourceData != null && re.IResourceData.GetResourceId() != rq.ResourceId)
+                _tooltipCanvas.Hide(re);
+
             re.Initialize(this, _tooltipCanvas, rq, new BaggedResource(bagIndex, slotIndex));
             SetUsedInventorySpaceText();
             _bagEntries[bagIndex].SetUsedInventorySpaceText();
