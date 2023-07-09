@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 
 
-namespace GameKit.Utilities.Types.OverlayContainers
+namespace GameKit.Utilities.Types.CanvasContainers
 {
 
 

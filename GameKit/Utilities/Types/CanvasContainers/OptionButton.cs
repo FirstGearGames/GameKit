@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 
-namespace GameKit.Utilities.Types.OptionMenuButtons
+namespace GameKit.Utilities.Types.CanvasContainers
 {
 
     public class OptionMenuButton : MonoBehaviour

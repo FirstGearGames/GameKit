@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace GameKit.Utilities.Types.OptionMenuButtons
+namespace GameKit.Utilities.Types.CanvasContainers
 {
     public class ImageButtonData : ButtonData, IDisposable
     {

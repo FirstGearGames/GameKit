@@ -1,5 +1,5 @@
 using GameKit.Utilities;
-using GameKit.Utilities.Types.OverlayContainers;
+using GameKit.Utilities.Types.CanvasContainers;
 using TMPro;
 using UnityEngine;
 

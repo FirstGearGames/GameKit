@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GameKit.Utilities.Types.OverlayContainers
+namespace GameKit.Utilities.Types.CanvasContainers
 {
 
 

@@ -1,7 +1,7 @@
 
 using System;
 
-namespace GameKit.Utilities.Types.OptionMenuButtons
+namespace GameKit.Utilities.Types.CanvasContainers
 {
     public class ButtonData : IDisposable
     {
