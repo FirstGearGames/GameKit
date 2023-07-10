@@ -53,6 +53,10 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         /// Starting height of RectTransform.
         /// </summary>
         private float _startingHeight;
+        /// <summary>
+        /// Preferred position of the canvas.
+        /// </summary>
+        private Vector3 _desiredPosition;
         #endregion
 
         private void Awake()
@@ -66,7 +70,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         {
             base.Update();
             if (Time.frameCount % 3 == 0)
-                _canvasManager?.Resize(new CanvasManager.ResizeDelegate(Resize));
+                _canvasManager?.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
 
         }
         /// <summary>
@@ -83,7 +87,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             if (started)
                 _canvasManager = instance.NetworkManager.GetInstance<CanvasManager>();
 
-            _canvasManager?.Resize(new CanvasManager.ResizeDelegate(Resize));
+            _canvasManager?.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
         }
 
         /// <summary>
@@ -91,27 +95,15 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         /// </summary>
         /// <param name="clearExisting">True to clear existing buttons first.</param>
         /// <param name="position">Position of canvas.</param>
-        /// <param name="rotation">Rotation of canvas.</param>
-        /// <param name="scale">Scale of canvas.</param>
         /// <param name="buttonDatas">Datas to use.</param>
-        public virtual void Show(bool clearExisting, Vector3 position, Quaternion rotation, Vector3 scale, params ButtonData[] buttonDatas)
+        public virtual void Show(bool clearExisting, Vector2 position, params ButtonData[] buttonDatas)
         {
-            base.Show();
-            transform.SetPositionAndRotation(position, rotation);
-            transform.localScale = scale;
+            _desiredPosition = position;
             //Remove all current buttons then add new ones.
             RemoveButtons();
             AddButtons(true, buttonDatas);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Show(bool clearExisting, Vector3 position, params ButtonData[] buttonDatas)
-        {
-            Show(clearExisting, position, Quaternion.identity, Vector3.one, buttonDatas);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Show(bool clearExisting, Vector3 position, Quaternion rotation, params ButtonData[] buttonDatas)
-        {
-            Show(clearExisting, position, rotation, Vector3.one, buttonDatas);
+            //Begin resize.
+            _canvasManager.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Show(bool clearExisting, Transform startingPoint, params ButtonData[] buttonDatas)
@@ -122,7 +114,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 return;
             }
 
-            Show(clearExisting, startingPoint.position, startingPoint.rotation, startingPoint.localScale, buttonDatas);
+            Show(clearExisting, startingPoint.position, buttonDatas);
         }
 
         /// <summary>
@@ -133,13 +125,13 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         protected override void AddButtons(bool clearExisting, params ButtonData[] buttonDatas)
         {
             base.AddButtons(clearExisting, buttonDatas);
-            _canvasManager.Resize(new CanvasManager.ResizeDelegate(Resize));
+            _canvasManager.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
         }
 
         /// <summary>
         /// Resizes based on button and header.
         /// </summary>
-        private void Resize()
+        private void ResizeAndShow()
         {
             float contentHeight = _content.sizeDelta.y;
             //If to add on padding.
@@ -152,6 +144,10 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             }
 
             _rectTransform.sizeDelta = new Vector2(_rectTransform.sizeDelta.x, contentHeight);
+            _rectTransform.position = _rectTransform.GetOnScreenPosition(_desiredPosition, Constants.FLOATING_CANVAS_EDGE_PADDING);
+
+            //Only show after being resized.
+            base.Show();
         }
 
     }

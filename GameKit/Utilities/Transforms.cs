@@ -8,6 +8,40 @@ namespace GameKit.Utilities
     public static class Transforms
     {
         /// <summary>
+        /// Returns a position for the rectTransform ensuring it's fully on the screen.
+        /// </summary>
+        /// <param name="desiredPosition">Preferred position for the rectTransform.</param>
+        /// <param name="padding">How much padding the transform must be from the screen edges.</param>
+        public static Vector3 GetOnScreenPosition(this RectTransform rectTransform, Vector3 desiredPosition, Vector2 padding)
+        {            
+            //Value of which the tooltip would exceed screen bounds.
+            //If there would be overshoot then adjust to be just on the edge of the overshooting side.
+            float overshoot;
+
+            float halfWidthRequired = (rectTransform.sizeDelta.x / 2f) + padding.x;
+            overshoot = (Screen.width - (desiredPosition.x + halfWidthRequired));
+            //If overshooting on the right.
+            if (overshoot < 0f)
+                desiredPosition.x += overshoot;
+            overshoot = (desiredPosition.x - halfWidthRequired);
+            //If overshooting on the left.
+            if (overshoot < 0f)
+                desiredPosition.x = halfWidthRequired;
+
+            float halfHeightRequired = (rectTransform.sizeDelta.y / 2f) + padding.y;
+            overshoot = (Screen.height - (desiredPosition.y + halfHeightRequired));
+            //If overshooting on the right.
+            if (overshoot < 0f)
+                desiredPosition.y += overshoot;
+            overshoot = (desiredPosition.y - halfHeightRequired);
+            //If overshooting on the left.
+            if (overshoot < 0f)
+                desiredPosition.y = halfHeightRequired;
+
+            return desiredPosition;
+        }
+
+        /// <summary>
         /// Sets a parent for src while maintaining position, rotation, and scale of src.
         /// </summary>
         /// <param name="parent">Transform to become a child of.</param>

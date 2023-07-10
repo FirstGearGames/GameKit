@@ -49,10 +49,6 @@ namespace GameKit.Examples.Tooltips.Canvases
 
         #region Private.
         /// <summary>
-        /// Ideal position for tooltip.
-        /// </summary>
-        private Vector2 _desiredPosition;
-        /// <summary>
         /// Object calling Show.
         /// </summary>
         private object _caller;
@@ -85,9 +81,8 @@ namespace GameKit.Examples.Tooltips.Canvases
             _rectTransform.pivot = pivot;
             _caller = caller;
             _text.text = text;
-            _canvasManager.Resize(new CanvasManager.ResizeDelegate(Resize));
-            _desiredPosition = position;
-            _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0.9f);
+            CanvasManager.ResizeDelegate del = new CanvasManager.ResizeDelegate(() => ResizeAndShow(position));
+            _canvasManager.Resize(del);
         }
 
         /// <summary>
@@ -113,7 +108,7 @@ namespace GameKit.Examples.Tooltips.Canvases
         /// <summary>
         /// Resizes transform based on bag slots.
         /// </summary>
-        private void Resize()
+        private void ResizeAndShow(Vector3 position)
         {
             Vector2 preferredValues = _text.GetPreferredValues();
             float widthRequired = preferredValues.x;
@@ -125,31 +120,8 @@ namespace GameKit.Examples.Tooltips.Canvases
             heightRequired = Mathf.Clamp(heightRequired, _height.Minimum, _height.Maximum);
             _rectTransform.sizeDelta = new Vector2(widthRequired, heightRequired);
 
-            //Value of which the tooltip would exceed screen bounds.
-            //If there would be overshoot then adjust to be just on the edge of the overshooting side.
-            float overshoot;
-
-            float halfWidthRequired = (widthRequired / 2f);
-            overshoot = (Screen.width - (_desiredPosition.x + halfWidthRequired));
-            //If overshooting on the right.
-            if (overshoot < 0f)
-                _desiredPosition.x += overshoot;
-            overshoot = (_desiredPosition.x - halfWidthRequired);
-            //If overshooting on the left.
-            if (overshoot < 0f)
-                _desiredPosition.x = halfWidthRequired;
-
-            float halfHeightRequired = (heightRequired / 2f);
-            overshoot = (Screen.height - (_desiredPosition.y + halfHeightRequired));
-            //If overshooting on the right.
-            if (overshoot < 0f)
-                _desiredPosition.y += overshoot;
-            overshoot = (_desiredPosition.y - halfHeightRequired);
-            //If overshooting on the left.
-            if (overshoot < 0f)
-                _desiredPosition.y = halfHeightRequired;
-
-            _rectTransform.position = _desiredPosition;
+            _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
+            _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0.9f);
         }
 
     }
