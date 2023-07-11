@@ -67,7 +67,7 @@ namespace GameKit.CameraShakers
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void FirstInitialize()
         {
-            DDOL ddol = DDOL.ReturnDDOL();
+            DDOL ddol = DDOL.GetDDOL();
 
             GameObject obj = new GameObject();
             obj.name = "ObjectShakerHandler";

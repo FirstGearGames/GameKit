@@ -11,6 +11,7 @@ namespace GameKit.Utilities
         /// </summary>
         private static System.Random _random = new System.Random();
 
+
         /// <summary>
         /// Returns how much time is left on an endTime. Returns -1 if no time is left.
         /// </summary>

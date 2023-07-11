@@ -39,7 +39,7 @@ namespace GameKit.Utilities.Types
         /// <summary>
         /// Returns the current DDOL or creates one if not yet created.
         /// </summary>
-        public static DDOL ReturnDDOL()
+        public static DDOL GetDDOL()
         {
             //Not yet made.
             if (Instance == null)

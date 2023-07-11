@@ -274,7 +274,7 @@ namespace OldFartGames.Gameplay.Canvases.Chats
         {
             if (_outboundSelected && _hotkeys.GetTabPressed())
             {
-                int highestValue = EnumFN.GetHighestValue<MessageTargetTypes>();
+                int highestValue = Enums.GetHighestValue<MessageTargetTypes>();
                 int nextValue = ((int)_currentTargetType + 1);
                 if (nextValue > highestValue)
                     nextValue = 1;

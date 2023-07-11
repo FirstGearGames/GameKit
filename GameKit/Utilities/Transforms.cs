@@ -1,5 +1,4 @@
-﻿using FishNet.Utility.Performance;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameKit.Utilities
