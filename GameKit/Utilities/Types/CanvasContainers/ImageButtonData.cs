@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GameKit.Utilities.Types.CanvasContainers
 {
-    public class ImageButtonData : ButtonData, IDisposable
+    public class ImageButtonData : ButtonData
     {
         #region Public.
         /// <summary>
@@ -25,9 +25,9 @@ namespace GameKit.Utilities.Types.CanvasContainers
             DisplayImage = sprite;
         }
 
-        public override void Dispose()
+        public override void ResetState()
         {
-            base.Dispose();
+            base.ResetState();
             DisplayImage = null;
         }
 

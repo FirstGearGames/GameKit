@@ -3,11 +3,26 @@ using System.Collections.Generic;
 
 namespace GameKit.Utilities
 {
-    #region Disposable caches.
+    /// <summary>
+    /// Implement to use type with Caches.
+    /// </summary>
+    public interface IResettable
+    {
+        /// <summary>
+        /// Resets values when being placed in a cache.
+        /// </summary>
+        void ResetState();
+        /// <summary>
+        /// Initializes values after being retrieved from a cache.
+        /// </summary>
+        void InitializeState();
+    }
+
+    #region Resettable caches.
     /// <summary>
     /// Holds cached Lists of value types.
     /// </summary>
-    public static class DisposableCollectionCaches<T> where T : IDisposable
+    public static class ResettableCollectionCaches<T> where T : IResettable
     {
         /// <summary>
         /// Retrieves a collection.
@@ -27,7 +42,7 @@ namespace GameKit.Utilities
         public static void Store(List<T> value)
         {
             foreach (T item in value)
-                item.Dispose();
+                item.ResetState();
             CollectionCaches<T>.Store(value);
         }
         /// <summary>
@@ -37,7 +52,7 @@ namespace GameKit.Utilities
         public static void Store(HashSet<T> value)
         {
             foreach (T item in value)
-                item.Dispose();
+                item.ResetState();
             CollectionCaches<T>.Store(value);
         }
     }
@@ -45,25 +60,30 @@ namespace GameKit.Utilities
     /// <summary>
     /// Holds cached diposable types.
     /// </summary>
-    public static class DisposableObjectCaches<T> where T : IDisposable
+    public static class ResettableObjectCaches<T> where T : IResettable
     {
         /// <summary>
         /// Retrieves an instance of T.
         /// </summary>
-        public static T Retrieve() => ObjectCaches<T>.Retrieve();
+        public static T Retrieve()
+        {
+            T result = ObjectCaches<T>.Retrieve();
+            result.InitializeState();
+            return result;
+        }
         /// <summary>
         /// Stores an instance of T.
         /// </summary>
         /// <param name="value">Value to store.</param>
         public static void Store(T value)
         {
-            value.Dispose();
+            value.ResetState();
             ObjectCaches<T>.Store(value);
         }
     }
     #endregion
 
-    #region NonDisposable caches.
+    #region NonResettable caches.
     /// <summary>
     /// Holds cached Lists of value types.
     /// </summary>

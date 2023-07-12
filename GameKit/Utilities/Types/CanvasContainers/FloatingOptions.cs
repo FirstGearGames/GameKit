@@ -1,7 +1,3 @@
-using FishNet;
-using System.Runtime.CompilerServices;
-using UnityEngine;
-
 
 namespace GameKit.Utilities.Types.CanvasContainers
 {
@@ -36,7 +32,7 @@ namespace GameKit.Utilities.Types.CanvasContainers
                 return;
 
             foreach (ButtonData item in Buttons)
-                GameKit.Utilities.DisposableObjectCaches<ButtonData>.Store(item);
+                GameKit.Utilities.ResettableObjectCaches<ButtonData>.Store(item);
         }
 
 

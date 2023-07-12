@@ -1,9 +1,7 @@
 
-using System;
-
 namespace GameKit.Utilities.Types.CanvasContainers
 {
-    public class ButtonData : IDisposable
+    public class ButtonData : IResettable
     {
         #region Public.
         /// <summary>
@@ -47,13 +45,14 @@ namespace GameKit.Utilities.Types.CanvasContainers
             _delegate?.Invoke(Key);
         }
 
-        public virtual void Dispose()
+        public virtual void ResetState()
         {
             Text = string.Empty;
             _delegate = null;
             Key = string.Empty;
         }
 
+        public void InitializeState() { }
     }
 
 
