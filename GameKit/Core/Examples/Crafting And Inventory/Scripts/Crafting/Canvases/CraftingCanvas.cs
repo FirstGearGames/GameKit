@@ -54,7 +54,7 @@ namespace GameKit.Examples.Crafting.Canvases
         /// </summary>
         [PropertyTooltip("Image for the crafting progress bar.")]
         [SerializeField, Group("Crafting")]
-        private Image _progressImg;
+        private Image _progressImage;
         /// <summary>
         /// Button to craft one item for hte current recipe.
         /// </summary>
@@ -149,7 +149,7 @@ namespace GameKit.Examples.Crafting.Canvases
         {
             float rate;
             float target;
-            if (_progressImg.fillAmount == 1f)
+            if (_progressImage.fillAmount == 1f)
             {
                 rate = FADE_RATE;
                 target = 0f;
@@ -159,9 +159,9 @@ namespace GameKit.Examples.Crafting.Canvases
                 rate = (FADE_RATE * 2f);
                 target = 1f;
             }
-            Color c = _progressImg.color;
+            Color c = _progressImage.color;
             c.a = Mathf.MoveTowards(c.a, target, rate * Time.deltaTime);
-            _progressImg.color = c;
+            _progressImage.color = c;
         }
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace GameKit.Examples.Crafting.Canvases
         /// <param name="percent"></param>
         private void Crafter_OnCraftingProgressed(IRecipe r, float percent, float delta)
         {
-            _progressImg.fillAmount = percent;
+            _progressImage.fillAmount = percent;
         }
 
     }

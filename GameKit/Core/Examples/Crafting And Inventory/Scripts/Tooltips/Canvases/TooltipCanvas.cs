@@ -34,17 +34,15 @@ namespace GameKit.Examples.Tooltips.Canvases
         private TextMeshProUGUI _text;
 
         /// <summary>
-        /// Minimum and maximum range for the width of RectTransform.
+        /// Minimum and maximum range for widwth and height of the RectTransform.
         /// </summary>
-        [PropertyTooltip("Minimum and maximum range for the width of RectTransform.")]
+        [Tooltip("Minimum and maximum range for width and height of the RectTransform.")]
         [SerializeField, Group("Sizing")]
-        private FloatRange _width = new FloatRange(300, 1400);
-        /// <summary>
-        /// Minimum and maximum range for the height of RectTransform.
-        /// </summary>
-        [PropertyTooltip("Minimum and maximum range for the height of RectTransform.")]
-        [SerializeField, Group("Sizing")]
-        private FloatRange _height = new FloatRange(100, 800);
+        private FloatRange2D _size = new FloatRange2D()
+        {
+            X = new FloatRange(300f, 1400f),
+            Y = new FloatRange(100f, 800f)
+        };
         #endregion
 
         #region Private.
@@ -113,11 +111,11 @@ namespace GameKit.Examples.Tooltips.Canvases
             Vector2 preferredValues = _text.GetPreferredValues();
             float widthRequired = preferredValues.x;
             //Set wrapping based on if width exceeds maximum width.
-            _text.enableWordWrapping = (widthRequired > _width.Maximum);
+            _text.enableWordWrapping = (widthRequired > _size.X.Maximum);
             float heightRequired = preferredValues.y;
             //Clamp width and height.
-            widthRequired = Mathf.Clamp(widthRequired, _width.Minimum, _width.Maximum);
-            heightRequired = Mathf.Clamp(heightRequired, _height.Minimum, _height.Maximum);
+            widthRequired = Mathf.Clamp(widthRequired, _size.X.Minimum, _size.X.Maximum);
+            heightRequired = Mathf.Clamp(heightRequired, _size.Y.Minimum, _size.Y.Maximum);
             _rectTransform.sizeDelta = new Vector2(widthRequired, heightRequired);
 
             _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);

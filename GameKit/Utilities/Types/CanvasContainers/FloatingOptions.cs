@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 
 namespace GameKit.Utilities.Types.CanvasContainers
 {
@@ -8,7 +10,7 @@ namespace GameKit.Utilities.Types.CanvasContainers
         /// <summary>
         /// Current buttons.
         /// </summary>
-        protected ButtonData[] Buttons;
+        protected List<ButtonData> Buttons = new List<ButtonData>();
         #endregion
 
         /// <summary>
@@ -16,11 +18,12 @@ namespace GameKit.Utilities.Types.CanvasContainers
         /// </summary>
         /// <param name="clearExisting">True to clear existing buttons first.</param>
         /// <param name="buttonDatas">Buttons to add.</param>
-        protected virtual void AddButtons(bool clearExisting, params ButtonData[] buttonDatas)
+        protected virtual void AddButtons(bool clearExisting, IEnumerable<ButtonData> buttonDatas)
         {
             if (clearExisting)
                 RemoveButtons();
-            Buttons = buttonDatas;
+            foreach (ButtonData item in buttonDatas)
+                Buttons.Add(item);
         }
 
         /// <summary>
@@ -28,11 +31,9 @@ namespace GameKit.Utilities.Types.CanvasContainers
         /// </summary>
         protected virtual void RemoveButtons()
         {
-            if (Buttons == null)
-                return;
-
             foreach (ButtonData item in Buttons)
                 GameKit.Utilities.ResettableObjectCaches<ButtonData>.Store(item);
+            Buttons.Clear();
         }
 
 
