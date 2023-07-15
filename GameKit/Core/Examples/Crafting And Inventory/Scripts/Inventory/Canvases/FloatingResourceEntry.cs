@@ -45,3 +45,4 @@ namespace GameKit.Examples.Inventories.Canvases
     }
 
 }
+#endif
