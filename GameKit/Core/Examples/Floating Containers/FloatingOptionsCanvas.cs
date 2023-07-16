@@ -73,7 +73,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         {
             base.Update();
             if (Time.frameCount % 3 == 0)
-                _canvasManager?.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
+                RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
 
         }
         /// <summary>
@@ -90,7 +90,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             if (started)
                 _canvasManager = instance.NetworkManager.GetInstance<CanvasManager>();
 
-            _canvasManager?.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
+            RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             RemoveButtons();
             AddButtons(true, buttonDatas);
             //Begin resize.
-            _canvasManager.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
+            RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
         }
 
         /// <param name="clearExisting">True to clear existing buttons first.</param>
@@ -134,13 +134,13 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         protected override void AddButtons(bool clearExisting, IEnumerable<ButtonData> buttonDatas)
         {
             base.AddButtons(clearExisting, buttonDatas);
-            _canvasManager.Resize(new CanvasManager.ResizeDelegate(ResizeAndShow));
+            RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
         }
 
         /// <summary>
         /// Resizes based on button and header.
         /// </summary>
-        private void ResizeAndShow()
+        private void ResizeAndShow(bool complete)
         {
             Vector2 buttonSize;
             GameObject button = (_desiredButtonPrefab == null) ? _buttonPrefab.gameObject : _desiredButtonPrefab.gameObject;
@@ -189,8 +189,8 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
 
             _rectTransform.position = _rectTransform.GetOnScreenPosition(_desiredPosition, Constants.FLOATING_CANVAS_EDGE_PADDING);
 
-            //Only show after being resized.
-            base.Show();
+            if (complete)
+                base.Show();
         }
 
     }

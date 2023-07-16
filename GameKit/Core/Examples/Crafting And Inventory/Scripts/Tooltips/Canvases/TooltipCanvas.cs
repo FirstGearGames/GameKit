@@ -5,6 +5,7 @@ using GameKit.Examples.Managers;
 using TriInspector;
 using GameKit.Utilities.Types;
 using GameKit.Utilities;
+using GameKit.Utilities.Types.CanvasContainers;
 
 namespace GameKit.Examples.Tooltips.Canvases
 {
@@ -15,34 +16,17 @@ namespace GameKit.Examples.Tooltips.Canvases
     {
         #region Serialized.
         /// <summary>
-        /// CanvasGroup to show and hide this canvas.
+        /// Container to show the tooltip.
         /// </summary>
-        [Tooltip("CanvasGroup to show and hide this canvas.")]
+        [Tooltip("Container to show the tooltip.")]
         [SerializeField, Group("Components")]
-        private CanvasGroup _canvasGroup;
-        /// <summary>
-        /// RectTransform to resize with tooltip.
-        /// </summary>
-        [Tooltip("RectTransform to resize with tooltip.")]
-        [SerializeField, Group("Components")]
-        private RectTransform _rectTransform;
+        ResizableContainer _container;
         /// <summary>
         /// TextMeshPro to show tooltip text.
         /// </summary>
         [PropertyTooltip("TextMeshPro to show tooltip text.")]
         [SerializeField, Group("Components")]
         private TextMeshProUGUI _text;
-
-        /// <summary>
-        /// Minimum and maximum range for widwth and height of the RectTransform.
-        /// </summary>
-        [Tooltip("Minimum and maximum range for width and height of the RectTransform.")]
-        [SerializeField, Group("Sizing")]
-        private FloatRange2D _size = new FloatRange2D()
-        {
-            X = new FloatRange(300f, 1400f),
-            Y = new FloatRange(100f, 800f)
-        };
         #endregion
 
         #region Private.
@@ -76,11 +60,20 @@ namespace GameKit.Examples.Tooltips.Canvases
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
-            _rectTransform.pivot = pivot;
             _caller = caller;
             _text.text = text;
-            CanvasManager.ResizeDelegate del = new CanvasManager.ResizeDelegate(() => ResizeAndShow(position));
-            _canvasManager.Resize(del);
+
+
+            _container.UpdatePosition(position, true);
+            _container.UpdatePivot(pivot, false);
+
+            FloatRange2D sizeLimits = _container.SizeLimits;
+            //Calculate needed size.
+            float widthRequired = _text.GetPreferredValues().x;
+            //Set wrapping based on if width exceeds maximum width.
+            _text.enableWordWrapping = (widthRequired > sizeLimits.X.Maximum);
+
+            _container.SetSizeAndShow(_text.GetPreferredValues());
         }
 
         /// <summary>
@@ -89,7 +82,7 @@ namespace GameKit.Examples.Tooltips.Canvases
         public void Hide()
         {
             _caller = null;
-            _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0f);
+            _container.Hide();
         }
 
         /// <summary>
@@ -103,24 +96,26 @@ namespace GameKit.Examples.Tooltips.Canvases
             Hide();
         }
 
-        /// <summary>
-        /// Resizes transform based on bag slots.
-        /// </summary>
-        private void ResizeAndShow(Vector3 position)
-        {
-            Vector2 preferredValues = _text.GetPreferredValues();
-            float widthRequired = preferredValues.x;
-            //Set wrapping based on if width exceeds maximum width.
-            _text.enableWordWrapping = (widthRequired > _size.X.Maximum);
-            float heightRequired = preferredValues.y;
-            //Clamp width and height.
-            widthRequired = Mathf.Clamp(widthRequired, _size.X.Minimum, _size.X.Maximum);
-            heightRequired = Mathf.Clamp(heightRequired, _size.Y.Minimum, _size.Y.Maximum);
-            _rectTransform.sizeDelta = new Vector2(widthRequired, heightRequired);
+        ///// <summary>
+        ///// Resizes transform based on bag slots.
+        ///// </summary>
+        //private void ResizeAndShow(bool complete, Vector3 position)
+        //{
+        //    Vector2 preferredValues = _text.GetPreferredValues();
+        //    float widthRequired = preferredValues.x;
+        //    //Set wrapping based on if width exceeds maximum width.
+        //    _text.enableWordWrapping = (widthRequired > _size.X.Maximum);
+        //    float heightRequired = preferredValues.y;
+        //    //Clamp width and height.
+        //    widthRequired = Mathf.Clamp(widthRequired, _size.X.Minimum, _size.X.Maximum);
+        //    heightRequired = Mathf.Clamp(heightRequired, _size.Y.Minimum, _size.Y.Maximum);
+        //    _rectTransform.sizeDelta = new Vector2(widthRequired, heightRequired);
 
-            _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
-            _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0.9f);
-        }
+        //    _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
+
+        //    if (complete)
+        //        _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0.9f);
+        //}
 
     }
 

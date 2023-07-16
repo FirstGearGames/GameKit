@@ -264,6 +264,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CanvasGroup: {fileID: 4344033496559801992}
+  FadeInDuration: 0
+  FadeOutDuration: 0
   _rectTransform: {fileID: 5709590043255187625}
   Renderer: {fileID: 5709590042382978285}
   ItemCountText: {fileID: 8670230564800537370}

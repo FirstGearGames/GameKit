@@ -1,17 +1,18 @@
+using TriInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameKit.Utilities.Types.CanvasContainers
 {
 
-
+    [DeclareFoldoutGroup("Components")]
     public class FloatingImage : FloatingContainer
     {
         /// <summary>
         /// Renderer to apply sprite on.
         /// </summary>
         [Tooltip("Renderer to apply sprite on.")]
-        [SerializeField]
+        [SerializeField, Group("Components")]
         protected Image Renderer;
 
         /// <summary>

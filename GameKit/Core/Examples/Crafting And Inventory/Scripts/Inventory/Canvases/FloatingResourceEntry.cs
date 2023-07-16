@@ -1,11 +1,12 @@
 using GameKit.Utilities;
 using GameKit.Utilities.Types.CanvasContainers;
 using TMPro;
+using TriInspector;
 using UnityEngine;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
-
+    [DeclareFoldoutGroup("Components")]
     public class FloatingResourceEntry : FloatingImage
     {
         #region Serialized.
@@ -13,19 +14,8 @@ namespace GameKit.Examples.Inventories.Canvases
         /// Text used to show the items count.
         /// </summary>
         [Tooltip("Text used to show the items count.")]
-        [SerializeField]
+        [SerializeField, Group("Components")]
         protected TextMeshProUGUI ItemCountText;
-        #endregion
-
-        #region Protected.
-        /// <summary>
-        /// How long it should take to fade in the CanvasGroup.
-        /// </summary>
-        protected override float FadeInDuration => 0f;
-        /// <summary>
-        /// How long it should take to fade out the CanvasGroup.
-        /// </summary>
-        override protected float FadeOutDuration => 0f;
         #endregion
 
         /// <summary>
@@ -45,4 +35,3 @@ namespace GameKit.Examples.Inventories.Canvases
     }
 
 }
-#endif

@@ -1,7 +1,5 @@
 using FishNet;
 using FishNet.Connection;
-using FishNet.Utility;
-using FishNet.Utility.Extension;
 using GameKit.Utilities;
 using GameKit.Utilities.ObjectPooling;
 using GameKit.Utilities.Types;
