@@ -9,6 +9,7 @@ using TriInspector;
 using FishNet.Managing.Server;
 using FishNet.Managing.Logging;
 using FishNet.Connection;
+using GameKit.Utilities;
 
 namespace GameKit.Inventories
 {
@@ -449,7 +450,7 @@ namespace GameKit.Inventories
                     List<BaggedResource> resources;
                     if (!BaggedResources.TryGetValue(rq.ResourceId, out resources))
                     {
-                        resources = new();
+                        resources = CollectionCaches<BaggedResource>.RetrieveList();
                         BaggedResources.Add(rq.ResourceId, resources);
                     }
 

@@ -166,7 +166,6 @@ namespace GameKit.Utilities.Types.CanvasContainers
         public virtual void UpdateScale(Vector3 scale, bool move = true)
         {
             _scaleGoal = scale;
-            Debug.Log("The hell");
             if (move)
                 Move();
         }

@@ -968,8 +968,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2034,13 +2034,14 @@ MonoBehaviour:
   FadeInDuration: 0
   FadeOutDuration: 0
   RectTransform: {fileID: 354314991}
+  UseEdgeAvoidance: 1
   EdgeAvoidance: {x: 10, y: 10}
   SizeLimits:
     X:
       Minimum: 300
       Maximum: 1400
     Y:
-      Minimum: 100
+      Minimum: 50
       Maximum: 800
 --- !u!1 &415305591
 GameObject:

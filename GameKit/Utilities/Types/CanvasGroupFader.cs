@@ -92,6 +92,7 @@ namespace GameKit.Utilities.Types
         {
             SetFadeGoal(true);
             CompleteFade(true);
+            OnShow();
         }
 
         /// <summary>
@@ -101,6 +102,7 @@ namespace GameKit.Utilities.Types
         {
             SetFadeGoal(false);
             CompleteFade(false);
+            OnHide();
         }
 
         /// <summary>
@@ -109,10 +111,20 @@ namespace GameKit.Utilities.Types
         public virtual void Show()
         {
             if (FadeInDuration <= 0f)
+            {
                 ShowImmediately();
+            }
             else
+            {
                 SetFadeGoal(true);
+                OnShow();
+            }
         }
+
+        /// <summary>
+        /// Called after Show or ShowImmediate.
+        /// </summary>
+        protected virtual void OnShow() { }
 
         /// <summary>
         /// Hides CanvasGroup with a fade.
@@ -128,8 +140,14 @@ namespace GameKit.Utilities.Types
                 //Immediately make unclickable so players cannot hit UI objects as it's fading out.
                 SetCanvasGroupBlockingType(CanvasGroupBlockingType.Block);
                 SetFadeGoal(false);
+                OnHide();
             }
         }
+
+        /// <summary>
+        /// Called after Hide or HideImmediate.
+        /// </summary>
+        protected virtual void OnHide() { }
 
         /// <summary>
         /// Sets showing and begins fading if required.
