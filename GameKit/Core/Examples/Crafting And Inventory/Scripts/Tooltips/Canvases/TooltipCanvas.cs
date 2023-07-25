@@ -68,10 +68,17 @@ namespace GameKit.Examples.Tooltips.Canvases
             _container.UpdatePivot(pivot, false);
 
             FloatRange2D sizeLimits = _container.SizeLimits;
-            //Calculate needed size.
-            float widthRequired = _text.GetPreferredValues().x;
-            //Set wrapping based on if width exceeds maximum width.
-            _text.enableWordWrapping = (widthRequired > sizeLimits.X.Maximum);
+            /* Set the rect of the text to maximum size and change anchoring. This will ensure it will
+             * always be one size regardless of parent transforms. This is required because
+             * Text.GetPreferredValues() returns differently depending on the last size of the Text
+             * component, even if the containing string value is the same. This is surely a Unity bug
+             * but I've found no other way around it then what is being done below. */
+            Vector2 anchorOverride = new Vector2(0.5f, 0.5f);
+            _text.rectTransform.anchorMin = anchorOverride;
+            _text.rectTransform.anchorMax = anchorOverride;
+            _text.rectTransform.sizeDelta = new Vector2(sizeLimits.X.Maximum, sizeLimits.Y.Maximum);
+            //Always use word wrap otherwise text will overflow.
+            _text.enableWordWrapping = true;
 
             _container.SetSizeAndShow(_text.GetPreferredValues());
         }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using TriInspector;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 namespace GameKit.Utilities.Types.OptionMenuButtons
 {
@@ -32,6 +32,11 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         [Tooltip("Transform to add buttons to.")]
         [SerializeField, Group("Components")]
         private RectTransform _content;
+        /// <summary>
+        /// LayoutGroup used to hold objects. If left null this will be automatically from any LayoutGroup on the Content transform.
+        /// </summary>
+        [Tooltip("LayoutGroup used to hold objects. If left null this will be automatically from any LayoutGroup on the Content transform.")]
+        private LayoutGroup _layoutGroup;
 
         /// <summary>
         /// Default prefab to use for each button.
@@ -65,6 +70,11 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
 
         private void Awake()
         {
+            if (_layoutGroup == null)
+            {
+                if (!_content.TryGetComponent<LayoutGroup>(out _layoutGroup))
+                    Debug.LogError($"LayoutGroup was not specified and one does not exist on the content transform {_content.name}.");
+            }
             ClientInstance.OnClientChange += ClientInstance_OnClientChange;
             ClientInstance_OnClientChange(ClientInstance.Instance, true);
         }
@@ -186,6 +196,28 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
              * Needed vertical size would then be (possibleButtons * buttonHeight) + ((possibleButtons - 1) * layoutPadding.
              *
              * Once this is known the rectTransform can be resized to the calculated value and position set. */
+
+            int buttonCount = base.Buttons.Count;
+            //Number of button entries which will be padded.
+            int paddingsRequired = (buttonCount - 1);
+            if (_layoutGroup is VerticalLayoutGroup vlg)
+            {
+                //Paddings needed by spacing.
+                float layoutPaddingRequired = (paddingsRequired * vlg.spacing);
+
+            }
+            else if (_layoutGroup is HorizontalLayoutGroup hlg)
+            {
+
+            }
+            else if (_layoutGroup is GridLayoutGroup glg)
+            {
+
+            }
+            else
+            {
+                _canvasManager.NetworkManager.LogError($"GameObject {gameObject.name} LayoutGroup is of an unsupported type {_layoutGroup.GetType().Name}. Resizing will fail.");
+            }
 
             _rectTransform.position = _rectTransform.GetOnScreenPosition(_desiredPosition, Constants.FLOATING_CANVAS_EDGE_PADDING);
 
