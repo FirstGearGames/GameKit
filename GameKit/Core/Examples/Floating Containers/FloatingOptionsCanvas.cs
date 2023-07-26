@@ -33,10 +33,14 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         [SerializeField, Group("Components")]
         private RectTransform _content;
         /// <summary>
-        /// LayoutGroup used to hold objects. If left null this will be automatically from any LayoutGroup on the Content transform.
+        /// 
         /// </summary>
         [Tooltip("LayoutGroup used to hold objects. If left null this will be automatically from any LayoutGroup on the Content transform.")]
         private LayoutGroup _layoutGroup;
+        /// <summary>
+        /// LayoutGroup used to hold objects. If left null this will be automatically from any LayoutGroup on the Content transform.
+        /// </summary>
+        public LayoutGroup LayoutGroup => _layoutGroup;
 
         /// <summary>
         /// Default prefab to use for each button.
@@ -50,7 +54,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         /// </summary>
         [Tooltip("Maximum width and height of the RectTransform. Resizing will occur based on the number of buttons and their sizes but will stay within this range.")]
         [SerializeField, Group("Sizing")]
-        private Vector2 _size = new Vector2(1400f, 800f);
+        private Vector2 _sizeLimits = new Vector2(1400f, 800f);
         #endregion
 
         #region Private.
@@ -65,12 +69,12 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         /// <summary>
         /// Button prefab to use. If not null this will be used instead of the default button prefab.
         /// </summary>
-        private OptionMenuButton _desiredButtonPrefab;
+        private OptionMenuButton _buttonPrefabOverride;
         #endregion
 
         private void Awake()
         {
-            if (_layoutGroup == null)
+            if (LayoutGroup == null)
             {
                 if (!_content.TryGetComponent<LayoutGroup>(out _layoutGroup))
                     Debug.LogError($"LayoutGroup was not specified and one does not exist on the content transform {_content.name}.");
@@ -82,10 +86,8 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         protected override void Update()
         {
             base.Update();
-            if (Time.frameCount % 3 == 0)
-                RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
-
         }
+
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
@@ -100,7 +102,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             if (started)
                 _canvasManager = instance.NetworkManager.GetInstance<CanvasManager>();
 
-            RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
+            ResizeAndShow();
         }
 
         /// <summary>
@@ -117,7 +119,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             RemoveButtons();
             AddButtons(true, buttonDatas);
             //Begin resize.
-            RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
+            ResizeAndShow();
         }
 
         /// <param name="clearExisting">True to clear existing buttons first.</param>
@@ -144,17 +146,17 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         protected override void AddButtons(bool clearExisting, IEnumerable<ButtonData> buttonDatas)
         {
             base.AddButtons(clearExisting, buttonDatas);
-            RectTransformResizer.Resize(new RectTransformResizer.ResizeDelegate(ResizeAndShow));
+            ResizeAndShow();
         }
 
         /// <summary>
         /// Resizes based on button and header.
         /// </summary>
-        private void ResizeAndShow(bool complete)
+        private void ResizeAndShow()
         {
             Vector2 buttonSize;
-            GameObject button = (_desiredButtonPrefab == null) ? _buttonPrefab.gameObject : _desiredButtonPrefab.gameObject;
-            RectTransform buttonRt = _desiredButtonPrefab.GetComponent<RectTransform>();
+            GameObject button = (_buttonPrefabOverride == null) ? _buttonPrefab.gameObject : _buttonPrefabOverride.gameObject;
+            RectTransform buttonRt = _buttonPrefabOverride.GetComponent<RectTransform>();
             if (buttonRt == null)
             {
                 _canvasManager.NetworkManager.LogWarning($"Button prefab {button.name} does not contain a rectTransform on it's root object. Resizing cannot occur.");
@@ -178,8 +180,8 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
 
             /* Maximum size available for buttons. This excludes
              * the padding if padding is used. */
-            Vector2 maximumSizeWithoutPadding = (_size - padding);
-            if (maximumSizeWithoutPadding.x <= 0f || maximumSizeWithoutPadding.y <= 0f)
+            Vector2 maximumSizeAfterPadding = (_sizeLimits - padding);
+            if (maximumSizeAfterPadding.x <= 0f || maximumSizeAfterPadding.y <= 0f)
             {
                 _canvasManager.NetworkManager.LogError($"Maximum size is less than 0f on at least one axes. Resize cannot occur.");
                 return;
@@ -197,32 +199,107 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
              *
              * Once this is known the rectTransform can be resized to the calculated value and position set. */
 
+            /* Cannot think of a better approach at the time to calculate
+             * maximum amount of buttons while also including padding
+             */
+
+            Vector2 resizeValue = Vector2.zero;
             int buttonCount = base.Buttons.Count;
-            //Number of button entries which will be padded.
-            int paddingsRequired = (buttonCount - 1);
-            if (_layoutGroup is VerticalLayoutGroup vlg)
+            //VerticalLayoutGroup
+            if (LayoutGroup is VerticalLayoutGroup vlg)
             {
-                //Paddings needed by spacing.
-                float layoutPaddingRequired = (paddingsRequired * vlg.spacing);
-
+                SetResizeByVertical(vlg.spacing);
             }
-            else if (_layoutGroup is HorizontalLayoutGroup hlg)
+            //HorizontalLayoutGroup
+            else if (LayoutGroup is HorizontalLayoutGroup hlg)
             {
-
+                SetResizeByHorizontal(hlg.spacing);
             }
-            else if (_layoutGroup is GridLayoutGroup glg)
+            //GridLayoutGroup.
+            else if (LayoutGroup is GridLayoutGroup glg)
             {
+                /* If buttonCount is less than fixed count
+                 * then change the resizeValue to accomodate
+                 * the buttonCount on the fixed axis. */
+                bool buttonCountUnderRestraint = (buttonCount < glg.constraintCount);
 
+                if (glg.constraint == GridLayoutGroup.Constraint.FixedRowCount)
+                {
+                    SetResizeByVertical(glg.spacing.y);
+                    if (buttonCountUnderRestraint)
+                        resizeValue.x = (buttonRt.sizeDelta.x * buttonCount) + (glg.spacing.x * (buttonCount - 1));
+                }
+                else if (glg.constraint == GridLayoutGroup.Constraint.FixedColumnCount)
+                {
+                    SetResizeByHorizontal(glg.spacing.x);
+                    if (buttonCountUnderRestraint)
+                        resizeValue.y = (buttonRt.sizeDelta.y * buttonCount) + (glg.spacing.y * (buttonCount - 1));
+                }
+                else
+                {
+                    _canvasManager.NetworkManager.LogError($"GameObject {gameObject.name} GroupLayoutGroup must have a fixed constaint. You can modify the LayoutGroup's settings as runtime by accessing the LayoutGroup property.");
+                }
             }
             else
             {
-                _canvasManager.NetworkManager.LogError($"GameObject {gameObject.name} LayoutGroup is of an unsupported type {_layoutGroup.GetType().Name}. Resizing will fail.");
+                _canvasManager.NetworkManager.LogError($"GameObject {gameObject.name} LayoutGroup is of an unsupported type {LayoutGroup.GetType().Name}. Resizing will fail.");
             }
 
-            _rectTransform.position = _rectTransform.GetOnScreenPosition(_desiredPosition, Constants.FLOATING_CANVAS_EDGE_PADDING);
+            float GetSizeWithPadding(int fittingButtonCount, float buttonDelta, float spacing, float sizeLimit)
+            {
+                //If button count is 0 then return sizeLimit.
+                if (fittingButtonCount <= 0)
+                    return sizeLimit;
 
-            if (complete)
-                base.Show();
+                float paddingRequired = (fittingButtonCount - 1) * spacing;
+                return (fittingButtonCount * buttonDelta) + paddingRequired;
+            }
+
+            //Sets resizeValue by using resizable Y.
+            void SetResizeByVertical(float spacing)
+            {
+                float buttonDelta = buttonRt.sizeDelta.y;
+                int fittingButtonCount = Mathf.Min(buttonCount, Mathf.FloorToInt(maximumSizeAfterPadding.y / buttonDelta));
+                //Size needed by fittingButtonCount and padding.
+                float verticalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
+                /* If at least one button can fit see how much padding
+                * would be needed to get all fittingButtonCounts in.
+                * If button size delta + padding would exceed maximum size
+                * then reduce the button count by 1, and recalculate
+                * size with padding. */
+                if (verticalNeeded > maximumSizeAfterPadding.y)
+                {
+                    fittingButtonCount--;
+                    verticalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
+                }
+
+                float horizontalNeeded = (buttonRt.sizeDelta.x > maximumSizeAfterPadding.x) ? maximumSizeAfterPadding.x : buttonRt.sizeDelta.x;
+                resizeValue = new Vector2(horizontalNeeded, verticalNeeded);
+            }
+            //Sets resizeValue by using resizable X.
+            void SetResizeByHorizontal(float spacing)
+            {
+                float buttonDelta = buttonRt.sizeDelta.x;
+                int fittingButtonCount = Mathf.Min(buttonCount, Mathf.FloorToInt(maximumSizeAfterPadding.y / buttonDelta));
+
+                float horizontalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
+                if (horizontalNeeded > maximumSizeAfterPadding.x)
+                {
+                    fittingButtonCount--;
+                    horizontalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
+                }
+
+                float verticalNeeded = (buttonRt.sizeDelta.y > maximumSizeAfterPadding.y) ? maximumSizeAfterPadding.y : buttonRt.sizeDelta.y;
+                resizeValue = new Vector2(horizontalNeeded, verticalNeeded);
+            }
+
+            //If able to resize.
+            if (resizeValue != Vector2.zero)
+            {
+                _rectTransform.sizeDelta = resizeValue;
+                _rectTransform.position = _rectTransform.GetOnScreenPosition(_desiredPosition, Constants.FLOATING_CANVAS_EDGE_PADDING);
+            }
+            base.Show();
         }
 
     }

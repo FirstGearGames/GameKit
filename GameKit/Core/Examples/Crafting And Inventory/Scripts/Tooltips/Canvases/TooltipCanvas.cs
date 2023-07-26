@@ -103,27 +103,6 @@ namespace GameKit.Examples.Tooltips.Canvases
             Hide();
         }
 
-        ///// <summary>
-        ///// Resizes transform based on bag slots.
-        ///// </summary>
-        //private void ResizeAndShow(bool complete, Vector3 position)
-        //{
-        //    Vector2 preferredValues = _text.GetPreferredValues();
-        //    float widthRequired = preferredValues.x;
-        //    //Set wrapping based on if width exceeds maximum width.
-        //    _text.enableWordWrapping = (widthRequired > _size.X.Maximum);
-        //    float heightRequired = preferredValues.y;
-        //    //Clamp width and height.
-        //    widthRequired = Mathf.Clamp(widthRequired, _size.X.Minimum, _size.X.Maximum);
-        //    heightRequired = Mathf.Clamp(heightRequired, _size.Y.Minimum, _size.Y.Maximum);
-        //    _rectTransform.sizeDelta = new Vector2(widthRequired, heightRequired);
-
-        //    _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
-
-        //    if (complete)
-        //        _canvasGroup.SetActive(CanvasGroupBlockingType.Unchanged, 0.9f);
-        //}
-
     }
 
 
