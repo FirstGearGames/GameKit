@@ -125,11 +125,9 @@ namespace GameKit.Examples.Crafting.Canvases
             _cancelCraftingButton.onClick.AddListener(OnClick_Cancel);
             _craftOneButton.onClick.AddListener(OnClick_CraftOne);
             _craftAllButton.onClick.AddListener(OnClick_CraftAll);
-
             EnableButtons(false);
 
-            ClientInstance.OnClientChange += ClientInstance_OnClientChange;
-            ClientInstance_OnClientChange(ClientInstance.Instance, true);
+            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
         }
 
         private void OnDestroy()

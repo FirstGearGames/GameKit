@@ -59,10 +59,6 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
 
         #region Private.
         /// <summary>
-        /// CanvasManager for instance.
-        /// </summary>
-        private CanvasManager _canvasManager;
-        /// <summary>
         /// Preferred position of the canvas.
         /// </summary>
         private Vector3 _desiredPosition;
@@ -70,6 +66,10 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         /// Button prefab to use. If not null this will be used instead of the default button prefab.
         /// </summary>
         private OptionMenuButton _buttonPrefabOverride;
+        /// <summary>
+        /// ClientInstance for the local client.
+        /// </summary>
+        private ClientInstance _clientInstance;
         #endregion
 
         private void Awake()
@@ -79,8 +79,13 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 if (!_content.TryGetComponent<LayoutGroup>(out _layoutGroup))
                     Debug.LogError($"LayoutGroup was not specified and one does not exist on the content transform {_content.name}.");
             }
-            ClientInstance.OnClientChange += ClientInstance_OnClientChange;
-            ClientInstance_OnClientChange(ClientInstance.Instance, true);
+
+            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
+        }
+
+        private void OnDestroy()
+        {
+            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
         }
 
         protected override void Update()
@@ -99,10 +104,9 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             if (!instance.IsOwner)
                 return;
 
+            _clientInstance = instance;
             if (started)
-                _canvasManager = instance.NetworkManager.GetInstance<CanvasManager>();
-
-            ResizeAndShow();
+                instance.NetworkManager.RegisterInstance<FloatingOptionsCanvas>(this);
         }
 
         /// <summary>
@@ -159,7 +163,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             RectTransform buttonRt = _buttonPrefabOverride.GetComponent<RectTransform>();
             if (buttonRt == null)
             {
-                _canvasManager.NetworkManager.LogWarning($"Button prefab {button.name} does not contain a rectTransform on it's root object. Resizing cannot occur.");
+                _clientInstance.NetworkManager.LogWarning($"Button prefab {button.name} does not contain a rectTransform on it's root object. Resizing cannot occur.");
                 return;
             }
             buttonSize = buttonRt.sizeDelta;
@@ -183,7 +187,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             Vector2 maximumSizeAfterPadding = (_sizeLimits - padding);
             if (maximumSizeAfterPadding.x <= 0f || maximumSizeAfterPadding.y <= 0f)
             {
-                _canvasManager.NetworkManager.LogError($"Maximum size is less than 0f on at least one axes. Resize cannot occur.");
+                _clientInstance.NetworkManager.LogError($"Maximum size is less than 0f on at least one axes. Resize cannot occur.");
                 return;
             }
 
@@ -237,12 +241,12 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 }
                 else
                 {
-                    _canvasManager.NetworkManager.LogError($"GameObject {gameObject.name} GroupLayoutGroup must have a fixed constaint. You can modify the LayoutGroup's settings as runtime by accessing the LayoutGroup property.");
+                    _clientInstance.NetworkManager.LogError($"GameObject {gameObject.name} GroupLayoutGroup must have a fixed constaint. You can modify the LayoutGroup's settings as runtime by accessing the LayoutGroup property.");
                 }
             }
             else
             {
-                _canvasManager.NetworkManager.LogError($"GameObject {gameObject.name} LayoutGroup is of an unsupported type {LayoutGroup.GetType().Name}. Resizing will fail.");
+                _clientInstance.NetworkManager.LogError($"GameObject {gameObject.name} LayoutGroup is of an unsupported type {LayoutGroup.GetType().Name}. Resizing will fail.");
             }
 
             float GetSizeWithPadding(int fittingButtonCount, float buttonDelta, float spacing, float sizeLimit)

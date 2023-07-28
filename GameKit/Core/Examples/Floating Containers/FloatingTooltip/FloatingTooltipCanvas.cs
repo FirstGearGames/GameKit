@@ -1,18 +1,15 @@
 using UnityEngine;
 using TMPro;
-using FishNet;
-using GameKit.Examples.Managers;
 using TriInspector;
 using GameKit.Utilities.Types;
-using GameKit.Utilities;
 using GameKit.Utilities.Types.CanvasContainers;
 
-namespace GameKit.Examples.Tooltips.Canvases
+namespace GameKit.Examples.FloatingContainers.Tooltips
 {
 
     [DeclareFoldoutGroup("Components")]
     [DeclareFoldoutGroup("Sizing")]
-    public class TooltipCanvas : MonoBehaviour
+    public class FloatingTooltipCanvas : MonoBehaviour
     {
         #region Serialized.
         /// <summary>
@@ -34,22 +31,33 @@ namespace GameKit.Examples.Tooltips.Canvases
         /// Object calling Show.
         /// </summary>
         private object _caller;
-        /// <summary>
-        /// CanvasManager to use.
-        /// </summary>
-        private CanvasManager _canvasManager;
         #endregion
 
         private void Awake()
         {
-            InitializeOnce();
+            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
         }
 
-        private void InitializeOnce()
+        private void OnDestroy()
         {
-            _canvasManager = InstanceFinder.NetworkManager.GetInstance<CanvasManager>();
-            _canvasManager.TooltipCanvas = this;
+            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
         }
+
+        /// <summary>
+        /// Called when a ClientInstance runs OnStop or OnStartClient.
+        /// </summary>
+        private void ClientInstance_OnClientChange(ClientInstance instance, bool started)
+        {
+            if (instance == null)
+                return;
+            //Do not do anything if this is not the instance owned by local client.
+            if (!instance.IsOwner)
+                return;
+
+            if (started)
+                instance.NetworkManager.RegisterInstance<FloatingTooltipCanvas>(this);
+        }
+
 
         /// <summary>
         /// Shows this canvas.

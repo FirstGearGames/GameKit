@@ -1,6 +1,7 @@
 using GameKit.Inventories;
 using GameKit.Crafting;
 using FishNet.Object;
+using System.Collections.Generic;
 
 namespace GameKit.Examples
 {
@@ -14,14 +15,44 @@ namespace GameKit.Examples
         public static event ServerChangeDel OnServerChange;
         public delegate void ServerChangeDel(ClientInstance instance, bool started);
         /// <summary>
+        /// Registers to OnServerChange and invokes immediately for all ClientInstances.
+        /// </summary>
+        public static void OnServerChangeInvoke(ServerChangeDel del)
+        {
+            OnServerChange += del;
+
+            foreach (ClientInstance item in Instances)
+            {
+                if (item.IsServer)
+                    del?.Invoke(item, true);
+            }
+        }
+        /// <summary>
         /// Called when OnStartClient or OnStopClient occurs.
         /// </summary>
-        public static event ClientChangedDel OnClientChange;
-        public delegate void ClientChangedDel(ClientInstance instance, bool started);
+        public static event ClientChangeDel OnClientChange;
+        public delegate void ClientChangeDel(ClientInstance instance, bool started);
+        /// <summary>
+        /// Registers to OnClientChange and invokes immediately for all ClientInstances.
+        /// </summary>
+        public static void OnClientChangeInvoke(ClientChangeDel del)
+        {
+            OnClientChange += del;
+            
+            foreach (ClientInstance item in Instances)
+            {
+                if (item.IsClient)
+                    del?.Invoke(item, true);
+            }
+        }
         /// <summary>
         /// Instance for the local client.
         /// </summary>
         public static ClientInstance Instance { get; private set; }
+        /// <summary>
+        /// All instances of this class.
+        /// </summary>
+        public static HashSet<ClientInstance> Instances { get; private set; }
         /// <summary>
         /// Inventory for this cliet.
         /// </summary>
@@ -38,23 +69,29 @@ namespace GameKit.Examples
             Crafter = GetComponent<Crafter>();
         }
 
+        public override void OnStartNetwork()
+        {
+            Instances.Add(this);
+        }
+
         public override void OnStartServer()
         {
-            base.OnStartServer();
             OnServerChange?.Invoke(this, true);
         }
 
         public override void OnStartClient()
         {
-            base.OnStartClient();
             if (base.IsOwner)
                 Instance = this;
             OnClientChange?.Invoke(this, true);
         }
 
+        public override void OnStopNetwork()
+        {
+            Instances.Remove(this);
+        }
         public override void OnStopClient()
         {
-            base.OnStopClient();
             OnClientChange?.Invoke(this, false);
             if (base.IsOwner)
                 Instance = null;
@@ -62,7 +99,6 @@ namespace GameKit.Examples
 
         public override void OnStopServer()
         {
-            base.OnStopServer();
             OnServerChange?.Invoke(this, false);
         }
     }

@@ -1,5 +1,3 @@
-using FishNet;
-using FishNet.Transporting;
 using UnityEngine;
 
 namespace GameKit.Examples.Utilities
@@ -12,11 +10,7 @@ namespace GameKit.Examples.Utilities
     {
         private void Awake()
         {
-            ClientInstance.OnClientChange += ClientInstance_OnClientChange;
-            /* Invoke a start immediately using the clients
-             * current instance. If it's null then the object will
-             * deactivate. */
-            ClientInstance_OnClientChange(ClientInstance.Instance, true);
+            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
         }
 
         private void OnDestroy()

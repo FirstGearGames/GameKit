@@ -7,8 +7,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using TriInspector;
-using GameKit.Examples.Tooltips.Canvases;
 using GameKit.Utilities;
+using GameKit.Examples.FloatingContainers.Tooltips;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -82,7 +82,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// TooltipCanvas to use.
         /// </summary>
-        private TooltipCanvas _tooltipCanvas;
+        private FloatingTooltipCanvas _tooltipCanvas;
         /// <summary>
         /// True if RectTransform needs to be resized.
         /// </summary>
@@ -97,7 +97,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this script for use.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, Bag bag)
+        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, Bag bag)
         {
             //Destroy any content which may have been placed for testing.
             _content.DestroyChildren<ResourceEntry>(false);

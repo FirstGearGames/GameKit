@@ -7,8 +7,8 @@ using UnityEngine.UI;
 using TriInspector;
 using GameKit.Examples.Resources;
 using UnityEngine.EventSystems;
-using GameKit.Examples.Tooltips.Canvases;
 using GameKit.Inventories;
+using GameKit.Examples.FloatingContainers.Tooltips;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -68,7 +68,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// TooltipCanvas to use.
         /// </summary>
-        private TooltipCanvas _tooltipCanvas;
+        private FloatingTooltipCanvas _tooltipCanvas;
         /// <summary>
         /// True if the pointer is pressing this object.
         /// </summary>
@@ -100,7 +100,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, ResourceQuantity rq, BaggedResource bagSlot)
+        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ResourceQuantity rq, BaggedResource bagSlot)
         {
             //If no data then initialize empty.
             if (rq.IsUnset)
@@ -123,7 +123,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Initializes this with no data, resetting values.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, TooltipCanvas tooltipCanvas, BaggedResource bagSlot)
+        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, BaggedResource bagSlot)
         {
             SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;

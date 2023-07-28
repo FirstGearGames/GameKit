@@ -9,9 +9,9 @@ using GameKit.Examples.Managers;
 using TriInspector;
 using System;
 using GameKit.Examples.Resources;
-using GameKit.Examples.Tooltips.Canvases;
 using UnityEngine.UI;
 using GameKit.Utilities;
+using GameKit.Examples.FloatingContainers.Tooltips;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
@@ -96,7 +96,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// TooltipCanvas to use.
         /// </summary>
-        private TooltipCanvas _tooltipCanvas;
+        private FloatingTooltipCanvas _tooltipCanvas;
         /// <summary>
         /// Entry currently being held.
         /// </summary>
@@ -124,12 +124,24 @@ namespace GameKit.Examples.Inventories.Canvases
             _floatingInventoryItem.Hide();
             //Attach floating to this canvas so the rect transforms on it works.
             _floatingInventoryItem.transform.SetParentAndKeepTransform(transform);
+
+            //Destroy content children. There may be some present from testing.
+            _bagContent.DestroyChildren<BagEntry>(true);
+            _searchInput.onValueChanged.AddListener(_searchInput_OnValueChanged);
+
+            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
         }
 
         private void Start()
         {
-            InitializeOnce();
             Show();
+        }
+
+        private void OnDestroy()
+        {
+            ChangeSubscription(ClientInstance.Instance, false);
+            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+            _searchInput.onValueChanged.AddListener(_searchInput_OnValueChanged);
         }
 
         private void Update()
@@ -147,35 +159,6 @@ namespace GameKit.Examples.Inventories.Canvases
                 return;
 
             _floatingInventoryItem.UpdatePosition(Input.mousePosition);
-        }
-
-        private void OnDestroy()
-        {
-            ChangeSubscription(ClientInstance.Instance, false);
-            ClientInstance.OnClientChange -= ClientInstance_OnClientStarted;
-            _searchInput.onValueChanged.AddListener(_searchInput_OnValueChanged);
-        }
-
-        private void InitializeOnce()
-        {
-            CanvasManager cm = InstanceFinder.NetworkManager.GetInstance<CanvasManager>();
-            if (cm != null)
-            {
-                cm.InventoryCanvas = this;
-                _tooltipCanvas = cm.TooltipCanvas;
-            }
-
-            //Destroy content children. There may be some present from testing.
-            _bagContent.DestroyChildren<BagEntry>(true);
-
-            ClientInstance selfCi = ClientInstance.Instance;
-            //If client instance exist then get inventory, otherwise listen for instantiation.
-            if (selfCi != null)
-                ClientInstance_OnClientStarted(selfCi, true);
-
-            //Listen for changes to the client instance.
-            ClientInstance.OnClientChange += ClientInstance_OnClientStarted;
-            _searchInput.onValueChanged.AddListener(_searchInput_OnValueChanged);
         }
 
         /// <summary>
@@ -298,7 +281,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Called when OnStartClient occurs on this local clients ClientInstance.
         /// </summary>
-        private void ClientInstance_OnClientStarted(ClientInstance instance, bool started)
+        private void ClientInstance_OnClientChange(ClientInstance instance, bool started)
         {
             ChangeSubscription(instance, started);
             if (started)
