@@ -11,6 +11,8 @@ using UnityEngine.UI;
 namespace GameKit.Utilities.Types.OptionMenuButtons
 {
 
+    [DeclareFoldoutGroup("Buttons")]
+    [DeclareFoldoutGroup("Sizing")]
     public class FloatingOptionsCanvas : FloatingOptions
     {
         #region Serialized.

@@ -52,7 +52,7 @@ namespace GameKit.Examples
         /// <summary>
         /// All instances of this class.
         /// </summary>
-        public static HashSet<ClientInstance> Instances { get; private set; }
+        public static HashSet<ClientInstance> Instances { get; private set; } = new HashSet<ClientInstance>();
         /// <summary>
         /// Inventory for this cliet.
         /// </summary>
