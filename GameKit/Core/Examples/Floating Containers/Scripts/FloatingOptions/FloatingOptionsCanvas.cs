@@ -145,23 +145,14 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         }
 
         /// <summary>
-        /// Adds buttons.
-        /// </summary>
-        /// <param name="clearExisting">True to clear existing buttons first.</param>
-        /// <param name="buttonDatas">Buttons to add.</param>
-        protected override void AddButtons(bool clearExisting, IEnumerable<ButtonData> buttonDatas)
-        {
-            base.AddButtons(clearExisting, buttonDatas);
-            ResizeAndShow();
-        }
-
-        /// <summary>
         /// Resizes based on button and header.
         /// </summary>
-        private void ResizeAndShow()
+        public void ResizeAndShow()
         {
+            //Clear buttons.
+            _content.DestroyChildren(true);
             Vector2 buttonSize;
-            GameObject button = (_buttonPrefabOverride == null) ? _buttonPrefab.gameObject : _buttonPrefabOverride.gameObject;
+            OptionMenuButton button = (_buttonPrefabOverride == null) ? _buttonPrefab : _buttonPrefabOverride;
             RectTransform buttonRt = button.GetComponent<RectTransform>();
             if (buttonRt == null)
             {
@@ -169,8 +160,6 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 return;
             }
             buttonSize = buttonRt.sizeDelta;
-            //Start minimum size to that of the button.
-            Vector2 minimumSize = Vector2.zero;
 
             Vector2 padding = Vector2.zero;
             //If to add on padding.
@@ -181,8 +170,6 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                     Mathf.Abs(_paddingTransform.offsetMax.y) + Mathf.Abs(_paddingTransform.offsetMin.y)
                     );
             }
-            //Add padding onto minimum size.
-            minimumSize += padding;
 
             /* Maximum size available for buttons. This excludes
              * the padding if padding is used. */
@@ -235,6 +222,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 _clientInstance.NetworkManager.LogError($"GameObject {gameObject.name} LayoutGroup is of an unsupported type {LayoutGroup.GetType().Name}. Resizing will fail.");
             }
 
+            //Returns how much space is needed to accomodate passed in values.
             float GetSizeWithPadding(int fittingButtonCount, float buttonDelta, float spacing, float sizeLimit)
             {
                 //If button count is 0 then return sizeLimit.
@@ -264,7 +252,6 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 }
 
                 float horizontalNeeded = (buttonSize.x > maximumSizeAfterPadding.x) ? maximumSizeAfterPadding.x : buttonSize.x;
-                Debug.Log($"HorizontalNeeded {horizontalNeeded}. maxSizeAfterPadding {maximumSizeAfterPadding}. ButtonRT {buttonRt.sizeDelta.x}");
                 resizeValue = new Vector2(horizontalNeeded, verticalNeeded);
             }
             //Sets resizeValue by using resizable X.
@@ -284,15 +271,26 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 resizeValue = new Vector2(horizontalNeeded, verticalNeeded);
             }
 
-            Debug.Log(resizeValue);
             //If able to resize.
-            if (resizeValue != Vector2.zero)
+            if (resizeValue.x > 0f && resizeValue.y > 0f)
             {
+                //Add all the buttons!
+                foreach (ButtonData bd in base.Buttons)
+                {
+                    OptionMenuButton omb = Instantiate(button, _content, false);
+                    omb.Initialize(bd);
+                }
+                //Add padding onto resize value.
+                resizeValue += padding;
                 _rectTransform.sizeDelta = resizeValue;
                 _rectTransform.position = _rectTransform.GetOnScreenPosition(_desiredPosition, Constants.FLOATING_CANVAS_EDGE_PADDING);
                 base.Show();
             }
-            
+            else
+            {
+                _clientInstance.NetworkManager.LogError($"Canvas cannot be resized because one or more axes is at 0f. This usually occurs when the selected button prefab has an invalid value for width or height.");
+            }
+
         }
 
     }
