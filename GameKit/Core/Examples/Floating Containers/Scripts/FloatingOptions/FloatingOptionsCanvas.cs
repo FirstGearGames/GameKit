@@ -162,7 +162,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         {
             Vector2 buttonSize;
             GameObject button = (_buttonPrefabOverride == null) ? _buttonPrefab.gameObject : _buttonPrefabOverride.gameObject;
-            RectTransform buttonRt = _buttonPrefabOverride.GetComponent<RectTransform>();
+            RectTransform buttonRt = button.GetComponent<RectTransform>();
             if (buttonRt == null)
             {
                 _clientInstance.NetworkManager.LogWarning($"Button prefab {button.name} does not contain a rectTransform on it's root object. Resizing cannot occur.");
@@ -193,22 +193,6 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 return;
             }
 
-            /* Check the content transform for the layout group type.
-             * EG: if vertical layout group ...
-             * 
-             * --- Padding needed to fit all buttons...
-             * float layoutPaddingRequired = (buttonCount - 1) * layoutPadding.
-             * --- Number of buttons which can fit into maximumSize while including the layout group padding.
-             * int possibleButtons = Mathf.FloorToInt((maximumSizeWithoutPadding - layoutPaddingRequired) / buttonCount);
-             * --- Vertical size needed to include possible buttons and their layout group padding.
-             * Needed vertical size would then be (possibleButtons * buttonHeight) + ((possibleButtons - 1) * layoutPadding.
-             *
-             * Once this is known the rectTransform can be resized to the calculated value and position set. */
-
-            /* Cannot think of a better approach at the time to calculate
-             * maximum amount of buttons while also including padding
-             */
-
             Vector2 resizeValue = Vector2.zero;
             int buttonCount = base.Buttons.Count;
             //VerticalLayoutGroup
@@ -233,13 +217,13 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                 {
                     SetResizeByVertical(glg.spacing.y);
                     if (buttonCountUnderRestraint)
-                        resizeValue.x = (buttonRt.sizeDelta.x * buttonCount) + (glg.spacing.x * (buttonCount - 1));
+                        resizeValue.x = (buttonSize.x * buttonCount) + (glg.spacing.x * (buttonCount - 1));
                 }
                 else if (glg.constraint == GridLayoutGroup.Constraint.FixedColumnCount)
                 {
                     SetResizeByHorizontal(glg.spacing.x);
                     if (buttonCountUnderRestraint)
-                        resizeValue.y = (buttonRt.sizeDelta.y * buttonCount) + (glg.spacing.y * (buttonCount - 1));
+                        resizeValue.y = (buttonSize.y * buttonCount) + (glg.spacing.y * (buttonCount - 1));
                 }
                 else
                 {
@@ -264,7 +248,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
             //Sets resizeValue by using resizable Y.
             void SetResizeByVertical(float spacing)
             {
-                float buttonDelta = buttonRt.sizeDelta.y;
+                float buttonDelta = buttonSize.y;
                 int fittingButtonCount = Mathf.Min(buttonCount, Mathf.FloorToInt(maximumSizeAfterPadding.y / buttonDelta));
                 //Size needed by fittingButtonCount and padding.
                 float verticalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
@@ -279,13 +263,14 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                     verticalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
                 }
 
-                float horizontalNeeded = (buttonRt.sizeDelta.x > maximumSizeAfterPadding.x) ? maximumSizeAfterPadding.x : buttonRt.sizeDelta.x;
+                float horizontalNeeded = (buttonSize.x > maximumSizeAfterPadding.x) ? maximumSizeAfterPadding.x : buttonSize.x;
+                Debug.Log($"HorizontalNeeded {horizontalNeeded}. maxSizeAfterPadding {maximumSizeAfterPadding}. ButtonRT {buttonRt.sizeDelta.x}");
                 resizeValue = new Vector2(horizontalNeeded, verticalNeeded);
             }
             //Sets resizeValue by using resizable X.
             void SetResizeByHorizontal(float spacing)
             {
-                float buttonDelta = buttonRt.sizeDelta.x;
+                float buttonDelta = buttonSize.x;
                 int fittingButtonCount = Mathf.Min(buttonCount, Mathf.FloorToInt(maximumSizeAfterPadding.y / buttonDelta));
 
                 float horizontalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
@@ -295,17 +280,19 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
                     horizontalNeeded = GetSizeWithPadding(fittingButtonCount, buttonDelta, spacing, fittingButtonCount);
                 }
 
-                float verticalNeeded = (buttonRt.sizeDelta.y > maximumSizeAfterPadding.y) ? maximumSizeAfterPadding.y : buttonRt.sizeDelta.y;
+                float verticalNeeded = (buttonSize.y > maximumSizeAfterPadding.y) ? maximumSizeAfterPadding.y : buttonSize.y;
                 resizeValue = new Vector2(horizontalNeeded, verticalNeeded);
             }
 
+            Debug.Log(resizeValue);
             //If able to resize.
             if (resizeValue != Vector2.zero)
             {
                 _rectTransform.sizeDelta = resizeValue;
                 _rectTransform.position = _rectTransform.GetOnScreenPosition(_desiredPosition, Constants.FLOATING_CANVAS_EDGE_PADDING);
+                base.Show();
             }
-            base.Show();
+            
         }
 
     }
