@@ -6,51 +6,49 @@ using GameKit.Resources;
 using FishNet;
 using GameKit.Inventories;
 using GameKit.Examples.Managers;
-using TriInspector;
+
 using System;
 using GameKit.Examples.Resources;
 using UnityEngine.UI;
 using GameKit.Utilities;
 using GameKit.Examples.FloatingContainers.Tooltips;
+using GameKit.Dependencies.Inspectors;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
 
-    [DeclareFoldoutGroup("Header")]
-    [DeclareFoldoutGroup("Collection")]
-    [DeclareFoldoutGroup("Footer")]
     public class InventoryCanvas : MonoBehaviour
     {
         #region Serialized.
         /// <summary>
         /// TextMeshPro to show which category is selected.
         /// </summary>
-        [PropertyTooltip("TextMeshPro to show which category is selected.")]
+        [Tooltip("TextMeshPro to show which category is selected.")]
         [SerializeField, Group("Header")]
         private TextMeshProUGUI _categoryText;
         /// <summary>
         /// Input used to search the current category.
         /// </summary>
-        [PropertyTooltip("Input used to search the current category.")]
+        [Tooltip("Input used to search the current category.")]
         [SerializeField, Group("Header")]
         private TMP_InputField _searchInput;
 
         /// <summary>
         /// ScrollRect to disable when dragging entries.
         /// </summary>
-        [PropertyTooltip("ScrollRect to disable when dragging entries.")]
+        [Tooltip("ScrollRect to disable when dragging entries.")]
         [SerializeField, Group("Collection")]
         private ScrollRect _scrollRect;
         /// <summary>
         /// Prefab to use for resource entries.
         /// </summary>
-        [PropertyTooltip("Prefab to use for resource entries.")]
+        [Tooltip("Prefab to use for resource entries.")]
         [SerializeField, Group("Collection")]
         private BagEntry _bagEntryPrefab;
         /// <summary>
         /// Transform to place instantiated bags.
         /// </summary>
-        [PropertyTooltip("Transform to place instantiated bags.")]
+        [Tooltip("Transform to place instantiated bags.")]
         [SerializeField, Group("Collection")]
         private Transform _bagContent;
         /// <summary>
@@ -63,7 +61,7 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Text to show amount of space used in the inventory.
         /// </summary>
-        [PropertyTooltip("Text to show amount of space used in the inventory.")]
+        [Tooltip("Text to show amount of space used in the inventory.")]
         [SerializeField, Group("Footer")]
         private TextMeshProUGUI _inventorySpaceText;
         #endregion

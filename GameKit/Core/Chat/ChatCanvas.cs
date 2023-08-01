@@ -1,12 +1,13 @@
 using FishNet;
 using FishNet.Connection;
+using GameKit.Dependencies.Inspectors;
 using GameKit.Utilities;
 using GameKit.Utilities.ObjectPooling;
 using GameKit.Utilities.Types;
 using OldFartGames.Gameplay.Dependencies;
 using System.Collections.Generic;
 using TMPro;
-using TriInspector;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -16,9 +17,6 @@ namespace OldFartGames.Gameplay.Canvases.Chats
     /// <summary>
     /// Used to display chat and take chat input from the local client.
     /// </summary>
-    [DeclareFoldoutGroup("Misc")]
-    [DeclareFoldoutGroup("Outbound")]
-    [DeclareFoldoutGroup("Colors")]
     public class ChatCanvas : MonoBehaviour
     {
         #region Serialized.

@@ -1,18 +1,15 @@
 using FishNet;
+using GameKit.Dependencies.Inspectors;
 using GameKit.Examples;
-using GameKit.Examples.Managers;
 using GameKit.Utilities.Types.CanvasContainers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using TriInspector;
+
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameKit.Utilities.Types.OptionMenuButtons
 {
-
-    [DeclareFoldoutGroup("Buttons")]
-    [DeclareFoldoutGroup("Sizing")]
     public class FloatingOptionsCanvas : FloatingOptions
     {
         #region Serialized.

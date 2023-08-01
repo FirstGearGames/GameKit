@@ -4,7 +4,7 @@ using GameKit.Resources;
 using GameKit.Resources.Managers;
 using System.Collections.Generic;
 using TMPro;
-using TriInspector;
+
 using UnityEngine;
 
 namespace GameKit.Examples.Crafting.Canvases
@@ -15,7 +15,7 @@ namespace GameKit.Examples.Crafting.Canvases
         /// <summary>
         /// Text to show recipe information.
         /// </summary>
-        [PropertyTooltip("Text to show recipe information.")]
+        [Tooltip("Text to show recipe information.")]
         [SerializeField]
         private TextMeshProUGUI _titleTMP;
 

@@ -1,12 +1,12 @@
+using GameKit.Dependencies.Inspectors;
 using GameKit.Utilities;
 using GameKit.Utilities.Types.CanvasContainers;
 using TMPro;
-using TriInspector;
+
 using UnityEngine;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
-    [DeclareFoldoutGroup("Components")]
     public class FloatingResourceEntry : FloatingImage
     {
         #region Serialized.

@@ -6,16 +6,13 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TriInspector;
+
 using GameKit.Utilities;
 using GameKit.Examples.FloatingContainers.Tooltips;
+using GameKit.Dependencies.Inspectors;
 
 namespace GameKit.Examples.Inventories.Canvases
 {
-
-    [DeclareFoldoutGroup("Sizing")]
-    [DeclareFoldoutGroup("Header")]
-    [DeclareFoldoutGroup("Misc")]
     public class BagEntry : MonoBehaviour
     {
         #region Public.
@@ -33,39 +30,39 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// RectTransform for this script. Used to resize based on number of resource entries and bag size.
         /// </summary>
-        [PropertyTooltip("RectTransform for this script. Used to resize based on number of resource entries and bag size.")]
+        [Tooltip("RectTransform for this script. Used to resize based on number of resource entries and bag size.")]
         [SerializeField, Group("Sizing")]
         private RectTransform _rectTransform;
         /// <summary>
         /// RectTransform for the bag header. This is used to add additional size to this bags RectTransform.
         /// </summary>
-        [PropertyTooltip("RectTransform for the bag header.")]
+        [Tooltip("RectTransform for the bag header.")]
         [SerializeField, Group("Sizing")]
         private RectTransform _bagHeader;
         /// <summary>
         /// LayoutGroup for resource entries.
         /// </summary>
         public GridLayoutGroup GridLayoutGroup => _gridLayoutGroup;
-        [PropertyTooltip("LayoutGroup for resource entries.")]
+        [Tooltip("LayoutGroup for resource entries.")]
         [SerializeField, Group("Sizing")]
         private GridLayoutGroup _gridLayoutGroup;        
         /// <summary>
         /// Text to show bag information.
         /// </summary>
-        [PropertyTooltip("Text to show bag information.")]
+        [Tooltip("Text to show bag information.")]
         [SerializeField, Group("Header")]
         private TextMeshProUGUI _bagTitleText;
 
         /// <summary>
         /// Content where each resource entry is instantiated.
         /// </summary>
-        [PropertyTooltip("Content where each resource entry is instantiated.")]
+        [Tooltip("Content where each resource entry is instantiated.")]
         [SerializeField, Group("Misc")]
         private Transform _content;
         /// <summary>
         /// Prefab for resource entries.
         /// </summary>
-        [PropertyTooltip("Prefab for resource entries.")]
+        [Tooltip("Prefab for resource entries.")]
         [SerializeField, Group("Misc")]
         private ResourceEntry _resourceEntryPrefab;
         #endregion

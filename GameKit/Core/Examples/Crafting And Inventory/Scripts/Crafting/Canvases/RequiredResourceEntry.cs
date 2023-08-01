@@ -3,7 +3,7 @@ using GameKit.Inventories;
 using GameKit.Resources;
 using GameKit.Resources.Managers;
 using TMPro;
-using TriInspector;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,19 +15,19 @@ namespace GameKit.Examples.Crafting.Canvases
         /// <summary>
         /// Icon for the resource.
         /// </summary>
-        [PropertyTooltip("Icon for the resource.")]
+        [Tooltip("Icon for the resource.")]
         [SerializeField]
         private Image _icon;
         /// <summary>
         /// Text to show name of the resource.
         /// </summary>
-        [PropertyTooltip("Text to show name of the resource.")]
+        [Tooltip("Text to show name of the resource.")]
         [SerializeField]
         private TextMeshProUGUI _nameText;
         /// <summary>
         /// Text to show quantity needed.
         /// </summary>
-        [PropertyTooltip("Text to show quantity needed.")]
+        [Tooltip("Text to show quantity needed.")]
         [SerializeField]
         private TextMeshProUGUI _quantityText;
         /// <summary>

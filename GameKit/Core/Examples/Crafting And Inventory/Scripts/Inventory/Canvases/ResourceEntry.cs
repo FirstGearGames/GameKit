@@ -4,7 +4,7 @@ using FishNet;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TriInspector;
+
 using GameKit.Examples.Resources;
 using UnityEngine.EventSystems;
 using GameKit.Inventories;
@@ -49,13 +49,13 @@ namespace GameKit.Examples.Inventories.Canvases
         /// <summary>
         /// Icon for resource.
         /// </summary>
-        [PropertyTooltip("Icon for resource.")]
+        [Tooltip("Icon for resource.")]
         [SerializeField]
         private Image _icon;
         /// <summary>
         /// Text for stack size.
         /// </summary>
-        [PropertyTooltip("Text for stack size.")]
+        [Tooltip("Text for stack size.")]
         [SerializeField]
         private TextMeshProUGUI _stackText;
         #endregion

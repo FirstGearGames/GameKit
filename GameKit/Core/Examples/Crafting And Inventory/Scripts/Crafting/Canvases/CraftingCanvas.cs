@@ -1,76 +1,73 @@
 using GameKit.Crafting;
 using GameKit.Crafting.Managers;
+using GameKit.Dependencies.Inspectors;
 using GameKit.Inventories;
 using GameKit.Resources;
 using GameKit.Resources.Managers;
 using GameKit.Utilities;
 using System.Collections.Generic;
-using TriInspector;
+
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameKit.Examples.Crafting.Canvases
 {
-
-    [DeclareFoldoutGroup("Recipes")]
-    [DeclareFoldoutGroup("Preview")]
-    [DeclareFoldoutGroup("Crafting")]
     public class CraftingCanvas : MonoBehaviour
     {
         /// <summary>
         /// Prefab for each recipe listing.
         /// </summary>
-        [PropertyTooltip("Prefab for each recipe listing.")]
+        [Tooltip("Prefab for each recipe listing.")]
         [SerializeField, Group("Recipes")]
         private RecipeEntry _entryPrefab;
         /// <summary>
         /// Content transform that holds recipes.
         /// </summary>
-        [PropertyTooltip("Content transform that holds recipes.")]
+        [Tooltip("Content transform that holds recipes.")]
         [SerializeField, Group("Recipes")]
         private Transform _recipesContent;
 
         /// <summary>
         /// Prefab for requires recipe resources.
         /// </summary>
-        [PropertyTooltip("Prefab for requires recipe resources.")]
+        [Tooltip("Prefab for requires recipe resources.")]
         [SerializeField, Group("Preview")]
         private RequiredResourceEntry _requiredResourceEntryPrefab;
         /// <summary>
         /// Content transform that holds recipe previews.
         /// </summary>
-        [PropertyTooltip("Content transform that holds recipe previews.")]
+        [Tooltip("Content transform that holds recipe previews.")]
         [SerializeField, Group("Preview")]
         private Transform _previewRecipeContent;
         /// <summary>
         /// Script that holds recipe result.
         /// </summary>
-        [PropertyTooltip("Script that holds recipe result.")]
+        [Tooltip("Script that holds recipe result.")]
         [SerializeField, Group("Preview")]
         private RequiredResourceEntry _previewResult;
 
         /// <summary>
         /// Image for the crafting progress bar.
         /// </summary>
-        [PropertyTooltip("Image for the crafting progress bar.")]
+        [Tooltip("Image for the crafting progress bar.")]
         [SerializeField, Group("Crafting")]
         private Image _progressImage;
         /// <summary>
         /// Button to craft one item for hte current recipe.
         /// </summary>
-        [PropertyTooltip("Button to craft one item.")]
+        [Tooltip("Button to craft one item.")]
         [SerializeField, Group("Crafting")]
         private Button _craftOneButton;
         /// <summary>
         /// Button to craft all possible items for the current recipe.
         /// </summary>
-        [PropertyTooltip("Button to craft all possible items for the current recipe.")]
+        [Tooltip("Button to craft all possible items for the current recipe.")]
         [SerializeField, Group("Crafting")]
         private Button _craftAllButton;
         /// <summary>
         /// Button to cancel crafting progress.
         /// </summary>
-        [PropertyTooltip("Button to cancel crafting progress.")]
+        [Tooltip("Button to cancel crafting progress.")]
         [SerializeField, Group("Crafting")]
         private Button _cancelCraftingButton;
 

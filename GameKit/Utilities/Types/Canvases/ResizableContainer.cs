@@ -1,12 +1,10 @@
 using System.Runtime.CompilerServices;
-using TriInspector;
 using UnityEngine;
 
 
 namespace GameKit.Utilities.Types.CanvasContainers
 {
 
-    [DeclareFoldoutGroup("Sizing")]
     public class ResizableContainer : FloatingContainer
     {
         #region Serialized.
@@ -14,7 +12,7 @@ namespace GameKit.Utilities.Types.CanvasContainers
         /// Minimum and maximum range for widwth and height of the RectTransform.
         /// </summary>
         [Tooltip("Minimum and maximum range for width and height of the RectTransform.")]
-        [Group("Sizing")]
+        //[Foldout("Sizing")]
         public FloatRange2D SizeLimits = new FloatRange2D()
         {
             X = new FloatRange(0f, 999999f),

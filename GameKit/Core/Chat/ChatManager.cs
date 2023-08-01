@@ -6,8 +6,9 @@ using UnityEngine;
 using System.Runtime.CompilerServices;
 using OldFartGames.Gameplay.Canvases.Chats;
 using FishNet;
-using TriInspector;
+
 using FishNet.Transporting;
+using GameKit.Dependencies.Inspectors;
 
 namespace OldFartGames.Gameplay.Dependencies
 {
@@ -15,7 +16,6 @@ namespace OldFartGames.Gameplay.Dependencies
     /// <summary>
     /// Sets weaponIds on server objects.
     /// </summary>
-    [DeclareFoldoutGroup("Outbound")]
     public class ChatManager : NetworkBehaviour
     {
 

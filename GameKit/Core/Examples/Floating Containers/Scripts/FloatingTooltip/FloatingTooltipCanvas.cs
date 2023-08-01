@@ -1,14 +1,13 @@
 using UnityEngine;
 using TMPro;
-using TriInspector;
+
 using GameKit.Utilities.Types;
 using GameKit.Utilities.Types.CanvasContainers;
+using GameKit.Dependencies.Inspectors;
 
 namespace GameKit.Examples.FloatingContainers.Tooltips
 {
 
-    [DeclareFoldoutGroup("Components")]
-    [DeclareFoldoutGroup("Sizing")]
     public class FloatingTooltipCanvas : MonoBehaviour
     {
         #region Serialized.
@@ -21,7 +20,7 @@ namespace GameKit.Examples.FloatingContainers.Tooltips
         /// <summary>
         /// TextMeshPro to show tooltip text.
         /// </summary>
-        [PropertyTooltip("TextMeshPro to show tooltip text.")]
+        [Tooltip("TextMeshPro to show tooltip text.")]
         [SerializeField, Group("Components")]
         private TextMeshProUGUI _text;
         #endregion

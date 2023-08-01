@@ -2,7 +2,7 @@ using GameKit.Crafting.Managers;
 using GameKit.Examples.Crafting;
 using GameKit.Examples.Resources;
 using GameKit.Resources.Managers;
-using TriInspector;
+
 using UnityEngine;
 
 namespace GameKit.Examples.Managers
@@ -18,19 +18,19 @@ namespace GameKit.Examples.Managers
         /// <summary>
         /// All resource datas for this game.
         /// </summary>
-        [PropertyTooltip("All resource datas for this game.")]
+        [Tooltip("All resource datas for this game.")]
         [SerializeField]
         private ResourceData[] _resourceDatas = new ResourceData[0];
         /// <summary>
         /// All resource category datas for this game.
         /// </summary>
-        [PropertyTooltip("All resource category datas for this game.")]
+        [Tooltip("All resource category datas for this game.")]
         [SerializeField]
         private ResourceCategoryData[] _resourceCategoryDatas = new ResourceCategoryData[0];
         /// <summary>
         /// All recipes for this game.
         /// </summary>
-        [PropertyTooltip("All recipes for this game.")]
+        [Tooltip("All recipes for this game.")]
         [SerializeField]
         private Recipe[] _recipes = new Recipe[0];
         #endregion

@@ -5,7 +5,6 @@ using FishNet.Object;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using TriInspector;
 using FishNet.Managing.Server;
 using FishNet.Managing.Logging;
 using FishNet.Connection;
@@ -105,7 +104,7 @@ namespace GameKit.Inventories
         /// <summary>
         /// Default bags to add.
         /// </summary>
-        [PropertyTooltip("Default bags to add.")]
+        [Tooltip("Default bags to add.")]
         [Range(1, 30)]
         [SerializeField]
         private int[] _defaultBagSizes = new int[] { 5 };
