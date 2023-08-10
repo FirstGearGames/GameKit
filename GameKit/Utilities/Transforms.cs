@@ -37,6 +37,18 @@ namespace GameKit.Utilities
                 return desiredPosition;
             }
 
+            /* Notes //todo
+             * When the pivot is not neutral(0.5, 0.5) the 'desiredPosition'
+             * has to be adjusted to make overshoot calculations easier.
+             * EG: if neutral pivot we only have to consider half size since
+             * the rect is dead center of desiredPosition. But if Y pivot were
+             * 1f for example then the 'center' is actually the very top of the
+             * transform pushing everything down full size. Moving the desiredPosition
+             * based on multiplying the neutral offset differences will compensate
+             * for this. */
+            Vector2 neutralPivotOffset = (rectTransform.pivot - new Vector2(0.5f, 0.5f));
+            desiredPosition = desiredPosition.Subtract(neutralPivotOffset * rectTransform.sizeDelta);
+
             Vector2 scale = new Vector2(rectTransform.localScale.x, rectTransform.localScale.y);
             //Value of which the tooltip would exceed screen bounds.
             //If there would be overshoot then adjust to be just on the edge of the overshooting side.
@@ -66,8 +78,8 @@ namespace GameKit.Utilities
 
             bool IsValidPivot(float value)
             {
-                return value != 0.5f;
-                //return (value >= 0f && value <= 1f);
+                //return value != 0.5f;
+                return (value >= 0f && value <= 1f);
             }
         }
 
