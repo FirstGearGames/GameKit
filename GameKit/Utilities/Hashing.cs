@@ -1,4 +1,4 @@
-namespace GameKit.Utilities
+﻿namespace GameKit.Utilities
 {
 
     public static class Hashing
@@ -20,7 +20,7 @@ namespace GameKit.Utilities
         /// </summary>
         /// <returns>The stable hash32.</returns>
         /// <param name="txt">Text.</param>
-        internal static ushort GetStableHashU16(this string txt)
+        public static ushort GetStableHashU16(this string txt)
         {
             uint hash32 = txt.GetStableHashU32();
 
@@ -63,7 +63,7 @@ namespace GameKit.Utilities
         /// </summary>
         /// <returns>The stable hash32.</returns>
         /// <param name="txt">Text.</param>
-        internal static ulong GetStableHashU64(this string txt)
+        public static ulong GetStableHashU64(this string txt)
         {
             unchecked
             {

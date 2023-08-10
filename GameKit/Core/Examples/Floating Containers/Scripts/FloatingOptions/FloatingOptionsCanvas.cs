@@ -117,9 +117,13 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         /// <param name="buttonDatas">Datas to use.</param>
         public virtual void Show(bool clearExisting, Vector2 position, IEnumerable<ButtonData> buttonDatas, GameObject buttonPrefab = null)
         {
+            if (clearExisting)
+            { 
+                RemoveButtons();
+                _content.DestroyChildren(true);
+            }
+
             _desiredPosition = position;
-            //Remove all current buttons then add new ones.
-            RemoveButtons();
             AddButtons(true, buttonDatas);
             //Begin resize.
             ResizeAndShow();

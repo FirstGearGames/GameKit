@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine;
 using System;
 
@@ -44,4 +43,3 @@ namespace GameKit.Dependencies.Inspectors
     }
 
 }
-#endif

@@ -7,12 +7,36 @@ namespace GameKit.Utilities
     public static class Transforms
     {
         /// <summary>
+        /// Returns the sizeDelta halfed.
+        /// </summary>
+        /// <param name="considerScale">True to multiple values by RectTransform scale.</param>
+        public static Vector2 HalfSizeDelta(this RectTransform rectTransform, bool useScale = false)
+        {
+            Vector2 sizeDelta = (useScale) ? rectTransform.SizeDeltaScaled() : rectTransform.sizeDelta;
+            return (sizeDelta / 2f);
+        }
+
+        /// <summary>
+        /// Returns the sizeDelta multiplied by scale.
+        /// </summary>
+        public static Vector2 SizeDeltaScaled(this RectTransform rectTransform)
+        {
+            return (rectTransform.sizeDelta * rectTransform.localScale);
+        }
+
+        /// <summary>
         /// Returns a position for the rectTransform ensuring it's fully on the screen.
         /// </summary>
         /// <param name="desiredPosition">Preferred position for the rectTransform.</param>
         /// <param name="padding">How much padding the transform must be from the screen edges.</param>
         public static Vector3 GetOnScreenPosition(this RectTransform rectTransform, Vector3 desiredPosition, Vector2 padding)
         {
+            if (!IsValidPivot(rectTransform.pivot.x) || !IsValidPivot(rectTransform.pivot.y))
+            {
+                Debug.LogWarning($"Only pivots between 0 and 1 are supported.");
+                return desiredPosition;
+            }
+
             Vector2 scale = new Vector2(rectTransform.localScale.x, rectTransform.localScale.y);
             //Value of which the tooltip would exceed screen bounds.
             //If there would be overshoot then adjust to be just on the edge of the overshooting side.
@@ -39,6 +63,12 @@ namespace GameKit.Utilities
                 desiredPosition.y = halfHeightRequired;
 
             return desiredPosition;
+
+            bool IsValidPivot(float value)
+            {
+                return value != 0.5f;
+                //return (value >= 0f && value <= 1f);
+            }
         }
 
         /// <summary>

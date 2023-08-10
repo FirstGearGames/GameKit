@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-//  Project : UNITY FOLDOUT
+﻿//  Project : UNITY FOLDOUT
 // Contacts : Pix - ask@pixeye.games
 // https://github.com/PixeyeHQ/InspectorFoldoutGroup
 // MIT license https://github.com/PixeyeHQ/InspectorFoldoutGroup/blob/master/LICENSE
@@ -24,5 +23,3 @@ namespace GameKit.Dependencies.Inspectors
 		}
 	}
 }
-
-#endif

@@ -22,6 +22,20 @@ namespace GameKit.Utilities
 
         #region Vector3.
         /// <summary>
+        /// Adds a Vector2 X/Y onto a Vector3.
+        /// </summary>
+        public static Vector3 Add(this Vector3 v3, Vector2 v2)
+        {
+            return (v3 + new Vector3(v2.x, v2.y, 0f));
+        }
+        /// <summary>
+        /// Subtracts a Vector2 X/Y from a Vector3.
+        /// </summary>
+        public static Vector3 Subtract(this Vector3 v3, Vector2 v2)
+        {
+            return (v3 - new Vector3(v2.x, v2.y, 0f));
+        }
+        /// <summary>
         /// Calculates the linear parameter t that produces the interpolant value within the range [a, b].
         /// </summary>
         /// <param name="a"></param>
