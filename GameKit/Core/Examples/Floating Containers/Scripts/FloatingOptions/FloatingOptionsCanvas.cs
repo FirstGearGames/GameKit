@@ -118,10 +118,7 @@ namespace GameKit.Utilities.Types.OptionMenuButtons
         public virtual void Show(bool clearExisting, Vector2 position, IEnumerable<ButtonData> buttonDatas, GameObject buttonPrefab = null)
         {
             if (clearExisting)
-            { 
                 RemoveButtons();
-                _content.DestroyChildren(true);
-            }
 
             _desiredPosition = position;
             AddButtons(true, buttonDatas);

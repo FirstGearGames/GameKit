@@ -31,44 +31,22 @@ namespace GameKit.Utilities
         /// <param name="padding">How much padding the transform must be from the screen edges.</param>
         public static Vector3 GetOnScreenPosition(this RectTransform rectTransform, Vector3 desiredPosition, Vector2 padding)
         {
-            if (!IsValidPivot(rectTransform.pivot.x) || !IsValidPivot(rectTransform.pivot.y))
-            {
-                Debug.LogWarning($"{rectTransform.name}, root {rectTransform.root.name} cannot be positioned because it does not use pivots of (0.5f, 0.5f)");
-                return desiredPosition;
-            }
+            RectTransform canvasRectTransform = rectTransform.GetComponentInParent<Canvas>().transform as RectTransform;
+            Vector2 clampedPos = desiredPosition;
+            Vector2 localScale = canvasRectTransform.localScale;
+            Vector2 oneMinusPivot = Vector2.one - rectTransform.pivot;
 
-            Vector2 scale = new Vector2(rectTransform.localScale.x, rectTransform.localScale.y);
-            //Value of which the tooltip would exceed screen bounds.
-            //If there would be overshoot then adjust to be just on the edge of the overshooting side.
-            float overshoot;
+            //The size has to be scaled to account for the size and scale of the Canvas it is childed to
+            Vector2 scaledSize = rectTransform.sizeDelta * localScale;
 
-            float halfWidthRequired = ((rectTransform.sizeDelta.x * scale.x) / 2f) + padding.x;
-            overshoot = (Screen.width - (desiredPosition.x + halfWidthRequired));
-            //If overshooting on the right.
-            if (overshoot < 0f)
-                desiredPosition.x += overshoot;
-            overshoot = (desiredPosition.x - halfWidthRequired);
-            //If overshooting on the left.
-            if (overshoot < 0f)
-                desiredPosition.x = halfWidthRequired;
+            //Calculate the minimum and maximum bounds of the canvas our object can occupy
+            Vector2 minClamp = scaledSize * rectTransform.pivot + padding;
+            Vector2 maxClamp = ((canvasRectTransform.rect.size) - (rectTransform.sizeDelta * oneMinusPivot + padding)) * localScale;
 
-            float halfHeightRequired = ((rectTransform.sizeDelta.y * scale.y) / 2f) + padding.y;
-            overshoot = (Screen.height - (desiredPosition.y + halfHeightRequired));
-            //If overshooting on the right.
-            if (overshoot < 0f)
-                desiredPosition.y += overshoot;
-            overshoot = (desiredPosition.y - halfHeightRequired);
-            //If overshooting on the left.
-            if (overshoot < 0f)
-                desiredPosition.y = halfHeightRequired;
+            float clampX = Mathf.Clamp(clampedPos.x, minClamp.x, maxClamp.x);
+            float clampY = Mathf.Clamp(clampedPos.y, minClamp.y, maxClamp.y);
 
-            return desiredPosition;
-
-            bool IsValidPivot(float value)
-            {
-                //Allow a little bit of leanancy because of float imprecisions.
-                return Mathf.Abs(0.5f - value) < 0.05f;
-            }
+            return new Vector2(clampX, clampY);
         }
 
         /// <summary>
