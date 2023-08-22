@@ -12,7 +12,7 @@ Understanding the folder structure:
 
 	Core is the modular form of features. Core files can be customized through implementation and inheritance.
 
-	Bundles are prebuilt systems which rely on Core files. Core files will not change regularly, but bundles can
+	Bundles are prebuilt systems which rely on Core files. Core files will not change regularly, but bundles may
 	as they receive new features. If modifying a bundle it's encouraged to make a copy, and modify your copy. Each bundle
 	is separate from another, but you will need to include Bundles/Dependencies if using any Bundle.
 

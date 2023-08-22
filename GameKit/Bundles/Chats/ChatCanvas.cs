@@ -587,7 +587,6 @@ namespace GameKit.Chats
         /// </summary>
         private void SetOutboundSelection(bool select)
         {
-            Debug.Log(select);
             _outboundSelected = select;
             if (select)
             {

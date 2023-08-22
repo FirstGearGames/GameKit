@@ -6,10 +6,12 @@ namespace GameKit.Bundles.Utilities
     /// <summary>
     /// Sets active state based on if local client gains or loses ClientInstance.
     /// </summary>
+    [DefaultExecutionOrder(short.MinValue + 1)]
     public class ActiveOnLocalClientInstance : MonoBehaviour
     {
         private void Awake()
         {
+            gameObject.SetActive(false);
             ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
         }
 
