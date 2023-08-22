@@ -1,0 +1,27 @@
+Very Important:
+
+	Do NOT remove any missing references on assemblies.
+
+	TextMeshPro is required for GameKit\Bundles and GameKit\Core.
+
+
+
+Understanding the folder structure:
+
+	GameKit/Dependencies must always be imported.
+
+	Core is the modular form of features. Core files can be customized through implementation and inheritance.
+
+	Bundles are prebuilt systems which rely on Core files. Core files will not change regularly, but bundles can
+	as they receive new features. If modifying a bundle it's encouraged to make a copy, and modify your copy. Each bundle
+	is separate from another, but you will need to include Bundles/Dependencies if using any Bundle.
+
+	If you know what features you are wanting specifically you can skip importing certain areas of the Core. If not,
+	importing all Core files is recommended.
+
+
+
+When using GameKit always import the following folders:
+
+	Dependencies
+

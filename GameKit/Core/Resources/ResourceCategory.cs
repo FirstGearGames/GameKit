@@ -1,4 +1,4 @@
-namespace GameKit.Examples.Resources
+namespace GameKit.Bundles.Resources
 {
     /// <summary>
     /// Categories a resource may be used for.

@@ -5,7 +5,7 @@ using GameKit.Resources.Managers;
 using FishNet.Object;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using GameKit.Utilities.Types;
+using GameKit.Dependencies.Utilities.Types;
 
 namespace GameKit.Crafting
 {

@@ -8,7 +8,7 @@ using UnityEngine;
 using FishNet.Managing.Server;
 using FishNet.Managing.Logging;
 using FishNet.Connection;
-using GameKit.Utilities;
+using GameKit.Dependencies.Utilities;
 
 namespace GameKit.Inventories
 {
