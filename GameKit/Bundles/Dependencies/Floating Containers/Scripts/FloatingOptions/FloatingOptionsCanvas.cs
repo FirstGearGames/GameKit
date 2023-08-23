@@ -95,7 +95,7 @@ namespace GameKit.Dependencies.Utilities.Types.OptionMenuButtons
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, bool started)
+        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
         {
             if (instance == null)
                 return;
@@ -103,9 +103,10 @@ namespace GameKit.Dependencies.Utilities.Types.OptionMenuButtons
             if (!instance.IsOwner)
                 return;
 
-            _clientInstance = instance;
-            if (started)
+            if (state == ClientInstanceState.PreInitialize)
                 instance.NetworkManager.RegisterInstance<FloatingOptionsCanvas>(this);
+            else if (state == ClientInstanceState.PostInitialize)
+                _clientInstance = instance;
         }
 
         /// <summary>

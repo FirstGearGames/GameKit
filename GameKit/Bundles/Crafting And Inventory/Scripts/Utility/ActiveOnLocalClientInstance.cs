@@ -25,8 +25,8 @@ namespace GameKit.Bundles.Utilities
         /// Called when OnStart or OnStopClient calls for any ClientInstance.
         /// </summary>
         /// <param name="instance">Instance invoking.</param>
-        /// <param name="started">True is Start was called.</param>
-        private void ClientInstance_OnClientChange(ClientInstance instance, bool started)
+        /// <param name="state">State of the change.</param>
+        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
         {
             if (instance == null)
             {
@@ -36,6 +36,10 @@ namespace GameKit.Bundles.Utilities
             if (!instance.IsOwner)
                 return;
 
+            if (state.IsPreState())
+                return;
+
+            bool started = state.IsInitializeState();
             gameObject.SetActive(started);
         }
 

@@ -45,7 +45,7 @@ namespace GameKit.Bundles.FloatingContainers.Tooltips
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, bool started)
+        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
         {
             if (instance == null)
                 return;
@@ -53,7 +53,7 @@ namespace GameKit.Bundles.FloatingContainers.Tooltips
             if (!instance.IsOwner)
                 return;
 
-            if (started)
+            if (state == ClientInstanceState.PreInitialize)
                 instance.NetworkManager.RegisterInstance<FloatingTooltipCanvas>(this);
         }
 

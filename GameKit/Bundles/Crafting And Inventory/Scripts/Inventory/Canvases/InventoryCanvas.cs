@@ -279,8 +279,12 @@ namespace GameKit.Bundles.Inventories.Canvases
         /// <summary>
         /// Called when OnStartClient occurs on this local clients ClientInstance.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, bool started)
+        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
         {
+            if (state.IsPreState())
+                return;
+
+            bool started = (state == ClientInstanceState.PostInitialize);
             ChangeSubscription(instance, started);
             if (started)
                 InitializeBags();
