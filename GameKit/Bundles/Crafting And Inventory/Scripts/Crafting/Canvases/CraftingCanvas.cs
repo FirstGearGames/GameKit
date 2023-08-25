@@ -1,16 +1,15 @@
-using GameKit.Crafting;
-using GameKit.Crafting.Managers;
 using GameKit.Dependencies.Inspectors;
-using GameKit.Inventories;
-using GameKit.Resources;
-using GameKit.Resources.Managers;
 using GameKit.Dependencies.Utilities;
 using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.UI;
+using GameKit.Core.Crafting;
+using GameKit.Core.Resources;
+using GameKit.Core.Inventories;
+using GameKit.Bundles.Dependencies;
 
-namespace GameKit.Bundles.Crafting.Canvases
+namespace GameKit.Bundles.CraftingAndInventories.Crafting.Canvases
 {
     public class CraftingCanvas : MonoBehaviour
     {

@@ -4,11 +4,13 @@ using GameKit.Bundles;
 using GameKit.Dependencies.Utilities.Types.CanvasContainers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
 using UnityEngine;
 using UnityEngine.UI;
+using GameKit.Bundles.Dependencies;
+using GameKit.Dependencies.Utilities.Types.OptionMenuButtons;
+using GameKit.Dependencies.Utilities;
 
-namespace GameKit.Dependencies.Utilities.Types.OptionMenuButtons
+namespace GameKit.Bundles.FloatingContainers.OptionMenuButtons
 {
     public class FloatingOptionsCanvas : FloatingOptions
     {

@@ -1,4 +1,4 @@
-namespace GameKit.Crafting
+namespace GameKit.Core.Crafting
 {
     public enum CraftingResult : byte
     {

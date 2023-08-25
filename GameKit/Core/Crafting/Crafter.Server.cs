@@ -3,7 +3,7 @@ using FishNet.Managing.Server;
 using FishNet.Object;
 using UnityEngine;
 
-namespace GameKit.Crafting
+namespace GameKit.Core.Crafting
 {
 
     public partial class Crafter : NetworkBehaviour

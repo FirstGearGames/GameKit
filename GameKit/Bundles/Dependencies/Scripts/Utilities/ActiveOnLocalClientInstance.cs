@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameKit.Bundles.Utilities
+namespace GameKit.Bundles.Dependencies.Utilities
 {
 
     /// <summary>

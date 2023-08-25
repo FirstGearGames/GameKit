@@ -1,23 +1,20 @@
 ﻿using FishNet.Connection;
 
-namespace GameKit.Chats
+namespace GameKit.Core.Chats
 {
 
-    /// <summary>
-    /// Sets weaponIds on server objects.
-    /// </summary>
-    public struct IncomingChatMessage
+    public struct ChatMessage
     {
         /// <summary>
-        /// Type of message received.
+        /// Type of message sent or received.
         /// </summary>
-        public MessageTargetTypes TargetType;
+        public ushort MessageType;
         /// <summary>
         /// Client receiving the message. This value may be null if not a direct message.
         /// </summary>
         public NetworkConnection Receiver;
         /// <summary>
-        /// Client sending the message.
+        /// Client sending the message. This value may be null if not sent from a client.
         /// </summary>
         public NetworkConnection Sender;
         /// <summary>
@@ -29,9 +26,9 @@ namespace GameKit.Chats
         /// </summary>
         public string Message;
 
-        public IncomingChatMessage(MessageTargetTypes targetType, NetworkConnection receiver, NetworkConnection sender, string message, bool outbound)
+        public ChatMessage(ushort messageType, NetworkConnection receiver, NetworkConnection sender, string message, bool outbound)
         {
-            TargetType = targetType;
+            MessageType = messageType;
             Receiver = receiver;
             Sender = sender;
             Message = message;

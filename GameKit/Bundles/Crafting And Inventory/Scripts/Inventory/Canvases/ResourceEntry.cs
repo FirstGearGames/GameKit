@@ -1,16 +1,14 @@
-using GameKit.Resources;
-using GameKit.Resources.Managers;
 using FishNet;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
-using GameKit.Bundles.Resources;
 using UnityEngine.EventSystems;
-using GameKit.Inventories;
 using GameKit.Bundles.FloatingContainers.Tooltips;
+using GameKit.Core.Resources;
+using GameKit.Core.Inventories;
+using GameKit.Bundles.CraftingAndInventories.Resources;
 
-namespace GameKit.Bundles.Inventories.Canvases
+namespace GameKit.Bundles.CraftingAndInventories.Inventories.Canvases
 {
 
     public class ResourceEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace GameKit.Resources.Managers
+namespace GameKit.Core.Resources
 {
     /// <summary>
     /// Holds information about resources.

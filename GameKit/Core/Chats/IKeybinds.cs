@@ -1,5 +1,5 @@
 
-namespace GameKit.Chats
+namespace GameKit.Core.Chats
 {
 
     public interface IKeybinds

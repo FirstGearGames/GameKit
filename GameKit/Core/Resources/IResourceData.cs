@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameKit.Resources
+namespace GameKit.Core.Resources
 {
 
     public interface IResourceData

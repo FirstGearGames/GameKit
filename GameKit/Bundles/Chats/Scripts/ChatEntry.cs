@@ -3,7 +3,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 
-namespace GameKit.Chats
+namespace GameKit.Bundles.Chats
 {
 
     public class ChatEntry : MonoBehaviour

@@ -1,8 +1,7 @@
-using GameKit.Crafting.Managers;
 using FishNet.Managing;
 using FishNet.Serializing;
 
-namespace GameKit.Crafting
+namespace GameKit.Core.Crafting
 {
 
 

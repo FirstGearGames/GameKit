@@ -1,5 +1,11 @@
 using FishNet;
 using FishNet.Connection;
+using GameKit.Bundles.Chats.Managers;
+using GameKit.Bundles.Dependencies;
+using GameKit.Core.Chats;
+using GameKit.Core.Crafting;
+using GameKit.Core.Dependencies.Canvases;
+using GameKit.Core.Resources;
 using GameKit.Dependencies.Inspectors;
 using GameKit.Dependencies.Utilities;
 using GameKit.Dependencies.Utilities.ObjectPooling;
@@ -10,7 +16,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace GameKit.Chats
+namespace GameKit.Bundles.Chats
 {
     /// <summary>
     /// Used to display chat and take chat input from the local client.
@@ -112,6 +118,10 @@ namespace GameKit.Chats
         /// </summary>
         private ChatManager _chatManager;
         /// <summary>
+        /// CanvasManager to use.
+        /// </summary>
+        private CanvasManager _canvasManager;
+        /// <summary>
         /// Messages added to content.
         /// </summary>
         private Queue<ChatEntry> _contentMessages = new Queue<ChatEntry>();
@@ -126,7 +136,7 @@ namespace GameKit.Chats
         /// <summary>
         /// Current target for chat messages.
         /// </summary>
-        private MessageTargetTypes _currentTargetType = MessageTargetTypes.All;
+        private MessageType _currentTargetType = MessageType.All;
         /// <summary>
         /// Client which a tell is to be sent to.
         /// </summary>
@@ -176,16 +186,31 @@ namespace GameKit.Chats
             _outboundText.onSubmit.AddListener(SendChatMessage);
             _outboundText.onSelect.AddListener(Outbound_OnChatSelected);
             _outboundText.onDeselect.AddListener(Outbound_OnChatDeselected);
-        }
 
-        private void Start()
-        {
-            InstanceFinder.NetworkManager.RegisterInvokeOnInstance<ChatManager>(On_ChatManager);
+            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
         }
 
         private void OnDestroy()
         {
-            InstanceFinder.NetworkManager?.UnregisterInvokeOnInstance<ChatManager>(On_ChatManager);
+            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+        }
+
+        /// <summary>
+        /// Called when a ClientInstance runs OnStop or OnStartClient.
+        /// </summary>
+        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
+        {
+            if (instance == null)
+                return;
+            //Do not do anything if this is not the instance owned by local client.
+            if (!instance.IsOwner)
+                return;
+
+            if (state == ClientInstanceState.PostInitialize)
+            {
+                _chatManager = instance.NetworkManager.GetInstance<ChatManager>();
+                _canvasManager = instance.NetworkManager.GetInstance<CanvasManager>();
+            }
         }
 
         /// <summary>
@@ -268,12 +293,12 @@ namespace GameKit.Chats
         {
             if (_outboundSelected && _keybinds.GetTabPressed())
             {
-                int highestValue = Enums.GetHighestValue<MessageTargetTypes>();
+                int highestValue = Enums.GetHighestValue<MessageType>();
                 int nextValue = ((int)_currentTargetType + 1);
                 if (nextValue > highestValue)
                     nextValue = 1;
 
-                _currentTargetType = (MessageTargetTypes)nextValue;
+                _currentTargetType = (MessageType)nextValue;
                 UpdateMessageTargetText();
             }
         }
@@ -286,7 +311,7 @@ namespace GameKit.Chats
             //Update with and color of target text.
             Color c;
             float width;
-            if (_tellClient != null && _currentTargetType == MessageTargetTypes.Tell)
+            if (_tellClient != null && _currentTargetType == MessageType.Tell)
             {
                 c = _directColor;
                 //Update width to fit tell name.
@@ -307,18 +332,18 @@ namespace GameKit.Chats
         /// <summary>
         /// Called when chat is received.
         /// </summary>
-        private void ChatManager_OnIncomingChatMessage(IncomingChatMessage obj, bool asServer)
+        private void ChatManager_OnIncomingChatMessage(ChatMessage obj, bool asServer)
         {
             //Do not process invokes from the server side.
             if (asServer)
                 return;
 
             IChatEntity selfEntity = _chatManager.GetChatEntity();
-            TeamTypes tt = selfEntity.GetTeamType(obj.Sender);
+            TeamType tt = (TeamType)selfEntity.GetTeamType(obj.Sender);
             IChatEntity entity = _chatManager.GetChatEntity(obj.Sender);            
             string entityName = entity.GetEntityName();
 
-            ShowMessage(obj.TargetType, tt, entityName, obj.Message, obj.Outbound, obj.Sender);
+            ShowMessage((MessageType)obj.MessageType, tt, entityName, obj.Message, obj.Outbound, obj.Sender);
         }
 
         /// <summary>
@@ -343,24 +368,24 @@ namespace GameKit.Chats
         /// <summary>
         /// Shows a message from a player.
         /// </summary>
-        public void ShowMessage(MessageTargetTypes targetType, TeamTypes playerType, string playerName, string message, bool outbound, NetworkConnection sender = null)
+        public void ShowMessage(MessageType messageType, TeamType playerType, string playerName, string message, bool outbound, NetworkConnection sender = null)
         {
 
             Color c;
             // Color c;
-            if (targetType == MessageTargetTypes.Tell)
+            if (messageType == MessageType.Tell)
             {
                 c = _directColor;
             }
-            else if (playerType == TeamTypes.Self)
+            else if (playerType == TeamType.Self)
             {
                 c = _selfColor;
             }
-            else if (playerType == TeamTypes.Enemy)
+            else if (playerType == TeamType.Enemy)
             {
                 c = _enemyColor;
             }
-            else if (playerType == TeamTypes.Friendly)
+            else if (playerType == TeamType.Friendly)
             {
                 c = _friendlyColor;
             }
@@ -375,10 +400,10 @@ namespace GameKit.Chats
             Color msgTypeColor = new Color(0.50f, 0.50f, 0.50f);
 
             string prefix;
-            if (targetType == MessageTargetTypes.Tell)
+            if (messageType == MessageType.Tell)
                 prefix = (outbound) ? "To " : "From ";
             else
-                prefix = targetType.ToString();
+                prefix = messageType.ToString();
             ce.SetText(msgTypeColor, $"[{prefix}] ", c, playerName, _messageColor, $": {message}");
             AddMessage(ce, scrollStart, sender);
         }
@@ -467,15 +492,15 @@ namespace GameKit.Chats
             }
 
             bool sendResult = false;
-            if (_currentTargetType == MessageTargetTypes.Tell)
+            if (_currentTargetType == MessageType.Tell)
             {
                 sendResult = _chatManager.SendDirectChatToServer(_tellClient, message);
             }
-            else if (_currentTargetType == MessageTargetTypes.All)
+            else if (_currentTargetType == MessageType.All)
             {
                 sendResult = _chatManager.SendMultipleChatToServer(false, message);
             }
-            else if (_currentTargetType == MessageTargetTypes.Team)
+            else if (_currentTargetType == MessageType.Team)
             {
                 sendResult = _chatManager.SendMultipleChatToServer(true, message);
             }
@@ -565,7 +590,7 @@ namespace GameKit.Chats
         /// <param name="tellName"></param>
         private void UpdateToTellTarget(string tellName)
         {
-            _currentTargetType = MessageTargetTypes.Tell;
+            _currentTargetType = MessageType.Tell;
             _messageTargetText.text = $"Tell {tellName}";
             UpdateMessageTargetText();
         }

@@ -1,6 +1,3 @@
-using GameKit.Inventories;
-using GameKit.Resources;
-using GameKit.Resources.Managers;
 using FishNet;
 using System.Collections.Generic;
 using TMPro;
@@ -10,8 +7,10 @@ using UnityEngine.UI;
 using GameKit.Dependencies.Utilities;
 using GameKit.Bundles.FloatingContainers.Tooltips;
 using GameKit.Dependencies.Inspectors;
+using GameKit.Core.Inventories;
+using GameKit.Core.Resources;
 
-namespace GameKit.Bundles.Inventories.Canvases
+namespace GameKit.Bundles.CraftingAndInventories.Inventories.Canvases
 {
     public class BagEntry : MonoBehaviour
     {

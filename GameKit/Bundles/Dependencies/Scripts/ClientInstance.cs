@@ -1,11 +1,10 @@
-using FishNet;
 using FishNet.Managing;
 using FishNet.Object;
-using GameKit.Crafting;
-using GameKit.Inventories;
+using GameKit.Core.Crafting;
+using GameKit.Core.Inventories;
 using System.Collections.Generic;
 
-namespace GameKit.Bundles
+namespace GameKit.Bundles.Dependencies
 {
 
     public class ClientInstance : NetworkBehaviour

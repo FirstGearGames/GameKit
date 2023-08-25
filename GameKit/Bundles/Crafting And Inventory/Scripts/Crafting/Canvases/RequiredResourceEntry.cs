@@ -1,13 +1,11 @@
-using GameKit.Bundles.Resources;
-using GameKit.Inventories;
-using GameKit.Resources;
-using GameKit.Resources.Managers;
+using GameKit.Bundles.CraftingAndInventories.Resources;
+using GameKit.Core.Inventories;
+using GameKit.Core.Resources;
 using TMPro;
-
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GameKit.Bundles.Crafting.Canvases
+namespace GameKit.Bundles.CraftingAndInventories.Crafting.Canvases
 {
 
     public class RequiredResourceEntry : MonoBehaviour

@@ -4,6 +4,7 @@ using TMPro;
 using GameKit.Dependencies.Utilities.Types;
 using GameKit.Dependencies.Utilities.Types.CanvasContainers;
 using GameKit.Dependencies.Inspectors;
+using GameKit.Bundles.Dependencies;
 
 namespace GameKit.Bundles.FloatingContainers.Tooltips
 {

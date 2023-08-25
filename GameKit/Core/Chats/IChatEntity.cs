@@ -1,14 +1,16 @@
 using FishNet.Connection;
+using GameKit.Dependencies.Utilities;
 
-namespace GameKit.Chats
+namespace GameKit.Core.Chats
 {
 
-    public interface IChatEntity
+    public interface IChatEntity : IResettable
     {
         public string GetEntityName();
         public NetworkConnection GetConnection();
-        public TeamTypes GetTeamType();
-        public TeamTypes GetTeamType(NetworkConnection otherConnection);
+        public ushort GetTeamType();
+        public ushort GetTeamType(NetworkConnection otherConnection);
+        public void Initialize(NetworkConnection connection, string entityName);
     }
 
 }

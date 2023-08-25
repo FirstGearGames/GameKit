@@ -1,6 +1,3 @@
-using GameKit.Crafting;
-using GameKit.Resources;
-using GameKit.Resources.Managers;
 using FishNet.Object;
 using System;
 using System.Collections.Generic;
@@ -9,8 +6,10 @@ using FishNet.Managing.Server;
 using FishNet.Managing.Logging;
 using FishNet.Connection;
 using GameKit.Dependencies.Utilities;
+using GameKit.Core.Crafting;
+using GameKit.Core.Resources;
 
-namespace GameKit.Inventories
+namespace GameKit.Core.Inventories
 {
 
     public partial class Inventory : NetworkBehaviour

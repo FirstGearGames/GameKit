@@ -1,13 +1,11 @@
-using GameKit.Crafting.Managers;
-using GameKit.Bundles.Crafting;
-using GameKit.Bundles.Resources;
-using GameKit.Resources.Managers;
-
 using UnityEngine;
+using GameKit.Bundles.CraftingAndInventories.Resources;
+using GameKit.Core.Resources;
+using GameKit.Core.Crafting;
+using GameKit.Bundles.CraftingAndInventories.Crafting;
 
-namespace GameKit.Bundles.Managers
+namespace GameKit.Bundles.CraftingAndInventories.Managers
 {
-
 
     /// <summary>
     /// Loads datas into their managers.
@@ -45,8 +43,8 @@ namespace GameKit.Bundles.Managers
         private void AddDatasToManagers()
         {
             ResourceManager rm = GetComponentInParent<ResourceManager>();
-            rm.AddIResourceData(_resourceDatas);
-            rm.AddIResourceCategoryData(_resourceCategoryDatas);
+            rm.AddIResourceData((IResourceData[])_resourceDatas);
+            rm.AddIResourceCategoryData((IResourceCategoryData[])_resourceCategoryDatas);
 
             CraftingManager cm = GetComponentInParent<CraftingManager>();
             cm.AddIRecipe(_recipes);

@@ -1,10 +1,11 @@
+using GameKit.Core.Chats;
 using GameKit.Dependencies.Utilities;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
-namespace GameKit.Chats
+namespace GameKit.Bundles.Chats
 {
 
     public class Keybinds : MonoBehaviour, IKeybinds

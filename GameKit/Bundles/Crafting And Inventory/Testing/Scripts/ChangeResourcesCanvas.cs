@@ -1,8 +1,8 @@
 using FishNet.Connection;
 using FishNet.Object;
-using GameKit.Bundles.Crafting.Canvases;
-using GameKit.Bundles.Resources;
-using GameKit.Inventories;
+using GameKit.Bundles.CraftingAndInventories.Crafting.Canvases;
+using GameKit.Bundles.CraftingAndInventories.Resources;
+using GameKit.Core.Inventories;
 using System.Collections.Generic;
 using UnityEngine;
 

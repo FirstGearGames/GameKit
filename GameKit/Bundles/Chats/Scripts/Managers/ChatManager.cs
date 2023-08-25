@@ -8,8 +8,10 @@ using FishNet;
 
 using FishNet.Transporting;
 using GameKit.Dependencies.Inspectors;
+using GameKit.Core.Chats;
+using GameKit.Dependencies.Utilities;
 
-namespace GameKit.Chats
+namespace GameKit.Bundles.Chats.Managers
 {
 
     /// <summary>
@@ -31,7 +33,7 @@ namespace GameKit.Chats
         /// <summary>
         /// Tracks chat frequency of a client.
         /// </summary>
-        private class ChatFrequencyData
+        private class ChatFrequencyData : IResettable
         {
             #region Private.
             /// <summary>
@@ -43,15 +45,6 @@ namespace GameKit.Chats
             /// </summary>
             private float _lastMessageTime = float.MinValue;
             #endregion
-
-            /// <summary>
-            /// Resets values to default.
-            /// </summary>
-            public void Reset()
-            {
-                _infractions = 0;
-                _lastMessageTime = float.MinValue;
-            }
 
             /// <summary>
             /// Removes infractions based on time passed since last message.
@@ -99,6 +92,14 @@ namespace GameKit.Chats
                 int result = (_infractions - count);
                 _infractions = (byte)Mathf.Max(result, 0);
             }
+
+            public void ResetState()
+            {
+                _infractions = 0;
+                _lastMessageTime = float.MinValue;
+            }
+
+            public void InitializeState() { }
         }
         #endregion
 
@@ -106,7 +107,7 @@ namespace GameKit.Chats
         /// <summary>
         /// Called when a chat message is received. This may execute on server or client.
         /// </summary>
-        public event Action<IncomingChatMessage, bool> OnIncomingChatMessage;
+        public event Action<ChatMessage, bool> OnIncomingChatMessage;
         /// <summary>
         /// Called when a chat message is blocked. This may execute on server or client.
         /// </summary>
@@ -143,14 +144,6 @@ namespace GameKit.Chats
         /// Initialize immediately, even on server. One instance will not hurt anything and it's safer than trying to check initializing timing.
         /// </summary>
         private ChatFrequencyData _selfChatFrequency = new ChatFrequencyData();
-        /// <summary>
-        /// Cache of ChatFrequencyData to reduce garbage collection.
-        /// </summary>
-        private Stack<ChatFrequencyData> _chatFrequencyCache = new Stack<ChatFrequencyData>();
-        /// <summary>
-        /// Cache of ChatEntity to reduce garbage collection.
-        /// </summary>
-        private Stack<ChatEntity> _chatEntityCache = new Stack<ChatEntity>();
         #endregion
 
         #region Const.
@@ -188,15 +181,16 @@ namespace GameKit.Chats
                 base.ClientManager.OnRemoteConnectionState += ClientManager_OnRemoteConnectionState;
                 //Add all current clients as chat entities.
                 foreach (NetworkConnection conn in base.ClientManager.Clients.Values)
-                    AddChatEntity(conn);
+                    AddChatEntity(conn, GetConnectionPlayerName(conn));
+                //todo add name stuff to clientinstance
             }
         }
 
         public override void OnSpawnServer(NetworkConnection connection)
         {
             base.OnSpawnServer(connection);
-            _clientChatFrequencies[connection] = RetrieveChatFrequencyData();
-            AddChatEntity(connection);
+            _clientChatFrequencies[connection] = ResettableObjectCaches<ChatFrequencyData>.Retrieve();
+            AddChatEntity(connection, GetConnectionPlayerName(connection));
         }
 
         public override void OnDespawnServer(NetworkConnection connection)
@@ -206,14 +200,13 @@ namespace GameKit.Chats
             ChatFrequencyData data;
             if (_clientChatFrequencies.TryGetValue(connection, out data))
             {
-                data.Reset();
-                StoreChatFrequencyData(data);
                 _clientChatFrequencies.Remove(connection);
+                ResettableObjectCaches<ChatFrequencyData>.Store(data);
             }
             if (ChatEntities.TryGetValue(connection, out IChatEntity ce))
             {
-                StoreChatEntity((ChatEntity)ce);
                 ChatEntities.Remove(connection);
+                ResettableObjectCaches<IChatEntity>.Store(ce);
             }
         }
 
@@ -239,17 +232,23 @@ namespace GameKit.Chats
             if (obj.ConnectionState == RemoteConnectionState.Started)
             {
                 if (base.ClientManager.Clients.TryGetValue(obj.ConnectionId, out NetworkConnection conn))
-                    AddChatEntity(conn);
+                    AddChatEntity(conn, GetConnectionPlayerName(conn));
             }
+        }
+
+        //todo make use actual name / client instance.
+        private string GetConnectionPlayerName(NetworkConnection conn)
+        {
+            return $"Player-{conn.ClientId}";
         }
 
         /// <summary>
         /// Adds a chat entity for a connection.
         /// </summary>
         /// <param name="conn">Connection to add for.</param>
-        private void AddChatEntity(NetworkConnection conn)
+        private void AddChatEntity(NetworkConnection conn, string name)
         {
-            ChatEntity ce = RetrieveChatEntity(conn, $"Player{conn.ClientId}");
+            IChatEntity ce = GetChatEntity(conn, name);
             ChatEntities[conn] = ce;
         }
 
@@ -380,61 +379,19 @@ namespace GameKit.Chats
         }
 
         /// <summary>
-        /// Gets a ChatFrequencyData from the pool, or returns a new one when none are available.
+        /// Gets an IChatEntity and initializes it.
         /// </summary>
-        private ChatFrequencyData RetrieveChatFrequencyData()
+        private IChatEntity GetChatEntity(NetworkConnection conn, string name)
         {
-            if (_chatFrequencyCache.Count == 0)
-                return new ChatFrequencyData();
-            else
-                return _chatFrequencyCache.Pop();
-        }
-
-        /// <summary>
-        /// Stores ChatFrequencyData for later use.
-        /// </summary>
-        private void StoreChatFrequencyData(ChatFrequencyData data)
-        {
-            data.Reset();
-            _chatFrequencyCache.Push(data);
-        }
-
-
-        /// <summary>
-        /// Gets a ChatFrequencyData from the pool, or returns a new one when none are available.
-        /// </summary>
-        private ChatEntity RetrieveChatEntity()
-        {
-            return RetrieveChatEntity(null, string.Empty);
-        }
-        /// <summary>
-        /// Gets a ChatFrequencyData from the pool, or returns a new one when none are available.
-        /// </summary>
-        private ChatEntity RetrieveChatEntity(NetworkConnection conn, string name)
-        {
-            ChatEntity result;
-            if (_chatEntityCache.Count == 0)
-                result = new ChatEntity();
-            else
-                result = _chatEntityCache.Pop();
-
+            IChatEntity result = ResettableObjectCaches<IChatEntity>.Retrieve();
             result.Initialize(conn, name);
             return result;
         }
 
         /// <summary>
-        /// Stores ChatFrequencyData for later use.
-        /// </summary>
-        private void StoreChatEntity(ChatEntity entity)
-        {
-            entity.Reset();
-            _chatEntityCache.Push(entity);
-        }
-
-        /// <summary>
         /// Returns if a message can be sent.
         /// </summary>
-        private bool CanSendMessage(MessageTargetTypes targetType, NetworkConnection sender, NetworkConnection target, string message, bool asServer, out BlockedChatReason blockedReason)
+        private bool CanSendMessage(MessageType messageType, NetworkConnection sender, NetworkConnection target, string message, bool asServer, out BlockedChatReason blockedReason)
         {
             blockedReason = BlockedChatReason.Unset;
 
@@ -457,7 +414,7 @@ namespace GameKit.Chats
                  * won't hurt anything to make new data. */
                 else if (!_clientChatFrequencies.TryGetValue(sender, out frequencyData))
                 {
-                    frequencyData = RetrieveChatFrequencyData();
+                    frequencyData = ResettableObjectCaches<ChatFrequencyData>.Retrieve();
                     _clientChatFrequencies[sender] = frequencyData;
                 }
             }
@@ -487,7 +444,7 @@ namespace GameKit.Chats
                 blockedReason = BlockedChatReason.InvalidState;
             }
             //Trying to message self.
-            else if (targetType == MessageTargetTypes.Tell)
+            else if (messageType == MessageType.Tell)
             {
                 //Null target.
                 if (target == null)
@@ -503,7 +460,7 @@ namespace GameKit.Chats
 
             if (blockedReason != BlockedChatReason.Unset)
             {
-                OnBlockedChatMessage?.Invoke(new BlockedChatMessage(targetType, sender, message, blockedReason), asServer);
+                OnBlockedChatMessage?.Invoke(new BlockedChatMessage((ushort)messageType, sender, message, blockedReason), asServer);
                 return false;
             }
             else
@@ -532,10 +489,10 @@ namespace GameKit.Chats
         public bool SendDirectChatToServer(NetworkConnection target, string message)
         {
             NetworkConnection selfConn = base.ClientManager.Connection;
-            if (!CanSendMessage(MessageTargetTypes.Tell, selfConn, target, message, false, out _))
+            if (!CanSendMessage(MessageType.Tell, selfConn, target, message, false, out _))
                 return false;
 
-            ServerSendChat(MessageTargetTypes.Tell, target, message);
+            ServerSendChat(MessageType.Tell, target, message);
             return true;
         }
 
@@ -546,12 +503,12 @@ namespace GameKit.Chats
         [Client]
         public bool SendMultipleChatToServer(bool teamOnly, string message)
         {
-            MessageTargetTypes targetType = (teamOnly) ? MessageTargetTypes.Team : MessageTargetTypes.All;
+            MessageType messageType = (teamOnly) ? MessageType.Team : MessageType.All;
 
-            if (!CanSendMessage(targetType, base.ClientManager.Connection, null, message, false, out _))
+            if (!CanSendMessage(messageType, base.ClientManager.Connection, null, message, false, out _))
                 return false;
 
-            ServerSendChat(targetType, null, message);
+            ServerSendChat(messageType, null, message);
             return true;
         }
 
@@ -560,19 +517,19 @@ namespace GameKit.Chats
         /// Sends a message to a specific player, all, or teammates.
         /// </summary>
         [ServerRpc(RequireOwnership = false)]
-        private void ServerSendChat(MessageTargetTypes targetType, NetworkConnection target, string message, NetworkConnection sender = null)
+        private void ServerSendChat(MessageType messageType, NetworkConnection target, string message, NetworkConnection sender = null)
         {
             IChatEntity senderEntity = GetChatEntity(sender);
             if (senderEntity == null)
                 return;
 
             BlockedChatReason blockedReason;
-            if (!CanSendMessage(targetType, sender, target, message, true, out blockedReason))
+            if (!CanSendMessage(messageType, sender, target, message, true, out blockedReason))
             {
                 //Only send resaon if invalid target id.
                 if (blockedReason == BlockedChatReason.InvalidTargetId)
                 {
-                    BlockedChatMessage msg = new BlockedChatMessage(targetType, sender, message, blockedReason);
+                    BlockedChatMessage msg = new BlockedChatMessage((ushort)messageType, sender, message, blockedReason);
                     TargetSendBlockedChatMessage(sender, msg);
                 }
                 return;
@@ -581,7 +538,7 @@ namespace GameKit.Chats
 
             /* Invoke on server as well. This can be so we may hook into this
              * later if we want to store messages for review. */
-            OnIncomingChatMessage?.Invoke(new IncomingChatMessage(targetType, null, sender, message, false), true);
+            OnIncomingChatMessage?.Invoke(new ChatMessage((ushort)messageType, null, sender, message, false), true);
 
             /* //TODO
              * Make a team manager so that teams can be looked up by team Id, which would
@@ -594,7 +551,7 @@ namespace GameKit.Chats
              * For the time being a team manager is not present so we will use the
              * team comparer option on the IChatEntity interface. */
             //Team.
-            if (targetType == MessageTargetTypes.Team)
+            if (messageType == MessageType.Team)
             {
                 HashSet<NetworkConnection> observers = base.Observers;
                 foreach (NetworkConnection c in observers)
@@ -605,20 +562,20 @@ namespace GameKit.Chats
                         continue;
 
                     //If sending to sender or teammate.
-                    if (c == sender || senderEntity.GetTeamType(c) == TeamTypes.Friendly)
-                        TargetReceiveGroupChat(c, targetType, sender, message);
+                    if (c == sender || (TeamType)senderEntity.GetTeamType(c) == TeamType.Friendly)
+                        TargetReceiveGroupChat(c, messageType, sender, message);
                 }
             }
             //All chat.
-            else if (targetType == MessageTargetTypes.All)
+            else if (messageType == MessageType.All)
             {
                 /* Send to all observers. A target rpc is used instead
                  * to keep the code base simpler. */
                 foreach (NetworkConnection c in base.Observers)
-                    TargetReceiveGroupChat(c, targetType, sender, message);
+                    TargetReceiveGroupChat(c, messageType, sender, message);
             }
             //Direct.
-            else if (targetType == MessageTargetTypes.Tell)
+            else if (messageType == MessageType.Tell)
             {
                 //Try to get target. If not able then do not send.
                 IChatEntity targetEntity = GetChatEntity(target);
@@ -637,14 +594,14 @@ namespace GameKit.Chats
         /// Sends a message to a specific player.
         /// </summary>
         [TargetRpc(ValidateTarget = false)]
-        private void TargetReceiveGroupChat(NetworkConnection conn, MessageTargetTypes targetType, NetworkConnection senderConn, string message)
+        private void TargetReceiveGroupChat(NetworkConnection conn, MessageType messageType, NetworkConnection senderConn, string message)
         {
             if (senderConn == null)
                 return;
 
             bool outbound = senderConn.IsLocalClient;
             //fix GlobalManager.SysOpManager.FilterChatString(ref message);
-            OnIncomingChatMessage?.Invoke(new IncomingChatMessage(targetType, conn, senderConn, message, outbound), false);
+            OnIncomingChatMessage?.Invoke(new ChatMessage((ushort)messageType, conn, senderConn, message, outbound), false);
         }
 
 
@@ -659,7 +616,7 @@ namespace GameKit.Chats
 
             bool outbound = false;
             //fix GlobalManager.SysOpManager.FilterChatString(ref message);
-            OnIncomingChatMessage?.Invoke(new IncomingChatMessage(MessageTargetTypes.Tell, conn, senderConn, message, outbound), false);
+            OnIncomingChatMessage?.Invoke(new ChatMessage((ushort)MessageType.Tell, conn, senderConn, message, outbound), false);
         }
 
         /// <summary>
@@ -673,7 +630,7 @@ namespace GameKit.Chats
 
             bool outbound = true;
             //fix GlobalManager.SysOpManager.FilterChatString(ref message);
-            OnIncomingChatMessage?.Invoke(new IncomingChatMessage(MessageTargetTypes.Tell, conn, targetConn, message, outbound), false);
+            OnIncomingChatMessage?.Invoke(new ChatMessage((ushort)MessageType.Tell, conn, targetConn, message, outbound), false);
         }
 
         /// <summary>

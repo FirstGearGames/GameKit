@@ -2,19 +2,17 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using System.Runtime.CompilerServices;
-using GameKit.Resources;
-using FishNet;
-using GameKit.Inventories;
-using GameKit.Bundles.Managers;
-
 using System;
-using GameKit.Bundles.Resources;
 using UnityEngine.UI;
 using GameKit.Dependencies.Utilities;
 using GameKit.Bundles.FloatingContainers.Tooltips;
 using GameKit.Dependencies.Inspectors;
+using GameKit.Core.Inventories;
+using GameKit.Core.Resources;
+using GameKit.Bundles.CraftingAndInventories.Resources;
+using GameKit.Bundles.Dependencies;
 
-namespace GameKit.Bundles.Inventories.Canvases
+namespace GameKit.Bundles.CraftingAndInventories.Inventories.Canvases
 {
 
     public class InventoryCanvas : MonoBehaviour

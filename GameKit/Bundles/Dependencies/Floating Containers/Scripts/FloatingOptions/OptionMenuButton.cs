@@ -2,7 +2,7 @@ using GameKit.Dependencies.Utilities.Types.CanvasContainers;
 using TMPro;
 using UnityEngine;
 
-namespace GameKit.Dependencies.Utilities.Types.OptionMenuButtons
+namespace GameKit.Bundles.FloatingContainers.OptionMenuButtons
 {
     public class OptionMenuButton : MonoBehaviour
     {

@@ -1,13 +1,12 @@
-using GameKit.Crafting;
-using GameKit.Bundles.Resources;
-using GameKit.Resources;
-using GameKit.Resources.Managers;
 using System.Collections.Generic;
 using TMPro;
 
 using UnityEngine;
+using GameKit.Core.Resources;
+using GameKit.Core.Crafting;
+using GameKit.Bundles.CraftingAndInventories.Resources;
 
-namespace GameKit.Bundles.Crafting.Canvases
+namespace GameKit.Bundles.CraftingAndInventories.Crafting.Canvases
 {
 
     public class RecipeEntry : MonoBehaviour

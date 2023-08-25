@@ -1,7 +1,7 @@
 using FishNet.Serializing;
-using GameKit.Resources;
+using GameKit.Core.Resources;
 
-namespace GameKit.Inventories
+namespace GameKit.Core.Inventories
 {
 
     public class Bag

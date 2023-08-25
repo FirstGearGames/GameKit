@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameKit.Bundles
+namespace GameKit.Bundles.Dependencies
 {
 
     public static class Constants

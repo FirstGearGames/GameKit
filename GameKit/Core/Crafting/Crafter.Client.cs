@@ -1,11 +1,11 @@
-using GameKit.Resources;
 using FishNet.Connection;
 using FishNet.Managing.Logging;
 using FishNet.Object;
+using GameKit.Core.Resources;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameKit.Crafting
+namespace GameKit.Core.Crafting
 {
 
     public partial class Crafter : NetworkBehaviour

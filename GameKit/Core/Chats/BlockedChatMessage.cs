@@ -1,6 +1,6 @@
 ﻿using FishNet.Connection;
 
-namespace GameKit.Chats
+namespace GameKit.Core.Chats
 {
 
     /// <summary>
@@ -11,7 +11,7 @@ namespace GameKit.Chats
         /// <summary>
         /// Type of message received.
         /// </summary>
-        public MessageTargetTypes TargetType;
+        public ushort MessageType;
         /// <summary>
         /// Sender of the message.
         /// </summary>
@@ -25,9 +25,9 @@ namespace GameKit.Chats
         /// </summary>
         public BlockedChatReason Reason;
 
-        public BlockedChatMessage(MessageTargetTypes targetType, NetworkConnection sender, string message, BlockedChatReason reason)
+        public BlockedChatMessage(ushort messageType, NetworkConnection sender, string message, BlockedChatReason reason)
         {
-            TargetType = targetType;
+            MessageType = messageType;
             Sender = sender;
             Message = message;
             Reason = reason;

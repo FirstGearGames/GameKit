@@ -1,4 +1,4 @@
-namespace GameKit.Inventories
+namespace GameKit.Core.Inventories
 {
     /// <summary>
     /// Data structure for items in bags.

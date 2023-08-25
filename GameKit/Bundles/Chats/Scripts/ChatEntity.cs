@@ -1,8 +1,8 @@
 using FishNet.Connection;
+using GameKit.Core.Chats;
 
-namespace GameKit.Chats
+namespace GameKit.Bundles.Chats
 {
-
 
     public class ChatEntity : IChatEntity
     {
@@ -12,13 +12,13 @@ namespace GameKit.Chats
 
         public string GetEntityName() => EntityName;
         public NetworkConnection GetConnection() => Connection;
-        public TeamTypes GetTeamType() => TeamTypes.Friendly;
-        public TeamTypes GetTeamType(NetworkConnection otherConnection)
+        public ushort GetTeamType() => (ushort)TeamType.Friendly;
+        public ushort GetTeamType(NetworkConnection otherConnection)
         {
             if (otherConnection == Connection)
-                return TeamTypes.Self;
+                return (ushort)TeamType.Self;
             else
-                return TeamTypes.Friendly;
+                return (ushort)TeamType.Friendly;
         }
 
         public ChatEntity() { }
@@ -34,11 +34,13 @@ namespace GameKit.Chats
             EntityName = entityName;
         }
 
-        public void Reset()
+        public void ResetState()
         {
             Connection = null;
             EntityName = string.Empty;
         }
+
+        public void InitializeState() { }
     }
 
 

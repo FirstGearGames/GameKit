@@ -1,10 +1,10 @@
-using GameKit.Crafting;
-using GameKit.Bundles.Resources;
-using GameKit.Resources;
 using System.Collections.Generic;
 using UnityEngine;
+using GameKit.Bundles.CraftingAndInventories.Resources;
+using GameKit.Core.Crafting;
+using GameKit.Core.Resources;
 
-namespace GameKit.Bundles.Crafting
+namespace GameKit.Bundles.CraftingAndInventories.Crafting
 {
 
     [CreateAssetMenu(fileName = "Recipe", menuName = "Game/New Recipe", order = 1)]

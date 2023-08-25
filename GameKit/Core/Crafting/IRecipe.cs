@@ -1,7 +1,7 @@
-using GameKit.Resources;
+using GameKit.Core.Resources;
 using System.Collections.Generic;
 
-namespace GameKit.Crafting
+namespace GameKit.Core.Crafting
 {
 
     public interface IRecipe

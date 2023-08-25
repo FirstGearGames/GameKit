@@ -1,4 +1,4 @@
-namespace GameKit.Bundles
+namespace GameKit.Bundles.Dependencies
 {
     /// <summary>
     /// State of ClientInstance during event invokes.
