@@ -1,25 +1,16 @@
 using FishNet.Connection;
 using GameKit.Core.Chats;
+using GameKit.Dependencies.Utilities;
 
 namespace GameKit.Bundles.Chats
 {
 
-    public class ChatEntity : IChatEntity
+    public class ChatEntity : IChatEntity, IResettable
     {
-
         public NetworkConnection Connection { get; private set; }
         public string EntityName { get; private set; }
-
         public string GetEntityName() => EntityName;
         public NetworkConnection GetConnection() => Connection;
-        public ushort GetTeamType() => (ushort)TeamType.Friendly;
-        public ushort GetTeamType(NetworkConnection otherConnection)
-        {
-            if (otherConnection == Connection)
-                return (ushort)TeamType.Self;
-            else
-                return (ushort)TeamType.Friendly;
-        }
 
         public ChatEntity() { }
         public ChatEntity(NetworkConnection connection, string entityName)
@@ -41,6 +32,12 @@ namespace GameKit.Bundles.Chats
         }
 
         public void InitializeState() { }
+
+        public void SetEntityName(string entityName)
+        {
+            EntityName = entityName;
+        }
+
     }
 
 

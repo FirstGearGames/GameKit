@@ -32,14 +32,14 @@ namespace GameKit.Bundles.Chats
         /// <summary>
         /// ChatCanvas which this entry resides.
         /// </summary>
-        private ChatCanvas _canvas;
+        private ChatCanvasBase _canvas;
         #endregion
 
         /// <summary>
         /// Sets sender value.
         /// </summary>
         /// <param name="sender"></param>
-        public void Initialize(ChatCanvas canvas, NetworkConnection sender)
+        public void Initialize(ChatCanvasBase canvas, NetworkConnection sender)
         {
             _canvas = canvas;
             Sender = sender;
@@ -93,9 +93,6 @@ namespace GameKit.Bundles.Chats
         /// </summary>
         public void OnClick()
         {
-            if (Sender == null || Sender.IsLocalClient)
-                return;
-
             _canvas.ChatEntry_Clicked(this);
         }
     }

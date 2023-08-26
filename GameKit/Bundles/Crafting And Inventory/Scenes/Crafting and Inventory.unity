@@ -7668,7 +7668,6 @@ GameObject:
   - component: {fileID: 2142677667}
   - component: {fileID: 2142677670}
   - component: {fileID: 2142677671}
-  - component: {fileID: 2142677673}
   m_Layer: 0
   m_Name: NetworkedManagers
   m_TagString: Untagged
@@ -7694,7 +7693,7 @@ MonoBehaviour:
   _networkBehaviours:
   - {fileID: 2142677670}
   - {fileID: 2142677671}
-  - {fileID: 2142677673}
+  - {fileID: 0}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
   SerializedTransformProperties:
@@ -7757,22 +7756,6 @@ MonoBehaviour:
   _componentIndexCache: 1
   _addedNetworkObject: {fileID: 2142677667}
   _networkObjectCache: {fileID: 2142677667}
---- !u!114 &2142677673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2142677666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0897453a1354d1458e4c77d9712cff9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 2
-  _addedNetworkObject: {fileID: 2142677667}
-  _networkObjectCache: {fileID: 2142677667}
-  _keepChatSelected: 0
 --- !u!224 &2611784262993518690 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6014181622678393074, guid: d9ee5cd05b7ecb84095f0c2513632cfb,
