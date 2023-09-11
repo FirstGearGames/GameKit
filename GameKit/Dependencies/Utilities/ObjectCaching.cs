@@ -20,7 +20,7 @@ namespace GameKit.Dependencies.Utilities
 
     #region Resettable caches.
     /// <summary>
-    /// Holds cached Lists of value types.
+    /// Caches collections of a single generic.
     /// </summary>
     public static class ResettableCollectionCaches<T> where T : IResettable
     {
@@ -74,7 +74,7 @@ namespace GameKit.Dependencies.Utilities
     }
 
     /// <summary>
-    /// Holds cached diposable types.
+    /// Caches objects of a single generic.
     /// </summary>
     public static class ResettableObjectCaches<T> where T : IResettable
     {
@@ -101,7 +101,40 @@ namespace GameKit.Dependencies.Utilities
 
     #region NonResettable caches.
     /// <summary>
-    /// Holds cached Lists of value types.
+    /// Caches collections of multiple generics.
+    /// </summary>
+    public static class CollectionCaches<T1, T2>
+    {
+        /// <summary>
+        /// Cache for dictionaries.
+        /// </summary>
+        private readonly static Stack<Dictionary<T1, T2>> _dictionaryCache = new Stack<Dictionary<T1, T2>>();
+
+        /// <summary>
+        /// Retrieves a collection.
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<T1, T2> RetrieveDictionary()
+        {
+            if (_dictionaryCache.Count == 0)
+                return new Dictionary<T1, T2>();
+            else
+                return _dictionaryCache.Pop();
+        }
+
+        /// <summary>
+        /// Stores a collection.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        public static void Store(Dictionary<T1, T2> value)
+        {
+            value.Clear();
+            _dictionaryCache.Push(value);
+        }
+    }
+
+    /// <summary>
+    /// Caches collections of a single generic.
     /// </summary>
     public static class CollectionCaches<T>
     {
@@ -216,7 +249,7 @@ namespace GameKit.Dependencies.Utilities
     }
 
     /// <summary>
-    /// Holds cached types.
+    /// Caches objects of a single generic.
     /// </summary>
     public static class ObjectCaches<T>
     {
