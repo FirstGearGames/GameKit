@@ -293,6 +293,16 @@ namespace GameKit.Dependencies.Utilities
         }
 
         /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref Dictionary<T1, T2> value)
+        {
+            Store(value);
+            value = default;
+        }
+        /// <summary>
         /// Stores a collection.
         /// </summary>
         /// <param name="value">Value to store.</param>
@@ -387,15 +397,38 @@ namespace GameKit.Dependencies.Utilities
         }
 
         /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        /// <param name="count">Number of entries in the array from the beginning.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref T[] value, int count)
+        {
+            Store(value, count);
+            value = default;
+        }
+        /// <summary>
         /// Stores a collection.
         /// </summary>
         /// <param name="value">Value to store.</param>
+        /// <param name="count">Number of entries in the array from the beginning.</param>
         public static void Store(T[] value, int count)
         {
             for (int i = 0; i < count; i++)
                 value[i] = default;
 
             _arrayCache.Push(value);
+        }
+
+        /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref List<T>value)
+        {
+            Store(value);
+            value = default;
         }
         /// <summary>
         /// Stores a collection.
@@ -405,6 +438,17 @@ namespace GameKit.Dependencies.Utilities
         {
             value.Clear();
             _listCache.Push(value);
+        }
+
+        /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref HashSet<T> value)
+        {
+            Store(value);
+            value = default;
         }
         /// <summary>
         /// Stores a collection.
