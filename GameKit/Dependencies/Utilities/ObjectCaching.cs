@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace GameKit.Dependencies.Utilities
 {
@@ -19,6 +20,119 @@ namespace GameKit.Dependencies.Utilities
     }
 
     #region Resettable caches.
+    /// <summary>
+    /// Caches collections of multiple generics.
+    /// </summary>
+    public static class ResettableCollectionCaches<T1, T2> where T1 : IResettable where T2 : IResettable
+    {
+        /// <summary>
+        /// Retrieves a collection.
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<T1, T2> RetrieveDictionary() => CollectionCaches<T1, T2>.RetrieveDictionary();
+
+        /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        public static void StoreAndDefault(ref Dictionary<T1, T2> value)
+        {
+            Store(value);
+            value = default;
+        }
+        /// <summary>
+        /// Stores a collection.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        public static void Store(Dictionary<T1, T2> value)
+        {
+            foreach (KeyValuePair<T1, T2> kvp in value)
+            {
+                kvp.Key.ResetState();
+                ObjectCaches<T1>.Store(kvp.Key);
+                kvp.Value.ResetState();
+                ObjectCaches<T2>.Store(kvp.Value);
+            }
+            value.Clear();
+            CollectionCaches<T1, T2>.Store(value);
+        }
+    }
+
+    /// <summary>
+    /// Caches collections of multiple generics.
+    /// </summary>
+    public static class ResettableT1CollectionCaches<T1, T2> where T1 : IResettable
+    {
+        /// <summary>
+        /// Retrieves a collection.
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<T1, T2> RetrieveDictionary() => CollectionCaches<T1, T2>.RetrieveDictionary();
+
+        /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        public static void StoreAndDefault(ref Dictionary<T1, T2> value)
+        {
+            Store(value);
+            value = default;
+        }
+        /// <summary>
+        /// Stores a collection.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        public static void Store(Dictionary<T1, T2> value)
+        {
+            foreach (T1 item in value.Keys)
+            {
+                item.ResetState();
+                ObjectCaches<T1>.Store(item);
+            }
+            value.Clear();
+            CollectionCaches<T1, T2>.Store(value);
+        }
+    }
+
+    /// <summary>
+    /// Caches collections of multiple generics.
+    /// </summary>
+    public static class ResettableT2CollectionCaches<T1, T2> where T2 : IResettable
+    {
+        /// <summary>
+        /// Retrieves a collection.
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<T1, T2> RetrieveDictionary() => CollectionCaches<T1, T2>.RetrieveDictionary();
+
+        /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref Dictionary<T1, T2> value)
+        {
+            Store(value);
+            value = default;
+        }
+        /// <summary>
+        /// Stores a collection.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        public static void Store(Dictionary<T1, T2> value)
+        {
+            foreach (T2 item in value.Values)
+            {
+                item.ResetState();
+                ObjectCaches<T2>.Store(item);
+            }
+            value.Clear();
+            CollectionCaches<T1, T2>.Store(value);
+        }
+    }
+
+
+
     /// <summary>
     /// Caches collections of a single generic.
     /// </summary>
@@ -41,6 +155,17 @@ namespace GameKit.Dependencies.Utilities
         public static HashSet<T> RetrieveHashSet() => CollectionCaches<T>.RetrieveHashSet();
 
         /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        /// <param name="count">Number of entries in the array from the beginning.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref T[] value, int count)
+        {
+            Store(value, count);
+            value = default;
+        }
+        /// <summary>
         /// Stores a collection.
         /// </summary>
         /// <param name="value">Value to store.</param>
@@ -48,8 +173,22 @@ namespace GameKit.Dependencies.Utilities
         public static void Store(T[] value, int count)
         {
             for (int i = 0; i < count; i++)
+            {
                 value[i].ResetState();
+                ObjectCaches<T>.Store(value[i]);
+            }
             CollectionCaches<T>.Store(value, count);
+        }
+
+        /// <summary>
+        /// Stores a collection and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref List<T> value)
+        {
+            Store(value);
+            value = default;
         }
         /// <summary>
         /// Stores a collection.
@@ -57,9 +196,24 @@ namespace GameKit.Dependencies.Utilities
         /// <param name="value">Value to store.</param>
         public static void Store(List<T> value)
         {
-            foreach (T item in value)
-                item.ResetState();
+            for (int i = 0; i < value.Count; i++)
+            {
+                value[i].ResetState();
+                ObjectCaches<T>.Store(value[i]);
+            }
+            value.Clear();
             CollectionCaches<T>.Store(value);
+        }
+
+        /// <summary>
+        /// Stores a collection.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref HashSet<T> value)
+        {
+            Store(value);
+            value = default;
         }
         /// <summary>
         /// Stores a collection.
@@ -68,7 +222,11 @@ namespace GameKit.Dependencies.Utilities
         public static void Store(HashSet<T> value)
         {
             foreach (T item in value)
+            {
                 item.ResetState();
+                ObjectCaches<T>.Store(item);
+            }
+            value.Clear();
             CollectionCaches<T>.Store(value);
         }
     }
@@ -87,6 +245,18 @@ namespace GameKit.Dependencies.Utilities
             result.InitializeState();
             return result;
         }
+
+        /// <summary>
+        /// Stores an instance of T and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref T value)
+        {
+            Store(value);
+            value = default;
+        }
+
         /// <summary>
         /// Stores an instance of T.
         /// </summary>
@@ -268,6 +438,17 @@ namespace GameKit.Dependencies.Utilities
                 return Activator.CreateInstance<T>();
             else
                 return _stack.Pop();
+        }
+
+        /// <summary>
+        /// Stores an instance of T and sets the original reference to default.
+        /// </summary>
+        /// <param name="value">Value to store.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StoreAndDefault(ref T value)
+        {
+            Store(value);
+            value = default;
         }
 
         /// <summary>
