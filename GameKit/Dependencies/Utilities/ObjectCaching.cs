@@ -1,8 +1,11 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#define DEVELOPMENT
+#endif
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace GameKit.Utilities
+namespace GameKit.Dependencies.Utilities
 {
     /// <summary>
     /// Implement to use type with Caches.
@@ -335,7 +338,8 @@ namespace GameKit.Utilities
         public static void Store(Dictionary<T1, T2> value)
         {
             value.Clear();
-            _dictionaryCache.Push(value);
+            if (!CachesHelper.ValueExists(value, _dictionaryCache))
+                _dictionaryCache.Push(value);
         }
     }
 
@@ -446,7 +450,8 @@ namespace GameKit.Utilities
             for (int i = 0; i < count; i++)
                 value[i] = default;
 
-            _arrayCache.Push(value);
+            if (!CachesHelper.ValueExists(value, _arrayCache))
+                _arrayCache.Push(value);
         }
 
         /// <summary>
@@ -469,7 +474,8 @@ namespace GameKit.Utilities
         public static void Store(List<T> value)
         {
             value.Clear();
-            _listCache.Push(value);
+            if (!CachesHelper.ValueExists(value, _listCache))
+                _listCache.Push(value);
         }
 
         /// <summary>
@@ -492,7 +498,8 @@ namespace GameKit.Utilities
         public static void Store(HashSet<T> value)
         {
             value.Clear();
-            _hashsetCache.Push(value);
+            if (!CachesHelper.ValueExists(value, _hashsetCache))
+                _hashsetCache.Push(value);
         }
 
     }
@@ -539,7 +546,23 @@ namespace GameKit.Utilities
         /// <param name="value"></param>
         public static void Store(T value)
         {
-            _stack.Push(value);
+            if (!CachesHelper.ValueExists(value, _stack))
+                _stack.Push(value);
+        }
+    }
+
+    internal static class CachesHelper
+    {
+        public static bool ValueExists<T>(T value, Stack<T> stack)
+        {
+#if DEVELOPMENT
+            if (stack.Contains(value))
+            {
+                UnityEngine.Debug.LogError($"Value on type {typeof(T).Name} already exist within stack.");
+                return true;
+            }
+#endif
+            return false;
         }
     }
     #endregion
