@@ -1,5 +1,4 @@
 using FishNet.Connection;
-using GameKit.Dependencies.Utilities;
 
 namespace GameKit.Core.Chats
 {

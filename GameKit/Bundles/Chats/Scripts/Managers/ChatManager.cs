@@ -3,6 +3,8 @@ using FishNet.Connection;
 using GameKit.Core.Chats.Managers;
 using GameKit.Core.Chats;
 using GameKit.Dependencies.Utilities;
+using FishNet.Managing.Server;
+using FishNet.Managing.Logging;
 
 namespace GameKit.Bundles.Chats.Managers
 {
@@ -47,8 +49,15 @@ namespace GameKit.Bundles.Chats.Managers
         /// <param name="target">Client to receive the message. Value may be null.</param>
         /// <param name="messageType">MessageType being sent.</param>
         /// <returns>True if the message gets sent.</returns>
-        protected override bool CanSendMessage(NetworkConnection sender, NetworkConnection target, ushort messageType)
+        protected override bool CanSendMessageToTarget(NetworkConnection sender, NetworkConnection target, ushort messageType, bool asServer)
         {
+            //Do not allow sending to self.
+            if (sender == target && messageType == (ushort)MessageType.Tell)
+            {
+                //This is blocked client side as well, so this could only be an exploit attempt.
+                sender.Kick(KickReason.ExploitAttempt, LoggingType.Common, $"Client {sender.ToString()} tried to send a tell to themselves. Client has been kicked immediately.");
+                return false;
+            }
             /* Returning true allows players to send messages for all
              * message types without any conditions. As your game gains mechanics
              * you will likely want to override this method. Example usages:

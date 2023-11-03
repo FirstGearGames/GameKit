@@ -191,14 +191,15 @@ namespace GameKit.Core.Chats.Managers
         /// </summary>
         protected abstract ushort GetTeamMessageType();
         /// <summary>
-        /// Returns if Sender can send a message to Target for messageType.
-        /// Target may be null if message type does not require the field, such as world messages.
+        /// Returns if Sender can send a message to Target.
+        /// This could be any message type, but the specified target may not want or be able to receive this message.
         /// </summary>
         /// <param name="sender">Client sending the message.</param>
-        /// <param name="target">Client to receive the message. Value may be null.</param>
+        /// <param name="target">Client to receive the message. </param>
         /// <param name="messageType">MessageType being sent.</param>
+        /// <param name="asServer">True if check is being performed on the server, false if on the client.</param>
         /// <returns>True if the message gets sent.</returns>
-        protected abstract bool CanSendMessage(NetworkConnection sender, NetworkConnection target, ushort messageType);
+        protected abstract bool CanSendMessageToTarget(NetworkConnection sender, NetworkConnection target, ushort messageType, bool asServer);
 
         public override void OnStartNetwork()
         {
@@ -342,24 +343,29 @@ namespace GameKit.Core.Chats.Managers
         /// <param name="conn">Connection to add for.</param>
         private void AddChatEntity(NetworkConnection conn, string name)
         {
-            IChatEntity ce = GetChatEntity(conn, name);
+            IChatEntity ce = RetrieveChatEntity(conn, name);
             ChatEntities[conn] = ce;
         }
 
         /// <summary>
-        /// Registers an IChatEntity with a connection.
+        /// Registers an existing IChatEntity with a connection.
         /// </summary>
         /// <param name="conn">Connection the entity is for.</param>
-        /// <param name="entity">Entity to register to connection.</param>
-        public void RegisterChatEntity(NetworkConnection conn, IChatEntity entity)
+        /// <param name="ce">Entity to register to connection.</param>
+        public void AddChatEntity(NetworkConnection conn, IChatEntity ce)
         {
             if (conn == null)
             {
-                InstanceFinder.NetworkManager.LogError($"Connection cannot be null when registering a ChatEntity.");
+                base.NetworkManager.LogError($"Connection cannot be null when registering a ChatEntity.");
+                return;
+            }
+            if (ce == null || !ce.GetConnection().IsValid)
+            {
+                base.NetworkManager.LogError($"Entity cannot be null nor can the connection on entity be null.");
                 return;
             }
 
-            ChatEntities[conn] = entity;
+            ChatEntities[conn] = ce;
         }
         /// <summary>
         /// Unregisters a connection from ChatEntities.
@@ -392,10 +398,18 @@ namespace GameKit.Core.Chats.Managers
         /// <returns></returns>
         public IChatEntity GetChatEntity(NetworkConnection conn)
         {
-            if (ChatEntities.TryGetValue(conn, out IChatEntity entity))
-                return entity;
-            else
+            if (conn == null)
+            {
+                base.NetworkManager.LogWarning($"Connection is null. A default {nameof(IChatEntity)} will be returned.");
                 return default;
+            }
+            else
+            {
+                if (ChatEntities.TryGetValue(conn, out IChatEntity entity))
+                    return entity;
+                else
+                    return default;
+            }
         }
 
         /// <summary>
@@ -475,7 +489,7 @@ namespace GameKit.Core.Chats.Managers
         /// <summary>
         /// Gets an IChatEntity and initializes it.
         /// </summary>
-        private IChatEntity GetChatEntity(NetworkConnection conn, string name)
+        private IChatEntity RetrieveChatEntity(NetworkConnection conn, string name)
         {
             IChatEntity result = RetrieveIChatEntity();
             result.Initialize(conn, name);
@@ -564,7 +578,12 @@ namespace GameKit.Core.Chats.Managers
         public virtual bool SendDirectChatToServer(NetworkConnection target, string message)
         {
             ushort messageType = GetDirectMessageType();
-            return SendChatToServer(base.ClientManager.Connection, target, messageType, message);
+            NetworkConnection sender = base.ClientManager.Connection;
+            //Check for specific target blocks.
+            if (!CanSendMessageToTarget(sender, target, messageType, false))
+                return false;
+
+            return SendChatToServer(sender, target, messageType, message);
         }
 
         /// <summary>
@@ -598,10 +617,9 @@ namespace GameKit.Core.Chats.Managers
             if (!CanSendMessage(messageType, sender, target, message, false, out _))
                 return false;
 
-            ServerSendChat(messageType, null, message);
+            ServerSendChat(messageType, target, message);
             return true;
         }
-
 
         /// <summary>
         /// Sends a message to a specific player, all, or teammates.
@@ -631,8 +649,6 @@ namespace GameKit.Core.Chats.Managers
              * later if we want to store messages for review. */
             OnIncomingChatMessage?.Invoke(new ChatMessage(messageType, null, sender, message, false), true);
 
-            Debug.LogError($"Sending tell to self results in null targetEntity just below.");
-
             /* If there is a target then it's a direct message.
              * Otherwise the message could be going to any number of
              * individuals. The developer(you) at this point would override
@@ -641,10 +657,10 @@ namespace GameKit.Core.Chats.Managers
             if (messageType == GetDirectMessageType())
             {
                 //Try to get target. If not able then do not send.
-                IChatEntity targetEntity = GetChatEntity(target);                
+                IChatEntity targetEntity = GetChatEntity(target);
                 if (targetEntity == null)
                     return;
-                if (!CanSendMessage(sender, target, messageType))
+                if (!CanSendMessageToTarget(sender, target, messageType, true))
                     return;
                 /* Send to sender and receiver. This is so sender
                  * can see that their chat was delivered. */
@@ -659,7 +675,7 @@ namespace GameKit.Core.Chats.Managers
                 HashSet<NetworkConnection> observers = base.Observers;
                 foreach (NetworkConnection c in observers)
                 {
-                    if (!CanSendMessage(sender, c, messageType))
+                    if (!CanSendMessageToTarget(sender, c, messageType, true))
                         continue;
 
                     TargetReceiveGroupChat(c, messageType, sender, message);

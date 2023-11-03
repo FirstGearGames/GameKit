@@ -281,7 +281,7 @@ namespace GameKit.Bundles.Chats
                 int startValue = (int)_currentTargetType;
                 int nextValue = startValue;
                 int highestValue = Enums.GetHighestValue<MessageType>();
-                
+
                 //Run until break.
                 while (true)
                 {
@@ -349,7 +349,6 @@ namespace GameKit.Bundles.Chats
             IChatEntity entity = _chatManagerBase.GetChatEntity(obj.Sender);
             TeamType tt = GetTeamType(selfEntity.GetConnection(), entity.GetConnection());
             string entityName = entity.GetEntityName();
-
             ShowMessage((MessageType)obj.MessageType, tt, entityName, obj.Message, obj.Outbound, obj.Sender);
         }
 
@@ -438,15 +437,12 @@ namespace GameKit.Bundles.Chats
         }
 
         /// <summary>
-        /// Removes messages which exceed maximum messages.
+        /// Adds a message, and removes and excess old messages.
         /// </summary>
         private void AddMessage(ChatEntry newEntry, float scrollStart, NetworkConnection sender)
         {
-            if (newEntry != null)
-            {
-                newEntry.Initialize(this, sender);
-                _contentMessages.Enqueue(newEntry);
-            }
+            newEntry.Initialize(this, sender);
+            _contentMessages.Enqueue(newEntry);
 
             RemoveExcessiveMessages(_maximumMessageSize);
             _scrollbarFixer.SetValue(scrollStart);
@@ -474,6 +470,9 @@ namespace GameKit.Bundles.Chats
             NetworkConnection entrySender = ce.Sender;
             //Do not do anything is sender is null.
             if (entrySender == null)
+                return;
+            //If self, do not try to do anything further.
+            if (entrySender == entrySender.NetworkManager.ClientManager.Connection)
                 return;
             IChatEntity entity = _chatManagerBase.GetChatEntity(entrySender);
             if (entity == null)

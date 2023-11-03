@@ -2484,7 +2484,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d3606bfdac5a4743890fc1a5ecd8f24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _autoStartType: 2
+  _autoStartType: 1
   _stoppedColor: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 1}
   _changingColor: {r: 0.78431374, g: 0.6862745, b: 0, a: 1}
   _startedColor: {r: 0, g: 0.5882353, b: 0.64705884, a: 1}
@@ -2549,7 +2549,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
 --- !u!224 &4393252311486392626
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3357,7 +3357,7 @@ MonoBehaviour:
   _canvasGroup: {fileID: 8284454288680244808}
   _scrollbar: {fileID: 1569987555}
   _content: {fileID: 2064394830486830923}
-  _entryPrefab: {fileID: 6401995828510668853, guid: 6dda16fb7bce4db498b73400dbd8b2f4,
+  _entryPrefab: {fileID: 6401995828510668853, guid: 02c54e48796c8044081ecd4db23f62da,
     type: 3}
   _maximumMessages: 100
   _outboundText: {fileID: 3065967405627217471}
