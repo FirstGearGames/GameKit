@@ -1,6 +1,0 @@
-Make separate ClientInstance scripts for each Bundle where needed.
-
-A better approach would be to have only one ClientInstance class and add NetworkBehaviours at runtime for each bundle needed.
-
-Unfortuantely that feature is not supported yet :(
-

@@ -1,4 +1,5 @@
 using GameKit.Dependencies.Inspectors;
+using GameKit.Dependencies.Utilities;
 using UnityEngine;
 
 namespace GameKit.Depenencies.Utilities.Types
