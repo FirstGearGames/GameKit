@@ -33,7 +33,6 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         public override void OnHovered(bool hovered, PointerEventData eventData)
         {
             bool show = (hovered && (_bag != null));
-            Debug.Log(show + " > " + hovered);
             if (show)
             {
                 Vector2 position = new Vector2(transform.position.x, transform.position.y);
