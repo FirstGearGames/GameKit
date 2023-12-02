@@ -105,7 +105,6 @@ namespace GameKit.Core.Inventories
         /// Default bags to add.
         /// </summary>
         [Tooltip("Default bags to add.")]
-        [Range(1, 30)]
         [SerializeField]
         private Bag[] _defaultBags = new Bag[0];
         #endregion

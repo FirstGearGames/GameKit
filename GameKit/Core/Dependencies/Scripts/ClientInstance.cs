@@ -13,52 +13,30 @@ namespace GameKit.Core.Dependencies
         /// <summary>
         /// Called when OnStartServer or OnStopServer occurs.
         /// </summary>
-        public static event ServerChangeDel OnServerChange;
-        public delegate void ServerChangeDel(ClientInstance instance, ClientInstanceState state);
+        public static event ClientInstanceChangeDel OnClientInstanceChange;
+        public delegate void ClientInstanceChangeDel(ClientInstance instance, ClientInstanceState state, bool asServer);
         /// <summary>
-        /// Registers to OnServerChange and invokes immediately for all ClientInstances.
+        /// Registers a delegate to call each time a ClientInstance is started or stopped.
         /// </summary>
-        public static void OnServerChangeInvoke(ServerChangeDel del)
+        /// <param name="asServer">True if to invoke for the server, false to invoke for the client.</param>
+        public static void OnClientInstanceChangeInvoke(ClientInstanceChangeDel del, bool asServer)
         {
-            OnServerChange += del;
+            OnClientInstanceChange += del;
+            //Side is not active so just register delegate but don't invoke currently spawned.
+            if (!IsAnyActive(asServer))
+                return;
 
-            if (IsAnyActive(false))
+            if (IsAnyActive(asServer))
             {
                 foreach (ClientInstance item in Instances)
                 {
-                    if (item.IsServer)
-                        del?.Invoke(item, ClientInstanceState.PreInitialize);
+                    if (item.IsSpawned)
+                        del?.Invoke(item, ClientInstanceState.PreInitialize, asServer);
                 }
                 foreach (ClientInstance item in Instances)
                 {
-                    if (item.IsServer)
-                        del?.Invoke(item, ClientInstanceState.PostInitialize);
-                }
-            }
-        }
-        /// <summary>
-        /// Called when OnStartClient or OnStopClient occurs.
-        /// </summary>
-        public static event ClientChangeDel OnClientChange;
-        public delegate void ClientChangeDel(ClientInstance instance, ClientInstanceState state);
-        /// <summary>
-        /// Registers to OnClientChange and invokes immediately for all ClientInstances.
-        /// </summary>
-        public static void OnClientChangeInvoke(ClientChangeDel del)
-        {
-            OnClientChange += del;
-
-            if (IsAnyActive(false))
-            {
-                foreach (ClientInstance item in Instances)
-                {
-                    if (item.IsClient)
-                        del?.Invoke(item, ClientInstanceState.PreInitialize);
-                }
-                foreach (ClientInstance item in Instances)
-                {
-                    if (item.IsClient)
-                        del?.Invoke(item, ClientInstanceState.PostInitialize);
+                    if (item.IsSpawned)
+                        del?.Invoke(item, ClientInstanceState.PostInitialize, asServer);
                 }
             }
         }
@@ -93,16 +71,16 @@ namespace GameKit.Core.Dependencies
 
         public override void OnStartServer()
         {
-            OnServerChange?.Invoke(this, ClientInstanceState.PreInitialize);
-            OnServerChange?.Invoke(this, ClientInstanceState.PostInitialize);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PreInitialize, true);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PostInitialize, true);
         }
 
         public override void OnStartClient()
         {
-            OnClientChange?.Invoke(this, ClientInstanceState.PreInitialize);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PreInitialize, false);
             if (base.IsOwner)
                 Instance = this;
-            OnClientChange?.Invoke(this, ClientInstanceState.PostInitialize);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PostInitialize, false);
         }
 
         public override void OnStopNetwork()
@@ -111,16 +89,16 @@ namespace GameKit.Core.Dependencies
         }
         public override void OnStopClient()
         {
-            OnClientChange?.Invoke(this, ClientInstanceState.PreDeinitialize);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PreDeinitialize, false);
             if (base.IsOwner)
                 Instance = null;
-            OnClientChange?.Invoke(this, ClientInstanceState.PostDeinitialize);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PostDeinitialize, false);
         }
 
         public override void OnStopServer()
         {
-            OnServerChange?.Invoke(this, ClientInstanceState.PreDeinitialize);
-            OnServerChange?.Invoke(this, ClientInstanceState.PostDeinitialize);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PreDeinitialize, true);
+            OnClientInstanceChange?.Invoke(this, ClientInstanceState.PostDeinitialize, true);
         }
 
         /// <summary>
@@ -135,14 +113,14 @@ namespace GameKit.Core.Dependencies
             if (asServer)
             {
                 foreach (NetworkManager manager in instances)
-                    if (manager.IsServer)
+                    if (manager.IsServerStarted)
                         return true;
             }
             //As client.
             else
             {
                 foreach (NetworkManager manager in instances)
-                    if (manager.IsClient)
+                    if (manager.IsClientStarted)
                         return true;
             }
 

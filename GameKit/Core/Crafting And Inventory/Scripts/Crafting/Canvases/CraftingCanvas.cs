@@ -123,12 +123,12 @@ namespace GameKit.Core.CraftingAndInventories.Crafting.Canvases
             _craftAllButton.onClick.AddListener(OnClick_CraftAll);
             EnableButtons(false);
 
-            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
+            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientChange), false);
         }
 
         private void OnDestroy()
         {
-            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+            ClientInstance.OnClientInstanceChange -= ClientInstance_OnClientChange;
         }
 
         private void Update()
@@ -161,8 +161,10 @@ namespace GameKit.Core.CraftingAndInventories.Crafting.Canvases
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
+        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
+            if (asServer)
+                return;
             if (instance == null)
                 return;
             //Do not do anything if this is not the instance owned by local client.

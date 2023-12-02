@@ -9,25 +9,52 @@ namespace GameKit.Core.Dependencies.Utilities
     [DefaultExecutionOrder(short.MinValue + 1)]
     public class ActiveOnLocalClientInstance : MonoBehaviour
     {
+        #region Serialized.
+        /// <summary>
+        /// True to deactivate on awake, false to deactivate on start.
+        /// </summary>
+        [Tooltip("True to deactivate on awake, false to deactivate on start.")]
+        [SerializeField]
+        private bool _deactiveOnAwake = true;
+        #endregion
+
         private void Awake()
         {
-            gameObject.SetActive(false);
-            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
+            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
+            if (_deactiveOnAwake)
+                Deactivate();
+        }
+        /// <summary>
+        /// Disable in Start to other objects can initialize their Awake.
+        /// </summary>
+        private void Start()
+        {
+            if (!_deactiveOnAwake)
+                Deactivate();            
         }
 
         private void OnDestroy()
         {
-            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+            ClientInstance.OnClientInstanceChange -= ClientInstance_OnClientInstanceChange;
         }
 
+        /// <summary>
+        /// Sets gameObject inactive.
+        /// </summary>
+        private void Deactivate()
+        {
+            gameObject.SetActive(false);
+        }
 
         /// <summary>
         /// Called when OnStart or OnStopClient calls for any ClientInstance.
         /// </summary>
         /// <param name="instance">Instance invoking.</param>
         /// <param name="state">State of the change.</param>
-        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
+        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
+            if (asServer)
+                return;
             if (instance == null)
             {
                 gameObject.SetActive(false);

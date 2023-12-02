@@ -10,16 +10,17 @@ using GameKit.Dependencies.Inspectors;
 using GameKit.Core.Inventories;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
+using UnityEngine.EventSystems;
 
 namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
 {
-    public class BagEntry : MonoBehaviour
+    public class BagEntry : PointerMonoBehaviour
     {
         #region Public.
         /// <summary>
-        /// Bag this entry is for.
+        /// ActiveBag this entry is for.
         /// </summary>
-        public ActiveBag Bag { get; private set; }
+        public ActiveBag ActiveBag { get; private set; }
         /// <summary>
         /// ResourceEntrys within Bag.
         /// </summary>
@@ -52,6 +53,12 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         [Tooltip("Text to show bag information.")]
         [SerializeField, Group("Header")]
         private TextMeshProUGUI _bagTitleText;
+        /// <summary>
+        /// TooltipHover to show hovered bag information.
+        /// </summary>
+        [Tooltip("TooltipHover to show hovered bag information.")]
+        [SerializeField, Group("Header")]
+        private BagEntrytooltipHover _tooltipHover;
 
         /// <summary>
         /// Content where each resource entry is instantiated.
@@ -69,17 +76,9 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
 
         #region Private.
         /// <summary>
-        /// Bag this entry is for.
-        /// </summary>
-        private ActiveBag _bag;
-        /// <summary>
         /// Inventory canvas this entry is for.
         /// </summary>
         private InventoryCanvas _inventoryCanvas;
-        /// <summary>
-        /// TooltipCanvas to use.
-        /// </summary>
-        private FloatingTooltipCanvas _tooltipCanvas;
         /// <summary>
         /// True if RectTransform needs to be resized.
         /// </summary>
@@ -94,29 +93,29 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// <summary>
         /// Initializes this script for use.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ActiveBag bag)
+        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ActiveBag activeBag)
         {
             //Destroy any content which may have been placed for testing.
             _content.DestroyChildren<ResourceEntry>(false);
-
             _inventoryCanvas = inventoryCanvas;
-            _tooltipCanvas = tooltipCanvas;
-            _bag = bag;
+            ActiveBag = activeBag;
+            _tooltipHover.InitializeOnce(activeBag.Bag, tooltipCanvas);
 
-            int slots = bag.Slots.Length;
+
+            int slots = activeBag.Slots.Length;
             //Initialize empty slots. Don't bother pooling since bag slots will rarely change.
             for (int i = 0; i < slots; i++)
             {
                 ResourceEntry re = Instantiate(_resourceEntryPrefab, _content);
-                IResourceData ird = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(bag.Slots[i].ResourceId);
+                IResourceData ird = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(activeBag.Slots[i].ResourceId);
                 //todo
                 /*
                 * Add public int BagIndex {get;private} and set
                 * when bag is added to inventory. Pass this into
                 * init with slot index. */
-                ActiveBagResource baggedResource = new ActiveBagResource(_bag.Index, i);
+                ActiveBagResource baggedResource = new ActiveBagResource(ActiveBag.Index, i);
                 if (ird != null)
-                    re.Initialize(_inventoryCanvas, tooltipCanvas, bag.Slots[i], baggedResource);
+                    re.Initialize(_inventoryCanvas, tooltipCanvas, activeBag.Slots[i], baggedResource);
                 else
                     re.Initialize(_inventoryCanvas, tooltipCanvas, baggedResource);
 
@@ -140,15 +139,17 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// </summary>
         public void SetUsedInventorySpaceText()
         {
+            string name = "Unset";
             int used = 0;
             int max = 0;
-            if (_bag != null)
+            if (ActiveBag != null)
             {
-                used = _bag.UsedSlots;
-                max = _bag.MaximumSlots;
+                name = ActiveBag.Bag.name;
+                used = ActiveBag.UsedSlots;
+                max = ActiveBag.MaximumSlots;
             }
 
-            _bagTitleText.text = $"Bag {used} / {max}";
+            _bagTitleText.text = $"{name} ({used} / {max})";
         }
 
         /// <summary>
@@ -169,8 +170,6 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
 
             _rectTransform.sizeDelta = new Vector2(_rectTransform.sizeDelta.x, result);
         }
-
-
 
     }
 

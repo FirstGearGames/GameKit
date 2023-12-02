@@ -80,12 +80,12 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
                     Debug.LogError($"LayoutGroup was not specified and one does not exist on the content transform {_content.name}.");
             }
 
-            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
+            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
         }
 
         private void OnDestroy()
         {
-            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+            ClientInstance.OnClientInstanceChange -= ClientInstance_OnClientInstanceChange;
         }
 
         protected override void Update()
@@ -96,8 +96,10 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
+        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
+            if (asServer)
+                return;
             if (instance == null)
                 return;
             //Do not do anything if this is not the instance owned by local client.

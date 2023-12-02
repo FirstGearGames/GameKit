@@ -431,9 +431,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 315483450}
   - {fileID: 1977556408}
   - {fileID: 1851100417}
-  - {fileID: 315483450}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &118186682
@@ -448,6 +448,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10740ebf960e7e64b94016e47c79cc68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _deactiveOnAwake: 0
 --- !u!1 &122878880
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,7 +498,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
 --- !u!114 &122878883
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1756,7 +1757,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
 --- !u!114 &315483448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3351,8 +3352,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45f242dc0475acf49bd109ae8cb88d16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RunTest: 0
-  Count: 7
 --- !u!1 &857391723
 GameObject:
   m_ObjectHideFlags: 0
@@ -5191,8 +5190,8 @@ MonoBehaviour:
   <PredictedSpawn>k__BackingField: {fileID: 0}
   _networkBehaviours:
   - {fileID: 1533198127}
-  <ParentNetworkObject>k__BackingField: {fileID: 0}
-  <ChildNetworkObjects>k__BackingField: []
+  <SerializedRootNetworkBehaviour>k__BackingField: {fileID: 0}
+  <NestedRootNetworkBehaviours>k__BackingField: []
   SerializedTransformProperties:
     Position: {x: 706.6875, y: 386.0661, z: 0.2473836}
     Rotation: {x: -0, y: -0, z: -0, w: 1}
@@ -5204,8 +5203,8 @@ MonoBehaviour:
   NetworkObserver: {fileID: 0}
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
-  _scenePathHash: 1717818305
-  <SceneId>k__BackingField: 7377973441216290282
+  _scenePathHash: 1408778921
+  <SceneId>k__BackingField: 6050659396638290320
   <AssetPathHash>k__BackingField: 0
 --- !u!1 &1547008549
 GameObject:
@@ -6362,7 +6361,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
 --- !u!114 &1851100415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7427,7 +7426,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
 --- !u!114 &1977556406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7693,9 +7692,8 @@ MonoBehaviour:
   _networkBehaviours:
   - {fileID: 2142677670}
   - {fileID: 2142677671}
-  - {fileID: 0}
-  <ParentNetworkObject>k__BackingField: {fileID: 0}
-  <ChildNetworkObjects>k__BackingField: []
+  <SerializedRootNetworkBehaviour>k__BackingField: {fileID: 0}
+  <NestedRootNetworkBehaviours>k__BackingField: []
   SerializedTransformProperties:
     Position: {x: 622.6176, y: -314.5649, z: 413.08014}
     Rotation: {x: 0, y: 0, z: 0, w: 1}
@@ -7707,8 +7705,8 @@ MonoBehaviour:
   NetworkObserver: {fileID: 0}
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
-  _scenePathHash: 1717818305
-  <SceneId>k__BackingField: 7377973442495805718
+  _scenePathHash: 1408778921
+  <SceneId>k__BackingField: 6050659393500360199
   <AssetPathHash>k__BackingField: 0
 --- !u!4 &2142677669
 Transform:

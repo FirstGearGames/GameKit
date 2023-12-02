@@ -11,7 +11,7 @@ using GameKit.Core.CraftingAndInventories.Resources;
 namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
 {
 
-    public class ResourceEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public class ResourceEntry : PointerMonoBehaviour
     {
         #region Public.
         /// <summary>
@@ -175,26 +175,9 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         }
 
         /// <summary>
-        /// Called when the pointer enters this objects rect transform.
-        /// </summary>
-        public void OnPointerEnter(PointerEventData eventData) => SetHovered(true, eventData);
-        /// <summary>
-        /// Called when the pointer exits this objects rect transform.
-        /// </summary>
-        public void OnPointerExit(PointerEventData eventData) => SetHovered(false, eventData);
-        /// <summary>
-        /// Called when the pointer presses this objects rect transform.
-        /// </summary>
-        public void OnPointerDown(PointerEventData eventData) => SetPressed(true, eventData);
-        /// <summary>
-        /// Called when the pointer releases this objects rect transform.
-        /// </summary>
-        public void OnPointerUp(PointerEventData eventData) => SetPressed(false, eventData);
-
-        /// <summary>
         /// Sets pressed and updates tooltip if needed.
         /// </summary>
-        private void SetPressed(bool pressed, PointerEventData eventData)
+        public override void OnPressed(bool pressed, PointerEventData eventData)
         {
             //If changed update inventory canvas.
             if (pressed != _pressed)
@@ -211,7 +194,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// <summary>
         /// Sets hovered and updates tooltip if needed.
         /// </summary>
-        private void SetHovered(bool hovered, PointerEventData data)
+        public override void OnHovered(bool hovered, PointerEventData data)
         {
             //If changed update inventory canvas.
             if (_hovered != hovered)

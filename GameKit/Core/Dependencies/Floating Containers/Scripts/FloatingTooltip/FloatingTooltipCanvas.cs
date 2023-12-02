@@ -35,19 +35,21 @@ namespace GameKit.Core.FloatingContainers.Tooltips
 
         private void Awake()
         {
-            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
+            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientChange), false);
         }
 
         private void OnDestroy()
         {
-            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+            ClientInstance.OnClientInstanceChange -= ClientInstance_OnClientChange;
         }
 
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
+        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
+            if (asServer)
+                return;
             if (instance == null)
                 return;
             //Do not do anything if this is not the instance owned by local client.

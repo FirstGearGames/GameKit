@@ -981,8 +981,8 @@ MonoBehaviour:
   <PredictedSpawn>k__BackingField: {fileID: 0}
   _networkBehaviours:
   - {fileID: 2142677671}
-  <ParentNetworkObject>k__BackingField: {fileID: 0}
-  <ChildNetworkObjects>k__BackingField: []
+  <SerializedRootNetworkBehaviour>k__BackingField: {fileID: 0}
+  <NestedRootNetworkBehaviours>k__BackingField: []
   SerializedTransformProperties:
     Position: {x: 622.6176, y: -314.5649, z: 413.08014}
     Rotation: {x: 0, y: 0, z: 0, w: 1}
@@ -994,8 +994,8 @@ MonoBehaviour:
   NetworkObserver: {fileID: 0}
   <PrefabId>k__BackingField: 0
   <SpawnableCollectionId>k__BackingField: 0
-  _scenePathHash: 1725053632
-  <SceneId>k__BackingField: 7409048933311592853
+  _scenePathHash: 2826140408
+  <SceneId>k__BackingField: 12138180629912451812
   <AssetPathHash>k__BackingField: 0
 --- !u!114 &2142677671
 MonoBehaviour:
@@ -3130,7 +3130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 211a9f6ec51ddc14f908f5acc0cd0423, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerPrefab: {fileID: 1759434601153448100, guid: f16f3384f23ce10409f688fa3d497d13,
+  _playerPrefab: {fileID: 1759434601153448100, guid: 1079b7f7236786f479feb036037c19cd,
     type: 3}
   _addToDefaultScene: 1
   Spawns: []

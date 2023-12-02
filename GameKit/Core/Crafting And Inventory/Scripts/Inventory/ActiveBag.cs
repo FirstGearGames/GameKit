@@ -80,7 +80,7 @@ namespace GameKit.Core.Inventories.Bags
     }
 
 
-    internal static class ActiveBagExtensions
+    public static class ActiveBagExtensions
     {
         public static void WriteActiveBag(this Writer w, ActiveBag value)
         {

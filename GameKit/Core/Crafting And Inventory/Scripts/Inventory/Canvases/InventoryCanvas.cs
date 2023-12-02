@@ -126,7 +126,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
             _bagContent.DestroyChildren<BagEntry>(true);
             _searchInput.onValueChanged.AddListener(_searchInput_OnValueChanged);
 
-            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
+            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
         }
 
         private void Start()
@@ -137,7 +137,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         private void OnDestroy()
         {
             ChangeSubscription(ClientInstance.Instance, false);
-            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+            ClientInstance.OnClientInstanceChange -= ClientInstance_OnClientInstanceChange;
             _searchInput.onValueChanged.AddListener(_searchInput_OnValueChanged);
         }
 
@@ -278,15 +278,20 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// <summary>
         /// Called when OnStartClient occurs on this local clients ClientInstance.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
+        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
+            if (asServer)
+                return;
             if (state.IsPreState())
                 return;
 
             bool started = (state == ClientInstanceState.PostInitialize);
             ChangeSubscription(instance, started);
             if (started)
+            {
+                _tooltipCanvas = instance.NetworkManager.GetInstance<FloatingTooltipCanvas>();
                 InitializeBags();
+            }
         }
 
         /// <summary>

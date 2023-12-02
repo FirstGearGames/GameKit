@@ -186,19 +186,21 @@ namespace GameKit.Core.Chats.Canvases
             _outboundText.onSelect.AddListener(Outbound_OnChatSelected);
             _outboundText.onDeselect.AddListener(Outbound_OnChatDeselected);
 
-            ClientInstance.OnClientChangeInvoke(new ClientInstance.ClientChangeDel(ClientInstance_OnClientChange));
+            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
         }
 
         private void OnDestroy()
         {
-            ClientInstance.OnClientChange -= ClientInstance_OnClientChange;
+            ClientInstance.OnClientInstanceChange -= ClientInstance_OnClientInstanceChange;
         }
 
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientChange(ClientInstance instance, ClientInstanceState state)
+        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
+            if (asServer)
+                return;
             if (instance == null)
                 return;
             //Do not do anything if this is not the instance owned by local client.
