@@ -19,7 +19,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// <summary>
         /// Where to anchor tooltips.
         /// </summary>
-        private readonly Vector2 _tooltipPivot = new Vector2(0.5f, 0.5f);
+        private readonly Vector2 _tooltipPivot = new Vector2(0.0f, 1f);
         #endregion
 
         public void InitializeOnce(Bag bag, FloatingTooltipCanvas tooltipCanvas)
