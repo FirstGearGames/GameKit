@@ -597,6 +597,7 @@ GameObject:
   m_Component:
   - component: {fileID: 155021933}
   - component: {fileID: 155021934}
+  - component: {fileID: 155021935}
   m_Layer: 0
   m_Name: Misc
   m_TagString: Untagged
@@ -632,6 +633,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dataExpirationDelay: 300
+--- !u!114 &155021935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155021932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d9588fa7666e14478ef1075111086af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _bags:
+  - {fileID: 11400000, guid: b590bda2580265d478d6a1ca07a80b25, type: 2}
+  - {fileID: 11400000, guid: 0c636be3748d8c44dafe22fa447b4f19, type: 2}
 --- !u!1 &159533026
 GameObject:
   m_ObjectHideFlags: 0
@@ -5567,7 +5583,7 @@ PrefabInstance:
     - target: {fileID: 4393252310584637087, guid: 0b650fca685f2eb41a86538aa883e4c1,
         type: 3}
       propertyPath: m_BlockingMask.m_Bits
-      value: 55
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 7443408887813606049, guid: 0b650fca685f2eb41a86538aa883e4c1,
         type: 3}

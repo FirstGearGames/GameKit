@@ -1,9 +1,26 @@
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
 namespace GameKit.Core.Resources
 {
+    public struct SerializableResourceQuantity
+    {
+        /// <summary>
+        /// Type of resource.
+        /// </summary>
+        public int ResourceId;
+        /// <summary>
+        /// Quantity of resource.
+        /// </summary>
+        public int Quantity;
 
-    [System.Serializable]
+        public SerializableResourceQuantity(int resourceId, int quantity)
+        {
+            ResourceId = resourceId;
+            Quantity = quantity;
+        }
+    }
+
     public struct ResourceQuantity
     {
         /// <summary>
@@ -24,6 +41,11 @@ namespace GameKit.Core.Resources
         {
             ResourceId = resourceId;
             Quantity = quantity;
+        }
+
+        public SerializableResourceQuantity ToSerializable()
+        {
+            return new SerializableResourceQuantity(ResourceId, Quantity);
         }
 
         /// <summary>

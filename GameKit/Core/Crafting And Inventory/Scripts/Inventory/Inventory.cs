@@ -123,10 +123,6 @@ namespace GameKit.Core.Inventories
 
         private void InitializeOnce()
         {
-            //Add default bags.
-            foreach (Bag item in _defaultBags)
-                AddBag(item);
-
             Crafter crafter = GetComponent<Crafter>();
             crafter.OnCraftingResult += Crafter_OnCraftingResult;
         }
@@ -134,6 +130,11 @@ namespace GameKit.Core.Inventories
         public override void OnStartNetwork()
         {
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
+        }
+
+        public override void OnStartServer()
+        {
+            OnStartServer_Loadout();
         }
 
         public override void OnSpawnServer(NetworkConnection connection)

@@ -1,4 +1,5 @@
 
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
 namespace GameKit.Core.Inventories.Bags
@@ -6,6 +7,7 @@ namespace GameKit.Core.Inventories.Bags
     /// <summary>
     /// Information about a bag.
     /// </summary>
+    [System.Serializable]
     [CreateAssetMenu(fileName = "New Bag", menuName = "GameKit/Inventory/Create Bag")]
     public class Bag : ScriptableObject
     {

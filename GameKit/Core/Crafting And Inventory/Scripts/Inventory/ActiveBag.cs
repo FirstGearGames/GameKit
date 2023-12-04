@@ -1,8 +1,46 @@
 using FishNet.Serializing;
 using GameKit.Core.Resources;
+using System.Collections.Generic;
+using Unity.Plastic.Newtonsoft.Json;
 
 namespace GameKit.Core.Inventories.Bags
 {
+    public struct SerializableActiveBag
+    {
+        /// <summary>
+        /// Information about a slot and it's resources.
+        /// </summary>
+        public struct FilledSlot
+        {
+            /// <summary>
+            /// Slot containing resources.
+            /// </summary>
+            public int Slot;
+            /// <summary>
+            /// Resources within slot.
+            /// </summary>
+            public SerializableResourceQuantity ResourceQuantity;
+
+            public FilledSlot(int slot, SerializableResourceQuantity resourceQuantity)
+            {
+                Slot = slot;
+                ResourceQuantity = resourceQuantity;
+            }
+        }
+
+        /// <summary>
+        /// UniqueId for the Bag used.
+        /// </summary>
+        public int BagUniqueId;
+        /// <summary>
+        /// Index of this bag within it's placement, such as an inventory.
+        /// </summary>
+        public int Index;
+        /// <summary>
+        /// All slots which have resources within them.
+        /// </summary>
+        public List<FilledSlot> FilledSlots;
+    }
     /// <summary>
     /// A bag which exist. This can be in the world, inventory, etc.
     /// </summary>
@@ -69,6 +107,29 @@ namespace GameKit.Core.Inventories.Bags
         }
 
         /// <summary>
+        /// Returns a serializable type containing this active bags information.
+        /// </summary>
+        /// <returns></returns>
+        public SerializableActiveBag ToSerializable()
+        {
+            SerializableActiveBag result = new SerializableActiveBag();
+            result.BagUniqueId = Bag.UniqueId;
+            result.Index = Index;
+
+            result.FilledSlots = new List<SerializableActiveBag.FilledSlot>();
+            for (int i = 0; i < Slots.Length; i++)
+            {
+                ResourceQuantity rq = Slots[i];
+                if (rq.IsUnset)
+                    continue;
+
+                result.FilledSlots.Add(new SerializableActiveBag.FilledSlot(i, rq.ToSerializable()));
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Sets Index for this bag.
         /// </summary>
         public void SetIndex(int value) => Index = value;
@@ -103,6 +164,15 @@ namespace GameKit.Core.Inventories.Bags
 
             ActiveBag ab = new ActiveBag(bag, index, slots);
             return ab;
+        }
+
+        public static List<SerializableActiveBag> ToSerializable(this List<ActiveBag> activeBags)
+        {
+            List<SerializableActiveBag> result = new List<SerializableActiveBag>();
+            foreach (ActiveBag item in activeBags)
+                result.Add(item.ToSerializable());
+
+            return result;
         }
     }
 
