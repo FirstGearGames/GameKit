@@ -1,9 +1,21 @@
 
-using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
 namespace GameKit.Core.Inventories.Bags
 {
+    public struct SerializableBag
+    {
+        /// <summary>
+        /// Unique Id for this bag. This is generally a database Id for the bag.
+        /// </summary>
+        public int UniqueId;
+
+        public SerializableBag(int uniqueId)
+        {
+            UniqueId = uniqueId;
+        }
+    }
+
     /// <summary>
     /// Information about a bag.
     /// </summary>
@@ -29,6 +41,17 @@ namespace GameKit.Core.Inventories.Bags
         /// Description of the bag.
         /// </summary>
         public string Description;
+
+        /// <summary>
+        /// Id for an unset uniqueId.
+        /// </summary>
+        public const int UNSET_UNIQUEID = -1;
+
+        /// <summary>
+        /// Makes this object network serializable.
+        /// </summary>
+        /// <returns></returns>
+        public SerializableBag ToSerializable() => new SerializableBag(UniqueId);
     }
 
 }

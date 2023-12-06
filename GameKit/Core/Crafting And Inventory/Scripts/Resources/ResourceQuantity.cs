@@ -26,7 +26,7 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Returns if this entry is considered unset.
         /// </summary>
-        public bool IsUnset => (ResourceId == -1 || Quantity == 0);
+        public bool IsUnset => (ResourceId == UNSET_RESOURCEID || Quantity == 0);
         /// <summary>
         /// Type of resource.
         /// </summary>
@@ -36,6 +36,11 @@ namespace GameKit.Core.Resources
         /// </summary>
         [Range(0, ushort.MaxValue)]
         public int Quantity;
+
+        /// <summary>
+        /// Id used when resourceId is unset.
+        /// </summary>
+        public const int UNSET_RESOURCEID = -1;
 
         public ResourceQuantity(int resourceId, int quantity)
         {

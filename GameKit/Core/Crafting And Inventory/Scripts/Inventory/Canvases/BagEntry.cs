@@ -58,7 +58,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// </summary>
         [Tooltip("TooltipHover to show hovered bag information.")]
         [SerializeField, Group("Header")]
-        private BagEntrytooltipHover _tooltipHover;
+        private BagEntryTooltipHover _tooltipHover;
 
         /// <summary>
         /// Content where each resource entry is instantiated.

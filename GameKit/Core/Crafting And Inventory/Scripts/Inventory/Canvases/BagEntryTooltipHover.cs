@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
 {
-    public class BagEntrytooltipHover : PointerMonoBehaviour
+    public class BagEntryTooltipHover : PointerMonoBehaviour
     {
         #region Private.
         /// <summary>

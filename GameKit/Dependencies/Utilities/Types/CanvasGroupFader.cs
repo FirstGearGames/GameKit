@@ -1,8 +1,7 @@
 using GameKit.Dependencies.Inspectors;
-using GameKit.Dependencies.Utilities;
 using UnityEngine;
 
-namespace GameKit.Depenencies.Utilities.Types
+namespace GameKit.Dependencies.Utilities.Types
 {
 
     public class CanvasGroupFader : MonoBehaviour
@@ -20,10 +19,6 @@ namespace GameKit.Depenencies.Utilities.Types
         #endregion
 
         #region Public.
-        /// <summary>
-        /// True if pulsing.
-        /// </summary>
-        public bool IsPulsing { get; private set; }
         /// <summary>
         /// Current goal for the fader.
         /// </summary>
@@ -68,18 +63,6 @@ namespace GameKit.Depenencies.Utilities.Types
         /// True if a fade cycle has completed at least once.
         /// </summary>
         private bool _completedOnce;
-        /// <summary>
-        /// How quickly to fade in when pulsing.
-        /// </summary>
-        private float _pulseInDuration;
-        /// <summary>
-        /// How quickly to fade out when pulsing.
-        /// </summary>
-        private float _pulseOutDuration;
-        /// <summary>
-        /// Lowest value to fade to when pulsing out.
-        /// </summary>
-        private float _pulseOutAlpha;
         #endregion
 
         protected virtual void OnEnable()
@@ -160,27 +143,6 @@ namespace GameKit.Depenencies.Utilities.Types
         }
 
         /// <summary>
-        /// Pulses in and out until Show or Hide is called.
-        /// </summary>
-        /// <param name="inDuration">When specified this is fade in rate, when null serialized values are used.</param>
-        /// <param name="outDuration">When specified this is fade out rate, when null serialized values are used.</param>
-        /// <param name="pulseOutAlpha">Lowest alpha to fade out to.</param>
-        public virtual void Pulse(float? inDuration, float? outDuration, float pulseOutAlpha = 0f)
-        {
-            //If already pulsing do nothing.
-            if (IsPulsing)
-                return;
-
-            _pulseOutAlpha = Mathf.Clamp(pulseOutAlpha, 0f, 1f);
-            _pulseInDuration = (inDuration.HasValue) ? inDuration.Value : FadeInDuration;
-            _pulseOutDuration = (outDuration.HasValue) ? outDuration.Value : FadeOutDuration;
-
-            SetFadeGoal(true);
-            IsPulsing = true;
-        }
-
-
-        /// <summary>
         /// Called after Hide or HideImmediate.
         /// </summary>
         protected virtual void OnHide() { }
@@ -189,10 +151,8 @@ namespace GameKit.Depenencies.Utilities.Types
         /// Sets showing and begins fading if required.
         /// </summary>
         /// <param name="fadeIn"></param>
-        private void SetFadeGoal(bool fadeIn, bool unsetPulsing = true)
+        private void SetFadeGoal(bool fadeIn)
         {
-            if (unsetPulsing)
-                IsPulsing = false;
             FadeGoal = (fadeIn) ? FadeGoalType.Visible : FadeGoalType.Hidden;
         }
 
@@ -212,32 +172,15 @@ namespace GameKit.Depenencies.Utilities.Types
             bool fadingIn = (FadeGoal == FadeGoalType.Visible);
             float duration;
             float targetAlpha;
-
-            if (IsPulsing)
+            if (fadingIn)
             {
-                if (fadingIn)
-                {
-                    targetAlpha = 1f;
-                    duration = _pulseInDuration;
-                }
-                else
-                {
-                    targetAlpha = _pulseOutAlpha;
-                    duration = _pulseInDuration;
-                }
+                targetAlpha = 1f;
+                duration = FadeInDuration;
             }
             else
             {
-                if (fadingIn)
-                {
-                    targetAlpha = 1f;
-                    duration = FadeInDuration;
-                }
-                else
-                {
-                    targetAlpha = 0f;
-                    duration = FadeOutDuration;
-                }
+                targetAlpha = 0f;
+                duration = FadeOutDuration;
             }
 
             /* Already at goal and had completed an iteration at least once.
@@ -252,13 +195,7 @@ namespace GameKit.Depenencies.Utilities.Types
 
             //If complete.
             if (CanvasGroup.alpha == targetAlpha)
-            {
-                if (!IsPulsing)
-                    CompleteFade(fadingIn);
-                //If pulsing then switch goal.
-                else
-                    SetFadeGoal(!fadingIn, false);
-            }
+                CompleteFade(fadingIn);
         }
 
         /// <summary>

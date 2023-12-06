@@ -483,7 +483,7 @@ namespace GameKit.Core.Inventories
             if (!fromFound || !toFound)
             {
                 //Exploit attempt kick.
-                if (base.IsServer)
+                if (base.IsServerInitialized)
                     base.Owner.Kick(KickReason.ExploitAttempt, LoggingType.Common, $"Connection Id {base.Owner.ClientId} tried to move a bag item to an invalid slot.");
                 else
                     return false;

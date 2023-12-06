@@ -1,6 +1,3 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-#define DEVELOPMENT
-#endif
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -338,8 +335,7 @@ namespace GameKit.Dependencies.Utilities
         public static void Store(Dictionary<T1, T2> value)
         {
             value.Clear();
-            if (!CachesHelper.ValueExists(value, _dictionaryCache))
-                _dictionaryCache.Push(value);
+            _dictionaryCache.Push(value);
         }
     }
 
@@ -450,8 +446,7 @@ namespace GameKit.Dependencies.Utilities
             for (int i = 0; i < count; i++)
                 value[i] = default;
 
-            if (!CachesHelper.ValueExists(value, _arrayCache))
-                _arrayCache.Push(value);
+            _arrayCache.Push(value);
         }
 
         /// <summary>
@@ -474,8 +469,7 @@ namespace GameKit.Dependencies.Utilities
         public static void Store(List<T> value)
         {
             value.Clear();
-            if (!CachesHelper.ValueExists(value, _listCache))
-                _listCache.Push(value);
+            _listCache.Push(value);
         }
 
         /// <summary>
@@ -498,8 +492,7 @@ namespace GameKit.Dependencies.Utilities
         public static void Store(HashSet<T> value)
         {
             value.Clear();
-            if (!CachesHelper.ValueExists(value, _hashsetCache))
-                _hashsetCache.Push(value);
+            _hashsetCache.Push(value);
         }
 
     }
@@ -546,23 +539,7 @@ namespace GameKit.Dependencies.Utilities
         /// <param name="value"></param>
         public static void Store(T value)
         {
-            if (!CachesHelper.ValueExists(value, _stack))
-                _stack.Push(value);
-        }
-    }
-
-    internal static class CachesHelper
-    {
-        public static bool ValueExists<T>(T value, Stack<T> stack)
-        {
-#if DEVELOPMENT
-            if (stack.Contains(value))
-            {
-                UnityEngine.Debug.LogError($"Value on type {typeof(T).Name} already exist within stack.");
-                return true;
-            }
-#endif
-            return false;
+            _stack.Push(value);
         }
     }
     #endregion

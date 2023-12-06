@@ -1,5 +1,5 @@
+using GameKit.Dependencies;
 using GameKit.Dependencies.Inspectors;
-using GameKit.Depenencies.Utilities.Types;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
