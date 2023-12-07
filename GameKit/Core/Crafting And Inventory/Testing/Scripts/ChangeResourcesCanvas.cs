@@ -15,12 +15,12 @@ namespace GameKit.Crafting.Testing
         public void AddRandomResources()
         {
             //Client has to ask server to add.
-            if (base.IsClientOnly)
+            if (base.IsClientOnlyStarted)
             {
                 ServerAdd();
                 return;
             }
-            else if (!base.IsServer)
+            else if (!base.IsServerStarted)
             {
                 return;
             }

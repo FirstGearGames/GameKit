@@ -169,6 +169,17 @@ namespace GameKit.Core.Inventories
         }
 
         /// <summary>
+        /// Adds a Bag to Inventory.
+        /// </summary>
+        /// <param name="space">Amount of space to give the bag.</param>
+        public void AddBag(ActiveBag activeBag)
+        {
+            Bags.Insert(activeBag.Index, activeBag);
+            OnBagsChannged?.Invoke(true, activeBag);
+        }
+
+
+        /// <summary>
         /// Returns the held quantity of a resource.
         /// </summary>
         /// <param name="type"></param>
@@ -267,7 +278,7 @@ namespace GameKit.Core.Inventories
             else
                 ResourceQuantities[resourceId] = resourceCount;
 
-            if (sendToClient && !base.Owner.IsLocalClient && removed > 0)
+            if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient && removed > 0)
                 TargetModifyResourceQuantity(base.Owner, resourceId, (int)-removed);
 
             CompleteResourceQuantityChange(resourceId, resourceCount);
@@ -367,7 +378,7 @@ namespace GameKit.Core.Inventories
              * only because client is obviously not
              * running as server only. */
             uint added = (qPositive - (uint)quantity);
-            if (sendToClient && !base.Owner.IsLocalClient && added > 0)
+            if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient && added > 0)
                 TargetModifyResourceQuantity(base.Owner, resourceId, (int)added);
 
             return quantity;
