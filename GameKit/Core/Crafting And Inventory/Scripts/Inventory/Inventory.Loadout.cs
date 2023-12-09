@@ -1,10 +1,15 @@
 using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Serializing;
+using GameKit.Core.CraftingAndInventories.Inventories.Canvases;
 using GameKit.Core.Inventories.Bags;
 using GameKit.Core.Resources;
 using GameKit.Dependencies.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Text;
 using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
@@ -50,6 +55,61 @@ namespace GameKit.Core.Inventories
             //}
         }
 
+        private UnsortedInventory GetRandomUnsortedInventory(int bagCount, int resourceCount)
+        {
+            UnsortedInventory ui = new UnsortedInventory();
+            ui.Bags = new List<SerializableBag>();
+            for (int i = 0; i < bagCount; i++)
+            {
+                int randomA = UnityEngine.Random.Range(0, 2000);
+                SerializableBag sb = new SerializableBag(randomA);
+                ui.Bags.Add(sb);
+            }
+
+            ui.ResourceQuantities = new List<SerializableResourceQuantity>();
+            for (int i = 0; i < resourceCount; i++)
+            {
+                int randomA = UnityEngine.Random.Range(0, 10000);
+                int randomB = UnityEngine.Random.Range(0, 2000);
+
+                SerializableResourceQuantity rq = new SerializableResourceQuantity(randomA, randomB);
+                ui.ResourceQuantities.Add(rq);
+            }
+
+            return ui;
+        }
+
+
+
+        private List<SerializableActiveBag> GetRandomSerializableActiveBags(int bagCount, int resourceCount)
+        {
+            List<SerializableActiveBag> results = new List<SerializableActiveBag>();
+            for (int x = 0; x < bagCount; x++)
+            {
+
+                int randomD = UnityEngine.Random.Range(0, 2000);
+                int randomE = UnityEngine.Random.Range(0, 2000);
+
+                SerializableActiveBag sab = new SerializableActiveBag(randomD, randomE);
+                sab.FilledSlots = new List<SerializableActiveBag.FilledSlot>();
+
+                for (int i = 0; i < resourceCount; i++)
+                {
+                    int randomA = UnityEngine.Random.Range(0, 2000);
+                    int randomB = UnityEngine.Random.Range(0, 2000);
+                    int randomC = UnityEngine.Random.Range(0, 100);
+                    SerializableResourceQuantity srq = new SerializableResourceQuantity(randomA, randomB);
+                    SerializableActiveBag.FilledSlot fs = new SerializableActiveBag.FilledSlot(randomC, srq);
+                    sab.FilledSlots.Add(fs);
+                }
+                results.Add(sab);
+            }
+
+            return results;
+        }
+
+
+
         /// <summary>
         /// Called when this spawns for a client.
         /// </summary>
@@ -67,8 +127,11 @@ namespace GameKit.Core.Inventories
                 //Load as text and let client deserialize.
                 string resources = File.ReadAllText(resourcesPath);
                 string loadout = File.ReadAllText(loadoutPath);
-                //TODO: read as bytes and compress on a thread.
-                TgtApplyLoadout(c, resources, loadout);
+
+                UnsortedInventory ui = JsonConvert.DeserializeObject<UnsortedInventory>(resources);
+                List<SerializableActiveBag> sab = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(loadout);
+                //TODO: Save types in a database rather than JSON.
+                TgtApplyLoadout(c, ui, sab);
             }
             catch { }
 
@@ -78,7 +141,7 @@ namespace GameKit.Core.Inventories
         /// Sends the players inventory loadout in the order they last used.
         /// </summary>
         [TargetRpc]
-        private void TgtApplyLoadout(NetworkConnection c, string unsortedInventory, string sortedInventory)
+        private void TgtApplyLoadout(NetworkConnection c, UnsortedInventory unsortedInv, List<SerializableActiveBag> sortedInv)
         {
             /* ResourceQuantities which are handled inside the users saved inventory
              * are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
@@ -90,14 +153,11 @@ namespace GameKit.Core.Inventories
 
             //TODO: convert linq lookups to for loops for quicker iteration.
 
-            UnsortedInventory unsortedInv = JsonConvert.DeserializeObject<UnsortedInventory>(unsortedInventory);
             //Make resources into dictionary for quicker lookups.
             //ResourceIds and quantity of each.
             Dictionary<int, int> rqsDict = CollectionCaches<int, int>.RetrieveDictionary();
             foreach (SerializableResourceQuantity item in unsortedInv.ResourceQuantities)
                 rqsDict[item.ResourceId] = item.Quantity;
-
-            List<SerializableActiveBag> sortedInv = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(sortedInventory);
 
             /* First check if unsortedInv contains all the bags used
              * in sortedInv. If sortedInv says a bag is used that the client
@@ -163,18 +223,30 @@ namespace GameKit.Core.Inventories
                 }
                 //Create active bag and add.
                 ActiveBag ab = new ActiveBag(bag, sab.Index, rqs);
-                AddBag(ab);
+                AddBag(ab, false);
             }
 
             //Add remaining bags from unsorted.
             foreach (SerializableBag sb in unsortedInv.Bags)
             {
                 Bag b = bagManager.GetBag(sb.UniqueId);
-                AddBag(b);
+                AddBag(b, false);
             }
+
+            /* This builds a cache of resources currently in the inventory.
+             * Since ActiveBags were set without allowing rebuild to save perf
+             * it's called here after all bags are added. */
+            RebuildBaggedResources();
             //Add remaining resources to wherever they fit.
             foreach (KeyValuePair<int, int> item in rqsDict)
                 ModifiyResourceQuantity(item.Key, item.Value, false);
+
+            /* If there were unsorted added then save clients new
+             * layout after everything was added. */
+            if (unsortedInv.Bags.Count > 0 || rqsDict.Count > 0)
+                LoadoutManuallyChanged();
+
+            CollectionCaches<int, int>.Store(rqsDict);
         }
 
         private string InventoryToJson()
@@ -183,10 +255,40 @@ namespace GameKit.Core.Inventories
             return result;
         }
 
-        private void Update()
+        public static byte[] CompressGZip(byte[] bytes)
         {
-            //if (Time.frameCount % 500 == 0)
-            //       SaveLoadout();
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var gzipStream = new GZipStream(memoryStream, System.IO.Compression.CompressionLevel.Optimal))
+                {
+                    gzipStream.Write(bytes, 0, bytes.Length);
+                }
+                return memoryStream.ToArray();
+            }
+        }
+
+        public static byte[] DecompressGZip(byte[] bytes)
+        {
+            using (var memoryStream = new MemoryStream(bytes))
+            {
+
+                using (var outputStream = new MemoryStream())
+                {
+                    using (var decompressStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+                    {
+                        decompressStream.CopyTo(outputStream);
+                    }
+                    return outputStream.ToArray();
+                }
+            }
+        }
+        /// <summary>
+        /// Called whenever the InventoryCanvas view is changed by the user.
+        /// This could be modifying bag or item occupancy and order.
+        /// </summary>
+        public void LoadoutManuallyChanged()
+        {
+            SaveLoadout();
         }
 
         /// <summary>
@@ -196,19 +298,39 @@ namespace GameKit.Core.Inventories
         private void SaveLoadout()
         {
             string s = InventoryToJson();
-            if (s.Length > 200)
+            SaveInventoryUnsorted();
+            string path = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
+            try
             {
-                SaveInventoryUnsorted();
-                string path = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
-                try
-                {
-                    File.WriteAllText(path, s);
-                }
-                catch { }
+                File.WriteAllText(path, s);
             }
-
+            catch { }
         }
-
+        public static byte[] CompressBrotli(byte[] bytes)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var brotliStream = new BrotliStream(memoryStream, System.IO.Compression.CompressionLevel.Optimal))
+                {
+                    brotliStream.Write(bytes, 0, bytes.Length);
+                }
+                return memoryStream.ToArray();
+            }
+        }
+        public static byte[] DecompressBrotli(byte[] bytes)
+        {
+            using (var memoryStream = new MemoryStream(bytes))
+            {
+                using (var outputStream = new MemoryStream())
+                {
+                    using (var decompressStream = new BrotliStream(memoryStream, CompressionMode.Decompress))
+                    {
+                        decompressStream.CopyTo(outputStream);
+                    }
+                    return outputStream.ToArray();
+                }
+            }
+        }
         /// <summary>
         /// Saves current inventory resource quantities to the server database.
         /// </summary>

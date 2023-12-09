@@ -159,20 +159,21 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
-        /// <param name="space">Amount of space to give the bag.</param>
-        public void AddBag(Bag bag)
+        /// <param name="bag">Adds an ActiveBag for bag with no entries.</param>
+        /// <param name="rebuildBaggedResources">True to rebuild cached bagged resources.</param>
+        public void AddBag(Bag bag, bool rebuildBaggedResources)
         {
             ActiveBag ab = new ActiveBag(bag);
             ab.SetIndex(Bags.Count);
-            Bags.Add(ab);
-            OnBagsChannged?.Invoke(true, ab);
+            AddBag(ab, rebuildBaggedResources);
         }
 
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
-        /// <param name="space">Amount of space to give the bag.</param>
-        public void AddBag(ActiveBag activeBag)
+        /// <param name="activeBag">ActiveBag information to add.</param>
+        /// <param name="rebuildBaggedResources">True to rebuild cached bagged resources.</param>
+        public void AddBag(ActiveBag activeBag, bool rebuildBaggedResources)
         {
             Bags.Insert(activeBag.Index, activeBag);
             OnBagsChannged?.Invoke(true, activeBag);
@@ -297,7 +298,6 @@ namespace GameKit.Core.Inventories
 
             IResourceData rd = _resourceManager.GetIResourceData(resourceId);
             int stackLimit = rd.GetStackLimit();
-
             List<ActiveBagResource> baggedResources;
             //If none are bagged yet.
             if (!BaggedResources.TryGetValue(resourceId, out baggedResources))
@@ -317,12 +317,13 @@ namespace GameKit.Core.Inventories
             for (int i = 0; i < baggedResources.Count; i++)
             {
                 ActiveBagResource br = baggedResources[i];
-
                 ActiveBag bag = Bags[br.BagIndex];
+                //Number currently in the slot.
                 int slotCount = bag.Slots[br.SlotIndex].Quantity;
-                int availableStacks = (stackLimit - slotCount);
+                //How many more can be added to this slot.
+                int availableCount = (stackLimit - slotCount);
 
-                int addCount = Mathf.Min(availableStacks, quantity);
+                int addCount = Mathf.Min(availableCount, quantity);
                 //If can add onto the stack.
                 if (addCount > 0)
                 {
@@ -546,6 +547,7 @@ namespace GameKit.Core.Inventories
             //Invoke changes.
             OnBagSlotUpdated?.Invoke(from.BagIndex, from.SlotIndex, Bags[from.BagIndex].Slots[from.SlotIndex]);
             OnBagSlotUpdated?.Invoke(to.BagIndex, to.SlotIndex, Bags[to.BagIndex].Slots[to.SlotIndex]);
+            LoadoutManuallyChanged();
 
             return true;
 

@@ -170,9 +170,15 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
                 return;
 
             if (subscribe)
+            {
+                ci.Inventory.OnBagsChannged += Inventory_OnBagsChanged;
                 ci.Inventory.OnBagSlotUpdated += Inventory_OnBagSlotUpdated;
+            }
             else
+            {
+                ci.Inventory.OnBagsChannged -= Inventory_OnBagsChanged;
                 ci.Inventory.OnBagSlotUpdated -= Inventory_OnBagSlotUpdated;
+            }
         }
 
         /// <summary>
@@ -235,11 +241,21 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         }
 
         /// <summary>
+        /// Called when inventory bags are updated.
+        /// </summary>
+        private void Inventory_OnBagsChanged(bool added, ActiveBag bag)
+        {
+            InitializeBags();
+        }
+
+        /// <summary>
         /// Called when inventory space is updated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Inventory_OnBagSlotUpdated(int bagIndex, int slotIndex, ResourceQuantity rq)
         {
+            if (UpdateOnShow())
+                return;
 
             ResourceEntry re = _bagEntries[bagIndex].ResourceEntries[slotIndex];
 
@@ -257,6 +273,27 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
             SetUsedInventorySpaceText();
             _bagEntries[bagIndex].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);
+        }
+
+        /// <summary>
+        /// Will queue an update the next time this canvas is shown if currently hidden.
+        /// </summary>
+        /// <returns>True if an update was queued.</returns>
+        private bool UpdateOnShow()
+        {
+            if (!_visible)
+                _updateOnShow = true;
+
+            return !_visible;
+        }
+
+        /// <summary>
+        /// Called whenever this inventory view is changed by the user.
+        /// This could be modifying bag or item occupancy and order.
+        /// </summary>
+        private void LoadoutManuallyChanged()
+        {
+            _inventory?.LoadoutManuallyChanged();
         }
 
         /// <summary>
@@ -283,7 +320,10 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
             if (asServer)
                 return;
             if (state.IsPreState())
+            {
+                instance.NetworkManager.RegisterInstance(this);
                 return;
+            }
 
             bool started = (state == ClientInstanceState.PostInitialize);
             ChangeSubscription(instance, started);
@@ -310,6 +350,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
             _updateOnShow = false;
         }
 
+
         /// <summary>
         /// Hides this canvas.
         /// </summary>
@@ -332,6 +373,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// <summary>
         /// Initializes bags with data from inventory.
         /// </summary>
+        /// <param name="force">True to update immediately even if this canvas is not shown.</param>
         public void InitializeBags()
         {
             if (!_visible)

@@ -1,4 +1,3 @@
-using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
 namespace GameKit.Core.Resources
@@ -26,7 +25,7 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Returns if this entry is considered unset.
         /// </summary>
-        public bool IsUnset => (ResourceId == UNSET_RESOURCEID || Quantity == 0);
+        public bool IsUnset => (ResourceId == ResourceConsts.UNSET_RESOURCE_ID || Quantity == 0);
         /// <summary>
         /// Type of resource.
         /// </summary>
@@ -36,11 +35,6 @@ namespace GameKit.Core.Resources
         /// </summary>
         [Range(0, ushort.MaxValue)]
         public int Quantity;
-
-        /// <summary>
-        /// Id used when resourceId is unset.
-        /// </summary>
-        public const int UNSET_RESOURCEID = -1;
 
         public ResourceQuantity(int resourceId, int quantity)
         {
@@ -58,7 +52,7 @@ namespace GameKit.Core.Resources
         /// </summary>
         public void MakeUnset()
         {
-            ResourceId = -1;
+            ResourceId = ResourceConsts.UNSET_RESOURCE_ID;
             Quantity = 0;
         }
 

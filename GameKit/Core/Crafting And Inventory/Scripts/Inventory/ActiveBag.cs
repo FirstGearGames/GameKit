@@ -41,6 +41,13 @@ namespace GameKit.Core.Inventories.Bags
         /// All slots which have resources within them.
         /// </summary>
         public List<FilledSlot> FilledSlots;
+
+        public SerializableActiveBag(int bagUniqueId, int index) : this()
+        {
+            BagUniqueId = bagUniqueId;
+            Index = index;
+            FilledSlots = new List<FilledSlot>();
+        }
     }
     /// <summary>
     /// A bag which exist. This can be in the world, inventory, etc.
@@ -113,11 +120,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <returns></returns>
         public SerializableActiveBag ToSerializable()
         {
-            SerializableActiveBag result = new SerializableActiveBag();
-            result.BagUniqueId = Bag.UniqueId;
-            result.Index = Index;
-
-            result.FilledSlots = new List<SerializableActiveBag.FilledSlot>();
+            SerializableActiveBag result = new SerializableActiveBag(Bag.UniqueId, Index);
             for (int i = 0; i < Slots.Length; i++)
             {
                 ResourceQuantity rq = Slots[i];

@@ -99,7 +99,7 @@ namespace GameKit.Core.Resources
         /// </summary>
         public IResourceData GetIResourceData(int resourceId)
         {
-            if (resourceId == -1)
+            if (resourceId == ResourceConsts.UNSET_RESOURCE_ID)
                 return null;
 
             IResourceData result;
@@ -114,14 +114,14 @@ namespace GameKit.Core.Resources
         /// </summary>
         public int GetResourceCategory(int resourceId)
         {
-            if (resourceId == -1)
-                return -1;
+            if (resourceId == ResourceConsts.UNSET_RESOURCE_ID)
+                return ResourceConsts.UNSET_RESOURCE_CATEGORY;
 
             IResourceData rd = GetIResourceData(resourceId);
             if (rd != null)
                 return rd.GetResourceCategory();
             else
-                return -1;
+                return ResourceConsts.UNSET_RESOURCE_CATEGORY;
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace GameKit.Core.Resources
         /// </summary>
         public IResourceCategoryData GetResourceCategoryData(int resourceId)
         {
-            if (resourceId == -1)
+            if (resourceId == ResourceConsts.UNSET_RESOURCE_ID)
                 return null;
 
             IResourceCategoryData result;
