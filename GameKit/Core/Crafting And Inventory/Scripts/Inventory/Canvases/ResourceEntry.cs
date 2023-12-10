@@ -110,6 +110,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
             SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
+            //TODO: do not use instancefinder.
             IResourceData = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(rq.ResourceId);
             _icon.sprite = ResourceData.GetIcon();
             StackCount = rq.Quantity;

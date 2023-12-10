@@ -211,14 +211,13 @@ namespace GameKit.Core.Chats.Managers
             LoadFilteredChatWords(true);
 
             //No need to also track client side if server.
-            if (!base.IsServer)
+            if (!base.IsServerStarted)
             {
                 //Listen for future clients.
                 base.ClientManager.OnRemoteConnectionState += ClientManager_OnRemoteConnectionState;
                 //Add all current clients as chat entities.
                 foreach (NetworkConnection conn in base.ClientManager.Clients.Values)
                     AddChatEntity(conn, GetConnectionPlayerName(conn));
-                //todo add name stuff to clientinstance
             }
         }
 
@@ -331,7 +330,7 @@ namespace GameKit.Core.Chats.Managers
         }
 
 
-        //todo make use actual name / client instance.
+        //TODO: make use actual name / client instance.
         private string GetConnectionPlayerName(NetworkConnection conn)
         {
             return $"Player-{conn.ClientId}";
@@ -375,7 +374,7 @@ namespace GameKit.Core.Chats.Managers
         {
             if (conn == null)
             {
-                InstanceFinder.NetworkManager.LogError($"Connection cannot be null when unregistering a ChatEntity.");
+                base.NetworkManager.LogError($"Connection cannot be null when unregistering a ChatEntity.");
                 return;
             }
 

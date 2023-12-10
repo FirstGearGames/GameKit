@@ -20,6 +20,11 @@ namespace GameKit.Core.Inventories
             BagIndex = bagIndex;
             SlotIndex = slotIndex;
         }
+
+        /// <summary>
+        /// Returns if this object matches other.
+        /// </summary>
+        public bool Equals(ActiveBagResource other) => (BagIndex == other.BagIndex && SlotIndex == other.SlotIndex);
         #endregion
     }
 

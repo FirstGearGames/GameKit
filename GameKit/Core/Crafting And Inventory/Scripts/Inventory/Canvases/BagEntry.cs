@@ -11,6 +11,7 @@ using GameKit.Core.Inventories;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
 using UnityEngine.EventSystems;
+using GameKit.Core.Dependencies;
 
 namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
 {
@@ -93,7 +94,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// <summary>
         /// Initializes this script for use.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ActiveBag activeBag)
+        public void Initialize(InventoryCanvas inventoryCanvas, ClientInstance clientInstance, FloatingTooltipCanvas tooltipCanvas, ActiveBag activeBag)
         {
             //Destroy any content which may have been placed for testing.
             _content.DestroyChildren<ResourceEntry>(false);
@@ -107,12 +108,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
             for (int i = 0; i < slots; i++)
             {
                 ResourceEntry re = Instantiate(_resourceEntryPrefab, _content);
-                IResourceData ird = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(activeBag.Slots[i].ResourceId);
-                //todo
-                /*
-                * Add public int BagIndex {get;private} and set
-                * when bag is added to inventory. Pass this into
-                * init with slot index. */
+                IResourceData ird = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(activeBag.Slots[i].ResourceId);
                 ActiveBagResource baggedResource = new ActiveBagResource(ActiveBag.Index, i);
                 if (ird != null)
                     re.Initialize(_inventoryCanvas, tooltipCanvas, activeBag.Slots[i], baggedResource);

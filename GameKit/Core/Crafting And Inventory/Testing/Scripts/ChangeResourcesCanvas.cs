@@ -50,6 +50,7 @@ namespace GameKit.Crafting.Testing
                 inv.ModifiyResourceQuantity((int)rt, count);
             }
 
+            inv.InventorySortedChanged();
             CraftingCanvas cmt = GameObject.FindObjectOfType<CraftingCanvas>();
             cmt?.RefreshAvailableRecipes();
         }

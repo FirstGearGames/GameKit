@@ -106,6 +106,10 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         /// Currently instantiated floating inventory item.
         /// </summary>
         private FloatingResourceEntry _floatingInventoryItem;
+        /// <summary>
+        /// ClientInstance for the local client.
+        /// </summary>
+        private ClientInstance _clientInstance;
         #endregion
 
         #region Const.
@@ -288,15 +292,6 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
         }
 
         /// <summary>
-        /// Called whenever this inventory view is changed by the user.
-        /// This could be modifying bag or item occupancy and order.
-        /// </summary>
-        private void LoadoutManuallyChanged()
-        {
-            _inventory?.LoadoutManuallyChanged();
-        }
-
-        /// <summary>
         /// Sets text for used inventory space.
         /// </summary>
         private void SetUsedInventorySpaceText()
@@ -321,6 +316,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
                 return;
             if (state.IsPreState())
             {
+                _clientInstance = instance;
                 instance.NetworkManager.RegisterInstance(this);
                 return;
             }
@@ -393,7 +389,7 @@ namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
             foreach (ActiveBag b in _inventory.Bags)
             {
                 BagEntry be = Instantiate(_bagEntryPrefab, _bagContent);
-                be.Initialize(this, _tooltipCanvas, b);
+                be.Initialize(this, _clientInstance, _tooltipCanvas, b);
                 _bagEntries.Add(be);
             }
 

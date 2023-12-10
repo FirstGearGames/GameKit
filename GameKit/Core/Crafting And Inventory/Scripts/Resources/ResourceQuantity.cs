@@ -64,6 +64,20 @@ namespace GameKit.Core.Resources
             ResourceId = resourceId;
             Quantity = quantity;
         }
+        /// <summary>
+        /// Updates the ResourceId.
+        /// </summary>
+        public void UpdateResourceId(int resourceId)
+        {
+            ResourceId = resourceId;
+        }
+        /// <summary>
+        /// Updates the Quantity.
+        /// </summary>
+        public void UpdateQuantity(int quantity)
+        {
+            Quantity = quantity;
+        }
     }
 
 

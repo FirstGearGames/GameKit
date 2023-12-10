@@ -1,9 +1,6 @@
 using FishNet.Object;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using FishNet.Managing.Server;
-using FishNet.Managing.Logging;
 using FishNet.Connection;
 using GameKit.Dependencies.Utilities;
 using GameKit.Core.Crafting;
@@ -192,6 +189,7 @@ namespace GameKit.Core.Inventories
             return result;
         }
 
+        //TODO: Is SendToClient needed???
         /// <summary>
         /// Adds or removes a resource quantity. Values can be negative to subtract quantity.
         /// </summary>
@@ -476,78 +474,70 @@ namespace GameKit.Core.Inventories
         }
 
         /// <summary>
-        /// Moves a resource from one bag slot to another.
+        /// Outputs resource quantities of an ActiveBagResource.
+        /// </summary>
+        /// <param name="abr">ActiveBagResource to get quantities for.</param>
+        /// <returns>True if the return was successful.</returns>
+        private bool GetResourceQuantity(ActiveBagResource abr, out ResourceQuantity rq)
+        {
+            return GetResourceQuantity(abr.BagIndex, abr.SlotIndex, out rq);
+        }
+
+        /// <summary>
+        /// Moves a resource from one slot to another.
         /// </summary>
         /// <param name="from">Information on where the resource is coming from.</param>
         /// <param name="to">Information on where the resource is going.</param>
+        /// <param name="quantity">Quantity to move. If -1 the entire stack will move, if greater than 0 up to specified amount will move if target can accept.</param>
         /// <returns>True if the move was successful.</returns>
-        public bool MoveResource(ActiveBagResource from, ActiveBagResource to)
+        [Client]
+        public bool MoveResource(ActiveBagResource from, ActiveBagResource to, int quantity = -1)
         {
-            //Did not move...
-            if (from.BagIndex == to.BagIndex && from.SlotIndex == to.SlotIndex)
+            if (!GetResourceQuantity(from, out ResourceQuantity fromRq))
+                return false;
+            if (!GetResourceQuantity(to, out ResourceQuantity toRq))
+                return false;
+            if (from.Equals(to))
                 return false;
 
-            ResourceQuantity fromRq;
-            ResourceQuantity toRq;
-            bool fromFound = GetResourceQuantity(from.BagIndex, from.SlotIndex, out fromRq);
-            bool toFound = GetResourceQuantity(to.BagIndex, to.SlotIndex, out toRq);
-            //A problem occurred when finding bag and slot.
-            if (!fromFound || !toFound)
+            if (quantity == 0)
             {
-                //Exploit attempt kick.
-                if (base.IsServerInitialized)
-                    base.Owner.Kick(KickReason.ExploitAttempt, LoggingType.Common, $"Connection Id {base.Owner.ClientId} tried to move a bag item to an invalid slot.");
-                else
-                    return false;
+                base.NetworkManager.LogError($"Quantity of {quantity} cannot be moved. Value must be -1 to move an entire slot, or a value greater than 0 to partial move a slot.");
+                return false;
             }
+
+            const int defaultQuantity = -1;
 
             //If the to is empty just simply move.
             if (toRq.IsUnset)
             {
-                SwapEntries();
+                //If a quantity is specified then move this amount.
+                if (quantity != defaultQuantity)
+                    MoveQuantity();
+                else
+                    SwapEntries();
             }
-            //If different items in each slot they cannot be stacked, so swap.
+            //If different items in each slot they cannot be stacked.
             else if (fromRq.ResourceId != toRq.ResourceId)
             {
-                SwapEntries();
+                /* If an amount is specified this would suggest a split.
+                 * If the split amount is not the full amount of from then
+                 * the operation fails. */
+                if (quantity != defaultQuantity && quantity != fromRq.Quantity)
+                    return false;
+                else
+                    SwapEntries();
             }
             //Same resource if here. Try to stack.
             else
             {
-                //Since the smae resource stack limit can be from either from or to.
-                IResourceData rd = _resourceManager.GetIResourceData(fromRq.ResourceId);
-                int stackLimit = rd.GetStackLimit();
-                //If the to or from resourcequantity is at limit already then just swap.
-                if (toRq.Quantity >= stackLimit || fromRq.Quantity >= stackLimit)
-                {
-                    SwapEntries();
-                }
-                //Can move stack.
-                else
-                {
-                    //Set the move amount to max possible amount to complete the stack, or from quantity.
-                    int moveAmount = Mathf.Min((stackLimit - toRq.Quantity), fromRq.Quantity);
-                    /* If move amount is less than to quantity then the full stack could
-                     * not be moved. When this occurs fill to stack, and leave remaining. */
-                    if (moveAmount < fromRq.Quantity)
-                    {
-                        Bags[to.BagIndex].Slots[to.SlotIndex] = new ResourceQuantity(toRq.ResourceId, toRq.Quantity + moveAmount);
-                        int remaining = (fromRq.Quantity - moveAmount);
-                        Bags[from.BagIndex].Slots[from.SlotIndex] = new ResourceQuantity(fromRq.ResourceId, remaining);
-                    }
-                    //If can fit all then add onto to quantity and unset from bag/slot.
-                    else
-                    {
-                        Bags[to.BagIndex].Slots[to.SlotIndex] = new ResourceQuantity(toRq.ResourceId, toRq.Quantity + fromRq.Quantity);
-                        Bags[from.BagIndex].Slots[from.SlotIndex] = new ResourceQuantity();
-                    }
-                }
+                MoveQuantity();
             }
 
             //Invoke changes.
             OnBagSlotUpdated?.Invoke(from.BagIndex, from.SlotIndex, Bags[from.BagIndex].Slots[from.SlotIndex]);
             OnBagSlotUpdated?.Invoke(to.BagIndex, to.SlotIndex, Bags[to.BagIndex].Slots[to.SlotIndex]);
-            LoadoutManuallyChanged();
+            InventorySortedChanged();
 
             return true;
 
@@ -556,6 +546,49 @@ namespace GameKit.Core.Inventories
             {
                 Bags[from.BagIndex].Slots[from.SlotIndex] = toRq;
                 Bags[to.BagIndex].Slots[to.SlotIndex] = fromRq;
+            }
+
+            void MoveQuantity()
+            {
+                //Since the same resource stack limit can be from either from or to.
+                IResourceData rd = _resourceManager.GetIResourceData(fromRq.ResourceId);
+                int stackLimit = rd.GetStackLimit();
+
+                //Move as many as possible over.
+                int moveAmount;
+                //If quantity is unset then set move amount to stack size.
+                //Set the move amount to max possible amount to complete the stack, or from quantity.
+
+                bool unsetQuantity = (quantity == defaultQuantity);
+                /* If quantity is unset then the goal is to move as much
+                 * as possible onto the To slot. If the To slot is at maximum
+                 * stacks then swap entries. */
+                if (unsetQuantity && toRq.Quantity == stackLimit)
+                {
+                    SwapEntries();
+                }
+                else
+                {
+                    /* If no quantity was specified then try to move entire From.
+                     * This will result in stacking as many as possible while leaving
+                     * remainders. */
+                    if (unsetQuantity)
+                        quantity = fromRq.Quantity;
+
+                    /* Move whichever is less of availability on To stack,
+                     * or specified quantity. */
+                    moveAmount = Mathf.Min((stackLimit - toRq.Quantity), quantity);
+                    //Update to quantities.
+                    toRq.UpdateQuantity(toRq.Quantity + moveAmount);
+                    fromRq.UpdateQuantity(fromRq.Quantity - moveAmount);
+                    //If from is empty then unset.
+                    if (fromRq.Quantity <= 0)
+                        fromRq.MakeUnset();
+
+                    //Apply changes.
+                    Bags[to.BagIndex].Slots[to.SlotIndex] = toRq;
+                    Bags[from.BagIndex].Slots[from.SlotIndex] = fromRq;
+                }
             }
         }
 
