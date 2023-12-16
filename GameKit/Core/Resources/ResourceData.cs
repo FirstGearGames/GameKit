@@ -1,7 +1,7 @@
 using GameKit.Core.Resources;
 using UnityEngine;
 
-namespace GameKit.Core.CraftingAndInventories.Resources
+namespace GameKit.Core.Resources
 {
 
     [CreateAssetMenu(fileName = "ResourceData", menuName = "Game/New ResourceData", order = 1)]

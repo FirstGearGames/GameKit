@@ -9,11 +9,10 @@ using GameKit.Core.FloatingContainers.Tooltips;
 using GameKit.Dependencies.Inspectors;
 using GameKit.Core.Inventories;
 using GameKit.Core.Resources;
-using GameKit.Core.CraftingAndInventories.Resources;
 using GameKit.Core.Dependencies;
 using GameKit.Core.Inventories.Bags;
 
-namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
+namespace GameKit.Core.Inventories.Canvases
 {
 
     public class InventoryCanvas : MonoBehaviour

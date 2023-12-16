@@ -1,10 +1,7 @@
 using UnityEngine;
-using GameKit.Core.CraftingAndInventories.Resources;
 using GameKit.Core.Resources;
-using GameKit.Core.Crafting;
-using GameKit.Core.CraftingAndInventories.Crafting;
 
-namespace GameKit.Core.CraftingAndInventories.Managers
+namespace GameKit.Core.Crafting.Managers
 {
 
     /// <summary>

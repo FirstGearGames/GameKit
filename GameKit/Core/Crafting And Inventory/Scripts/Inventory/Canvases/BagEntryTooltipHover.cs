@@ -3,7 +3,7 @@ using GameKit.Core.FloatingContainers.Tooltips;
 using GameKit.Core.Inventories.Bags;
 using UnityEngine.EventSystems;
 
-namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
+namespace GameKit.Core.Inventories.Canvases
 {
     public class BagEntryTooltipHover : PointerMonoBehaviour
     {

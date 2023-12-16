@@ -4,9 +4,8 @@ using TMPro;
 using UnityEngine;
 using GameKit.Core.Resources;
 using GameKit.Core.Crafting;
-using GameKit.Core.CraftingAndInventories.Resources;
 
-namespace GameKit.Core.CraftingAndInventories.Crafting.Canvases
+namespace GameKit.Core.Crafting.Canvases
 {
 
     public class RecipeEntry : MonoBehaviour

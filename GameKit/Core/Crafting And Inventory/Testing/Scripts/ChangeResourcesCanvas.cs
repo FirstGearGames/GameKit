@@ -1,10 +1,10 @@
 using FishNet.Connection;
 using FishNet.Object;
+using GameKit.Core.Crafting.Canvases;
 using GameKit.Core.Inventories;
+using GameKit.Core.Resources;
 using System.Collections.Generic;
 using UnityEngine;
-using GameKit.Core.CraftingAndInventories.Resources;
-using GameKit.Core.CraftingAndInventories.Crafting.Canvases;
 
 namespace GameKit.Crafting.Testing
 {

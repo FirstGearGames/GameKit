@@ -1,4 +1,4 @@
-namespace GameKit.Core.CraftingAndInventories.Resources
+namespace GameKit.Core.Resources
 {
 
     public enum ResourceType : int

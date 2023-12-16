@@ -5,7 +5,7 @@ using TMPro;
 
 using UnityEngine;
 
-namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
+namespace GameKit.Core.Inventories.Canvases
 {
     public class FloatingResourceEntry : FloatingImage
     {

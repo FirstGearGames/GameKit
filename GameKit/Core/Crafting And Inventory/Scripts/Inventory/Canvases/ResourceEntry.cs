@@ -5,10 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using GameKit.Core.FloatingContainers.Tooltips;
 using GameKit.Core.Resources;
-using GameKit.Core.Inventories;
-using GameKit.Core.CraftingAndInventories.Resources;
 
-namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
+namespace GameKit.Core.Inventories.Canvases
 {
 
     public class ResourceEntry : PointerMonoBehaviour

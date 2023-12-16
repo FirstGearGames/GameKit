@@ -4,12 +4,11 @@ using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.UI;
-using GameKit.Core.Crafting;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories;
 using GameKit.Core.Dependencies;
 
-namespace GameKit.Core.CraftingAndInventories.Crafting.Canvases
+namespace GameKit.Core.Crafting.Canvases
 {
     public class CraftingCanvas : MonoBehaviour
     {

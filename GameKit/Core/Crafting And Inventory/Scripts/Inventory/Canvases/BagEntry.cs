@@ -13,7 +13,7 @@ using GameKit.Core.Inventories.Bags;
 using UnityEngine.EventSystems;
 using GameKit.Core.Dependencies;
 
-namespace GameKit.Core.CraftingAndInventories.Inventories.Canvases
+namespace GameKit.Core.Inventories.Canvases
 {
     public class BagEntry : PointerMonoBehaviour
     {
