@@ -1,18 +1,20 @@
-
-using log4net.Core;
-using System;
 using UnityEngine;
 
 namespace GameKit.Core.Leveling
 {
-
+    public enum ExperienceChangeType
+    {
+        Positive = 1,
+        Negative = 2,
+        Zero = 3,
+    }
     public class LevelBase
     {
         /// <summary>
         /// Called when experience changes.
         /// </summary>
         public event ExperienceChangeDel OnExperienceChange;
-        public delegate void ExperienceChangeDel(uint change, bool added);
+        public delegate void ExperienceChangeDel(uint value, ExperienceChangeType changeType);
         /// <summary>
         /// Called when max experience changes.
         /// </summary>
@@ -60,6 +62,28 @@ namespace GameKit.Core.Leveling
         }
 
         /// <summary>
+        /// Sets Level and MaxLevel.
+        /// </summary>
+        public void SetLevel(uint level, uint maxLevel, bool resetExperience)
+        {
+            SetMaxLevel(maxLevel);
+            long difference = (long)Mathf.Clamp((level - Level), int.MinValue, int.MaxValue);
+            ModifyLevel(difference, resetExperience);
+        }
+
+
+
+        /// <summary>
+        /// Sets a new level clamped between 0 and MaxLevel.
+        /// </summary>
+        public void SetLevel(uint level, bool resetExperience)
+        {
+            long difference = (long)Mathf.Clamp((level - Level), int.MinValue, int.MaxValue);
+            ModifyLevel(difference, resetExperience);
+        }
+
+
+        /// <summary>
         /// Sets the MaxExperience for the level.
         /// </summary>
         public virtual void SetMaxExperience(uint value)
@@ -82,6 +106,8 @@ namespace GameKit.Core.Leveling
             else if (value < 0)
                 return RemoveExperience((uint)(value * -1), allowLevelChange);
 
+            //If here experience is 0. Simple invoke experience change but do nothing else.
+            OnExperienceChange?.Invoke(0, ExperienceChangeType.Zero);
             return false;
         }
         /// <summary>
@@ -97,7 +123,7 @@ namespace GameKit.Core.Leveling
                 uint overage = (uint)(next - MaxExperience);
                 //Set experience to max to invoke event with value.
                 Experience = MaxExperience;
-                OnExperienceChange?.Invoke(value, true);
+                OnExperienceChange?.Invoke(value, ExperienceChangeType.Positive);
                 //If can also level up...
                 if (allowLevelChange && (Level < MaxLevel))
                 {
@@ -128,7 +154,7 @@ namespace GameKit.Core.Leveling
                 uint remainder = (uint)Mathf.Abs(next);
                 //Set experience to 0 and invoke event with value.
                 Experience = 0;
-                OnExperienceChange?.Invoke(value, false);
+                OnExperienceChange?.Invoke(value, ExperienceChangeType.Negative);
                 //If can also level down...
                 if (allowLevelChange && Level > 0)
                 {
@@ -153,8 +179,10 @@ namespace GameKit.Core.Leveling
         /// Modifies level, increasing or decreating it.
         /// </summary>
         /// <returns>True if level change was successful.</returns>
-        public virtual bool ModifyLevel(int value, bool resetExperience = false)
+        public virtual bool ModifyLevel(long value, bool resetExperience = false)
         {
+            value = (long)Mathf.Clamp(Level, -uint.MaxValue, uint.MaxValue);
+
             if (value > 0)
                 return AddLevel((uint)value, resetExperience);
             else if (value < 0)
@@ -172,11 +200,10 @@ namespace GameKit.Core.Leveling
             if ((next >= MaxLevel) || (next > uint.MaxValue))
                 return false;
 
-            Level++;
-            OnLevelChange?.Invoke(Level, Experience);
-            //Do not allow level change to prevent endless loop.
             if (resetExperience)
                 ModifyExperience(-Experience, false);
+            Level++;
+            OnLevelChange?.Invoke(Level, Experience);
 
             return true;
         }
@@ -190,11 +217,10 @@ namespace GameKit.Core.Leveling
             if (next < 0)
                 return false;
 
-            Level--;
-            OnLevelChange?.Invoke(Level, Experience);
-            //Do not allow level change to prevent endless loop.
             if (resetExperience)
                 ModifyExperience(-Experience, false);
+            Level--;
+            OnLevelChange?.Invoke(Level, Experience);
 
             return true;
         }
