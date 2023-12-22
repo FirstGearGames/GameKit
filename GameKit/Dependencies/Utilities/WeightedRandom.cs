@@ -1,83 +1,80 @@
 using GameKit.Dependencies.Utilities.Types;
-using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace GameKit.Dependencies.Utilities
 {
-    /// <summary>
-    /// Basic implementation of randomly picking items by weight.
-    /// </summary>
+    public interface IWeighted
+    {
+        float GetWeight();
+        bool IsRepeatable();
+    }
+
     public static class WeightedRandom
     {
-        public interface IWeightedRandom
+
+        public static void GetEntries<T>(List<T> source, IntRange countRange, List<T> results, bool allowRepeatable = true) where T : IWeighted
         {
-            /// <summary>
-            /// Weight of the entry between 0f and 1f.
-            /// </summary>
-            /// <returns></returns>
-            float GetWeight();
-            /// <summary>
-            /// True if entry can be picked more than once when selecting multiple entries.
-            /// </summary>
-            /// <returns></returns>
-            bool IsRepeatable();
-        }
-        /// <summary>
-        /// Returns a number of entries randomly picked based on their weight.
-        /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        public static void GetEntries<T>(IReadOnlyCollection<T> source, IntRange countRange, List<T> results, bool allowRepeatables = true) where T : IWeightedRandom
-        {
+            if (source == null || source.Count == 0)
             {
-                if (source == null)
-                {
-                    UnityEngine.Debug.LogError($"Source cannot be null.");
-                    return;
-                }
-                if (countRange.Minimum > source.Count)
-                    UnityEngine.Debug.LogError($"Source does not have enough entries to accomodate minimum count range. Results will not meet minimum count.");
-
-                List<IWeightedRandom> copy = CollectionCaches<IWeightedRandom>.RetrieveList();
-                //Copy is pulled from to not disrupt the original collection.
-                foreach (IWeightedRandom item in source)
-                    copy.Add(item);
-
-                List<T> firstPass = CollectionCaches<T>.RetrieveList();
-                int count = Ints.RandomInclusiveRange(countRange.Minimum, countRange.Maximum);
-
-                do
-                {
-                    for (int i = 0; i < copy.Count; i++)
-                    {
-                        IWeightedRandom iwr = copy[i];
-                        float chance = UnityEngine.Random.Range(0f, 1f);
-                        if (chance <= iwr.GetWeight())
-                        {
-                            firstPass.Add((T)iwr);
-                            if (!allowRepeatables || !iwr.IsRepeatable())
-                            {
-                                copy.RemoveAt(i);
-                                i--;
-                            }
-                        }
-                    }
-
-                    //Pick a random entry if copy has results.
-                    if (firstPass.Count > 0)
-                    {
-                        int index = Ints.RandomExclusiveRange(0, firstPass.Count);
-                        results.Add(firstPass[index]);
-                        firstPass.Clear();
-                    }
-                    //Nothing left in copy, cannot continue.
-                    if (copy.Count == 0)
-                        break;
-                } while (results.Count < count);
-
-                CollectionCaches<T>.Store(firstPass);
-                CollectionCaches<IWeightedRandom>.Store(copy);
+                Debug.Log($"Source list of type {typeof(T).Name} cannot be null or empty.");
+                return;
             }
+
+            int count = Ints.RandomInclusiveRange(countRange.Minimum, countRange.Maximum);
+            //If to not return any then exit early.
+            if (count == 0)
+                return;
+             
+            //Get the total weight.
+            float totalWeight = 0f;
+            for (int i = 0; i < source.Count; i++)
+                totalWeight += source[i].GetWeight();
+
+            //Make a copy of source to not modify source.
+            List<T> sourceCopy = CollectionCaches<T>.RetrieveList();
+            foreach (T item in source)
+                sourceCopy.Add(item);
+
+            while (results.Count < count)
+            {
+                int startCount = results.Count;
+                /* Reset copy to totalWeight.
+                 * totalWeight will be modified if
+                 * a non-repeatable item is pulled. */
+                float tWeightCopy = totalWeight;
+                float rnd = UnityEngine.Random.Range(0f, totalWeight);
+
+                for (int i = 0; i < sourceCopy.Count; i++)
+                {
+                    T item = sourceCopy[i];
+                    float weight = item.GetWeight();
+                    if (rnd <= weight)
+                    {
+                        results.Add(item);
+                        /* If cannot stay in collection then remove it
+                         * from copy and remove its weight
+                         * from total. */
+                        if (!allowRepeatable || !item.IsRepeatable())
+                        {
+                            sourceCopy.RemoveAt(i);
+                            totalWeight -= weight;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        tWeightCopy -= weight;
+                    }
+                }
+
+                /* If nothing was added to results then
+                 * something went wrong. */
+                if (results.Count == startCount)
+                    return;
+            }
+
         }
     }
+
 }
