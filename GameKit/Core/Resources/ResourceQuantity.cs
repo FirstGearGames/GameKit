@@ -20,6 +20,7 @@ namespace GameKit.Core.Resources
         }
     }
 
+    [System.Serializable]
     public struct ResourceQuantity
     {
         /// <summary>
