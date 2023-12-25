@@ -1,10 +1,10 @@
+using GameKit.Core.Providers;
 using GameKit.Core.Resources;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
-    [CreateAssetMenu(fileName = "New Quest", menuName = "GameKit/Quests/Quest", order = int.MinValue)]
     public class ActiveQuest
     {
         /// <summary>
@@ -23,7 +23,7 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Called when this ActiveQuest has a condition met change for a quest condition.
         /// </summary>
-        public static event QuestObjectiveState OnQuestObjectiveState;
+        public static event QuestObjectiveState OnQuestObjectiveStateChange;
 
         public delegate void QuestObjectiveState(ActiveQuest activeQuest, QuestObjectiveState state);
         /// <summary>
@@ -33,28 +33,50 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Object which provided the quest.
         /// </summary>
-        public QuestProvider Provider { get; private set; }
+        public Provider Provider { get; private set; }
         /// <summary>
         /// Conditions of Quest.
         /// </summary>
         private HashSet<int> _gatherableResourceIds = new HashSet<int>();
+        /// <summary>
+        /// Cached value of if conditions are met.
+        /// Value will be null if this has not yet been checked.
+        /// </summary>
+        private bool? _isConditionsMet;
+
         //TODO add quest manager to player.
         /* initialize with quest manager as well.
          * If a condition becomes met then QuestManager sends
          * a rpc to the server asking server to check. */
-        public ActiveQuest(Quest quest, QuestProvider provider)
+        public ActiveQuest(Quest quest, Provider provider)
         {
             Quest = quest;
             Provider = provider;
 
-            foreach (QuestObjectiveBase item in quest.Objectives)
+            foreach (QuestConditionBase item in quest.Conditions)
             {
                 if (item.QuestType == ConditionType.Gather)
                 {
-                    GatherObjective go = (GatherObjective)item;
+                    GatherCondition go = (GatherCondition)item;
                     foreach (GatherableResource gr in go.Resources)
                         _gatherableResourceIds.Add(gr.ResourceData.GetResourceId());
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns if all conditions are met.
+        /// This can be expensive the first time called.
+        /// </summary>
+        public bool IsConditionsMet()
+        {
+            if (_isConditionsMet.HasValue)
+                return _isConditionsMet.Value;
+
+
+            foreach (var item in Quest.Conditions)
+            {
+
             }
         }
 
@@ -87,12 +109,12 @@ namespace GameKit.Core.Quests
 
             int resourceId = rd.GetResourceId();
 
-            foreach (QuestObjectiveBase item in Quest.Objectives)
+            foreach (QuestConditionBase item in Quest.Conditions)
             {
                 if (item.QuestType != ConditionType.Gather)
                     continue;
 
-                GatherObjective go = (GatherObjective)item;
+                GatherCondition go = (GatherCondition)item;
                 //If gatherables contains the resource data see if it's completed.
                 foreach  (GatherableResource gr in go.Resources)
                 {

@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
-    [CreateAssetMenu(fileName = "New Interact Objective", menuName = "GameKit/Quests/Interact Objective")]
-    public class InteractObjective : QuestObjectiveBase
+    [CreateAssetMenu(fileName = "New Interact Condition", menuName = "GameKit/Quests/Interact Condition")]
+    public class InteractCondition : QuestConditionBase
     {
         /// <summary>
         /// Object to interact with.

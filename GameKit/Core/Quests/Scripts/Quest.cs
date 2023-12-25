@@ -25,7 +25,7 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Objective details for the quest.
         /// </summary>
-        public List<QuestObjectiveBase> Objectives;
+        public List<QuestConditionBase> Conditions;
         /// <summary>
         /// Rewards for completing the quest.
         /// </summary>

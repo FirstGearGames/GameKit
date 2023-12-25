@@ -1,4 +1,3 @@
-using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
@@ -18,6 +17,10 @@ namespace GameKit.Core.Quests
         /// Interact with objects.
         /// </summary>
         Interactive = 3,
+        /// <summary>
+        /// Defeat a number of objects.
+        /// </summary>
+        Defeat = 4,
     }
 
 

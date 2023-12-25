@@ -24,16 +24,26 @@ namespace GameKit.Dependencies.Utilities.Types
         /// <summary>
         /// Returns a random value between Minimum and Maximum.
         /// </summary>
-        /// <returns></returns>
         public float RandomInclusive()
         {
             return Floats.RandomInclusiveRange(Minimum, Maximum);
         }
-
+        /// <summary>
+        /// Lerps between Minimum and Maximum.
+        /// </summary>
         public float Lerp(float percent)
         {
             return Mathf.Lerp(Minimum, Maximum, percent);
         }
+
+        /// <summary>
+        /// Clamps value between Minimum and Maximum.
+        /// </summary>
+        public float Clamp(float value)
+        {
+            return Mathf.Clamp(value, Minimum, Maximum);
+        }
+
     }
 
 
