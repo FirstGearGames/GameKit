@@ -1,7 +1,8 @@
+using GameKit.Core.Dependencies;
+using GameKit.Core.Inventories;
 using GameKit.Core.Providers;
 using GameKit.Core.Resources;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
@@ -27,7 +28,11 @@ namespace GameKit.Core.Quests
 
         public delegate void QuestObjectiveState(ActiveQuest activeQuest, QuestObjectiveState state);
         /// <summary>
-        /// Quest this is for.
+        /// ClientInstance this quest is for.
+        /// </summary>
+        public ClientInstance ClientInstance { get; private set; }
+        /// <summary>
+        /// Quest which is active.
         /// </summary>
         public Quest Quest { get; private set; }
         /// <summary>
@@ -48,10 +53,11 @@ namespace GameKit.Core.Quests
         /* initialize with quest manager as well.
          * If a condition becomes met then QuestManager sends
          * a rpc to the server asking server to check. */
-        public ActiveQuest(Quest quest, Provider provider)
+        public ActiveQuest(Quest quest, Provider provider, ClientInstance clientInstance)
         {
             Quest = quest;
             Provider = provider;
+            ClientInstance = clientInstance;
 
             foreach (QuestConditionBase item in quest.Conditions)
             {
@@ -73,11 +79,57 @@ namespace GameKit.Core.Quests
             if (_isConditionsMet.HasValue)
                 return _isConditionsMet.Value;
 
+            //Most if not all conditions will require access to the inventory.
+            Inventory inv = ClientInstance.Inventory;
+            /* //TODO: Make another 'bagged resources' exclusively for hidden objects.
+             * hidden objects wont be aquired nearly as often but could be in the thousands
+             * such as area tokens. We dont want to put that load into the more commonly iterated
+             * bagged resources. Also exclude common resource actions like swapping from hidden objects,
+             * as well ignore stack limits and what not from hidden items. */
 
-            foreach (var item in Quest.Conditions)
+            /* //TODO: when defeating mobs only give their token if a quests requires it. 
+             * There needs to be some way to associate target Ids such as quest Ids for tokens.
+             * This way if two quests require defeating the same mob you can get tokens dropped for both.
+             * But in the scenario a single quest is abandoned the tokens can be removed for only that
+             * single quests. */
+            foreach (QuestConditionBase item in Quest.Conditions)
             {
+                //Check gather condition.
+                if (item is GatherCondition gc)
+                {
+                    foreach (GatherableResource gr in gc.Resources)
+                    {
+                        List<ActiveBagResource> abr;                        
+                        inv.BaggedResources.TryGetValue(gr.ResourceData.GetInstanceID(), out abr);
+                        //If resource doesnt exist or count is less than required then condition is not met.
+                        if (abr == null || abr.Count < gr.Quantity)
+                        {
+                            _isConditionsMet = false;
+                            return false;
+                        }
+                    }
+                }
 
+                //Check travel conditions.
+                if (item is TravelCondition tc)
+                {
+                    foreach (ResourceData rd in tc.Objects)
+                    {
+                        List<ActiveBagResource> abr;
+                        inv.BaggedResources.TryGetValue(rd.GetInstanceID(), out abr);
+                        //Travel conditions only require one of the item.
+                        if (abr == null || abr.Count <= 0)
+                        {
+                            _isConditionsMet = false;
+                            return false;
+                        }
+                    }
+                }
             }
+
+            //Fall through, all are met.
+            _isConditionsMet = true;
+            return true;
         }
 
         /// <summary>
