@@ -5,7 +5,7 @@ namespace GameKit.Core.Resources
 {
 
     [CreateAssetMenu(fileName = "ResourceCategoryData", menuName = "Game/New ResourceCategoryData", order = 1)]
-    public class ResourceCategoryData : ScriptableObject, IResourceCategoryData
+    public class ResourceCategoryData : ScriptableObject
     {
         /// <summary>
         /// Category which this resource belongs.
@@ -19,10 +19,6 @@ namespace GameKit.Core.Resources
         /// Icon for this resource category.
         /// </summary>
         public Sprite Icon;
-
-        public int GetResourceCategoryId() => (int)Category;
-        public string GetDisplayName() => DisplayName;
-        public Sprite GetIcon() => Icon;
     }
 
 

@@ -178,7 +178,7 @@ namespace GameKit.Core.Crafting
         {
             foreach (ResourceQuantity rq in r.GetRequiredResources())
             {
-                int count = _inventory.GetResourceQuantity(rq.ResourceId);
+                int count = _inventory.GetResourceQuantity(rq.UniqueId);
                 //Resource count not met.
                 if (count < (rq.Quantity * totalCrafts))
                     return false;
@@ -310,8 +310,8 @@ namespace GameKit.Core.Crafting
         private bool HasInventorySpace(IRecipe recipe)
         {
             ResourceQuantity receivedResourceQuantity = recipe.GetResult();
-            IResourceData iResourceData = _resourceManager.GetIResourceData(receivedResourceQuantity.ResourceId);
-            int stackLimit = iResourceData.GetStackLimit();
+            ResourceData resourceData = _resourceManager.GetResourceData(receivedResourceQuantity.UniqueId);
+            int stackLimit = resourceData.StackLimit;
             /* Quantiy remaining to be placed in bags.
             * This value will change as more options are ruled
             * out, such as filling stacks. */
@@ -327,14 +327,14 @@ namespace GameKit.Core.Crafting
 
             /* If stack size is larger than 1 see if can be stacked
              * into same type entries. */
-            if (iResourceData.GetStackLimit() > 1)
+            if (resourceData.StackLimit > 1)
             {
                 foreach (ActiveBag b in _inventory.Bags)
                 {
                     foreach (ResourceQuantity rq in b.Slots)
                     {
                         //Not the same resource to add.
-                        if (rq.ResourceId != receivedResourceQuantity.ResourceId)
+                        if (rq.UniqueId != receivedResourceQuantity.UniqueId)
                             continue;
 
                         //How much can be put into this stack.

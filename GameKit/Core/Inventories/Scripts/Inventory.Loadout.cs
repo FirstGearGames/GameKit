@@ -81,61 +81,6 @@ namespace GameKit.Core.Inventories
         }
 
 
-        private UnsortedInventory GetRandomUnsortedInventory(int bagCount, int resourceCount)
-        {
-            UnsortedInventory ui = new UnsortedInventory();
-            ui.Bags = new List<SerializableBag>();
-            for (int i = 0; i < bagCount; i++)
-            {
-                int randomA = UnityEngine.Random.Range(0, 2000);
-                SerializableBag sb = new SerializableBag(randomA);
-                ui.Bags.Add(sb);
-            }
-
-            ui.ResourceQuantities = new List<SerializableResourceQuantity>();
-            for (int i = 0; i < resourceCount; i++)
-            {
-                int randomA = UnityEngine.Random.Range(0, 10000);
-                int randomB = UnityEngine.Random.Range(0, 2000);
-
-                SerializableResourceQuantity rq = new SerializableResourceQuantity(randomA, randomB);
-                ui.ResourceQuantities.Add(rq);
-            }
-
-            return ui;
-        }
-
-
-
-        private List<SerializableActiveBag> GetRandomSerializableActiveBags(int bagCount, int resourceCount)
-        {
-            List<SerializableActiveBag> results = new List<SerializableActiveBag>();
-            for (int x = 0; x < bagCount; x++)
-            {
-
-                int randomD = UnityEngine.Random.Range(0, 2000);
-                int randomE = UnityEngine.Random.Range(0, 2000);
-
-                SerializableActiveBag sab = new SerializableActiveBag(randomD, randomE);
-                sab.FilledSlots = new List<SerializableActiveBag.FilledSlot>();
-
-                for (int i = 0; i < resourceCount; i++)
-                {
-                    int randomA = UnityEngine.Random.Range(0, 2000);
-                    int randomB = UnityEngine.Random.Range(0, 2000);
-                    int randomC = UnityEngine.Random.Range(0, 100);
-                    SerializableResourceQuantity srq = new SerializableResourceQuantity(randomA, randomB);
-                    SerializableActiveBag.FilledSlot fs = new SerializableActiveBag.FilledSlot(randomC, srq);
-                    sab.FilledSlots.Add(fs);
-                }
-                results.Add(sab);
-            }
-
-            return results;
-        }
-
-
-
         /// <summary>
         /// Sends the players inventory loadout in the order they last used.
         /// </summary>
@@ -153,10 +98,10 @@ namespace GameKit.Core.Inventories
             //TODO: convert linq lookups to for loops for quicker iteration.
 
             //Make resources into dictionary for quicker lookups.
-            //ResourceIds and quantity of each.
-            Dictionary<int, int> rqsDict = CollectionCaches<int, int>.RetrieveDictionary();
+            //Resource UniqueIds and quantity of each.
+            Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
             foreach (SerializableResourceQuantity item in unsortedInv.ResourceQuantities)
-                rqsDict[item.ResourceId] = item.Quantity;
+                rqsDict[item.UniqueId] = item.Quantity;
 
             /* First check if unsortedInv contains all the bags used
              * in sortedInv. If sortedInv says a bag is used that the client
@@ -187,7 +132,7 @@ namespace GameKit.Core.Inventories
                 for (int z = 0; z < sortedInv[i].FilledSlots.Count; z++)
                 {
                     SerializableActiveBag.FilledSlot fs = sortedInv[i].FilledSlots[z];
-                    rqsDict.TryGetValue(fs.ResourceQuantity.ResourceId, out int unsortedCount);
+                    rqsDict.TryGetValue(fs.ResourceQuantity.UniqueId, out int unsortedCount);
                     /* Subtract sortedCount from unsortedCount. If the value is negative
                      * then the result must be removed from unsortedCount. Additionally,
                      * remove the resourceId from rqsDict since it no longer has value. */
@@ -200,10 +145,10 @@ namespace GameKit.Core.Inventories
 
                     //If there is no more quantity left then remove from unsorted.
                     if (quantityDifference <= 0)
-                        rqsDict.Remove(fs.ResourceQuantity.ResourceId);
+                        rqsDict.Remove(fs.ResourceQuantity.UniqueId);
                     //Still some quantity left, update unsorted.
                     else
-                        rqsDict[fs.ResourceQuantity.ResourceId] = quantityDifference;
+                        rqsDict[fs.ResourceQuantity.UniqueId] = quantityDifference;
                 }
             }
 
@@ -218,7 +163,7 @@ namespace GameKit.Core.Inventories
                 foreach (SerializableActiveBag.FilledSlot item in sab.FilledSlots)
                 {
                     if (item.ResourceQuantity.Quantity > 0)
-                        rqs[item.Slot] = new ResourceQuantity(item.ResourceQuantity.ResourceId, item.ResourceQuantity.Quantity);
+                        rqs[item.Slot] = new ResourceQuantity(item.ResourceQuantity.UniqueId, item.ResourceQuantity.Quantity);
                 }
                 //Create active bag and add.
                 ActiveBag ab = new ActiveBag(bag, sab.Index, rqs);
@@ -237,7 +182,7 @@ namespace GameKit.Core.Inventories
              * it's called here after all bags are added. */
             RebuildBaggedResources();
             //Add remaining resources to wherever they fit.
-            foreach (KeyValuePair<int, int> item in rqsDict)
+            foreach (KeyValuePair<uint, int> item in rqsDict)
                 ModifiyResourceQuantity(item.Key, item.Value, false);
 
             /* If there were unsorted added then save clients new
@@ -245,7 +190,7 @@ namespace GameKit.Core.Inventories
             if (unsortedInv.Bags.Count > 0 || rqsDict.Count > 0)
                 InventorySortedChanged();
 
-            CollectionCaches<int, int>.Store(rqsDict);
+            CollectionCaches<uint, int>.Store(rqsDict);
         }
 
         private string InventoryToJson()
@@ -288,8 +233,8 @@ namespace GameKit.Core.Inventories
         private void SaveInventoryUnsorted()
         {
             List<SerializableBag> bags = CollectionCaches<SerializableBag>.RetrieveList();
-            //ResourceIds and quantity of each.
-            Dictionary<int, int> rqsDict = CollectionCaches<int, int>.RetrieveDictionary();
+            //Resource UNiqueIds and quantity of each.
+            Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
 
             //Add all current resources to res.
             foreach (ActiveBag item in Bags)
@@ -299,19 +244,19 @@ namespace GameKit.Core.Inventories
                 {
                     if (!rq.IsUnset)
                     {
-                        rqsDict.TryGetValue(rq.ResourceId, out int count);
+                        rqsDict.TryGetValue(rq.UniqueId, out int count);
                         count += rq.Quantity;
-                        rqsDict[rq.ResourceId] = count;
+                        rqsDict[rq.UniqueId] = count;
                     }
                 }
             }
 
             List<SerializableResourceQuantity> rqsLst = CollectionCaches<SerializableResourceQuantity>.RetrieveList();
             //Convert dictionary to ResourceQuantity list.
-            foreach (KeyValuePair<int, int> item in rqsDict)
+            foreach (KeyValuePair<uint, int> item in rqsDict)
                 rqsLst.Add(new SerializableResourceQuantity(item.Key, item.Value));
             //Recycle dictionary.
-            CollectionCaches<int, int>.Store(rqsDict);
+            CollectionCaches<uint, int>.Store(rqsDict);
 
             string path = Path.Combine(Application.dataPath, UNSORTED_INVENTORY_FILENAME);
             UnsortedInventory unsortedInv = new UnsortedInventory(bags, rqsLst);

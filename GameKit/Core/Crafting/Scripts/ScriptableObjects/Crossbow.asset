@@ -14,14 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CraftTime: 4
   Result:
-    ResourceType: 9001
+    ResourceData: {fileID: 11400000, guid: 40a45c09059ce3a45aac342bdcafeedd, type: 2}
     Quantity: 1
   RequiredResources:
-  - ResourceType: 1
+  - ResourceData: {fileID: 11400000, guid: d8ca8a27764ab8f4a9ed6441ca14475a, type: 2}
     Quantity: 1
-  - ResourceType: 2
-    Quantity: 4
-  - ResourceType: 3002
-    Quantity: 1
-  - ResourceType: 6002
+  - ResourceData: {fileID: 11400000, guid: 9b7eeb25a77dfbc4888bed7329aa165c, type: 2}
+    Quantity: 2
+  - ResourceData: {fileID: 11400000, guid: 69de988c276da234db9296bcc59cf945, type: 2}
     Quantity: 1

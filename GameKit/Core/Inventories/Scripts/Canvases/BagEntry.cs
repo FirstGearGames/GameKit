@@ -108,8 +108,8 @@ namespace GameKit.Core.Inventories.Canvases
             for (int i = 0; i < slots; i++)
             {
                 ResourceEntry re = Instantiate(_resourceEntryPrefab, _content);
-                IResourceData ird = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(activeBag.Slots[i].ResourceId);
-                ActiveBagResource baggedResource = new ActiveBagResource(ActiveBag.Index, i);
+                ResourceData ird = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetResourceData(activeBag.Slots[i].UniqueId);
+                BagSlot baggedResource = new BagSlot(ActiveBag.Index, i);
                 if (ird != null)
                     re.Initialize(_inventoryCanvas, tooltipCanvas, activeBag.Slots[i], baggedResource);
                 else

@@ -7,15 +7,15 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Type of resource.
         /// </summary>
-        public int ResourceId;
+        public uint UniqueId;
         /// <summary>
         /// Quantity of resource.
         /// </summary>
         public int Quantity;
 
-        public SerializableResourceQuantity(int resourceId, int quantity)
+        public SerializableResourceQuantity(uint uniqueId, int quantity)
         {
-            ResourceId = resourceId;
+            UniqueId = uniqueId;
             Quantity = quantity;
         }
     }
@@ -26,26 +26,26 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Returns if this entry is considered unset.
         /// </summary>
-        public bool IsUnset => (ResourceId == ResourceConsts.UNSET_RESOURCE_ID || Quantity == 0);
+        public bool IsUnset => (UniqueId == ResourceConsts.UNSET_RESOURCE_ID || Quantity == 0);
         /// <summary>
         /// Type of resource.
         /// </summary>
-        public int ResourceId;
+        public uint UniqueId;
         /// <summary>
         /// Quantity of resource.
         /// </summary>
         [Range(0, ushort.MaxValue)]
         public int Quantity;
 
-        public ResourceQuantity(int resourceId, int quantity)
+        public ResourceQuantity(uint uniqueId, int quantity)
         {
-            ResourceId = resourceId;
+            UniqueId = uniqueId;
             Quantity = quantity;
         }
 
         public SerializableResourceQuantity ToSerializable()
         {
-            return new SerializableResourceQuantity(ResourceId, Quantity);
+            return new SerializableResourceQuantity(UniqueId, Quantity);
         }
 
         /// <summary>
@@ -53,24 +53,24 @@ namespace GameKit.Core.Resources
         /// </summary>
         public void MakeUnset()
         {
-            ResourceId = ResourceConsts.UNSET_RESOURCE_ID;
+            UniqueId = ResourceConsts.UNSET_RESOURCE_ID;
             Quantity = 0;
         }
 
         /// <summary>
         /// Updates values.
         /// </summary>
-        public void Update(int resourceId, int quantity)
+        public void Update(uint uniqueId, int quantity)
         {
-            ResourceId = resourceId;
+            UniqueId = uniqueId;
             Quantity = quantity;
         }
         /// <summary>
         /// Updates the ResourceId.
         /// </summary>
-        public void UpdateResourceId(int resourceId)
+        public void UpdateResourceId(uint uniqueId)
         {
-            ResourceId = resourceId;
+            UniqueId = uniqueId;
         }
         /// <summary>
         /// Updates the Quantity.

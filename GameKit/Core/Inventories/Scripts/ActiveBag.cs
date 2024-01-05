@@ -101,7 +101,7 @@ namespace GameKit.Core.Inventories.Bags
             Slots = new ResourceQuantity[b.Space];
             for (int i = 0; i < b.Space; i++)
             {
-                Slots[i] = new ResourceQuantity(-1, 0);
+                Slots[i] = new ResourceQuantity(ResourceConsts.UNSET_RESOURCE_ID, 0);
                 Slots[i].MakeUnset();
             }
             Index = -1;

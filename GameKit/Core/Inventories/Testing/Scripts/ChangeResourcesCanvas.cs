@@ -32,22 +32,14 @@ namespace GameKit.Crafting.Testing
                 return;
             }
 
-            List<ResourceType> resources = new List<ResourceType>();
-            System.Array pidValues = System.Enum.GetValues(typeof(ResourceType));
-            foreach (ResourceType rt in pidValues)
-                resources.Add(rt);
+            Debug.LogError($"Get all uniqueIds in managers and add them here.");
+            List<uint> resources = new List<uint>();
 
             for (int i = 0; i < 5; i++)
             {
                 int count = Random.Range(1, 2);
                 int index = Random.Range(0, (resources.Count - 1));
-                ResourceType rt = resources[index];
-                if (rt == ResourceType.Rope || rt == ResourceType.Crossbow || rt == ResourceType.Unset)
-                {
-                    i--;
-                    continue;
-                }
-                inv.ModifiyResourceQuantity((int)rt, count);
+                inv.ModifiyResourceQuantity(resources[index], count);
             }
 
             inv.InventorySortedChanged();
@@ -60,12 +52,12 @@ namespace GameKit.Crafting.Testing
         public void RemoveRandomResources()
         {
             //Client has to ask server to remove.
-            if (base.IsClientOnly)
+            if (base.IsClientOnlyStarted)
             {
                 ServerRemove();
                 return;
             }
-            else if (!base.IsServer)
+            else if (!base.IsServerStarted)
             {
                 return;
             }
@@ -77,9 +69,8 @@ namespace GameKit.Crafting.Testing
                 return;
             }
 
-            List<ResourceType> resources = new List<ResourceType>();
-            foreach (int rId in inv.ResourceQuantities.Keys)
-                resources.Add((ResourceType)rId);
+            Debug.LogError($"Get all uniqueIds in managers and add them here.");
+            List<uint> resources = new List<uint>();
 
             if (resources.Count == 0)
             {
@@ -91,8 +82,7 @@ namespace GameKit.Crafting.Testing
             {
                 int count = Random.Range(1, 2);
                 int index = Random.Range(0, (resources.Count - 1));
-
-                inv.ModifiyResourceQuantity((int)resources[index], -count);
+                inv.ModifiyResourceQuantity(resources[index], -count);
             }
 
             RefreshAvailableRecipes();

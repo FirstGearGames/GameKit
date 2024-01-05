@@ -45,8 +45,8 @@ namespace GameKit.Core.Crafting.Canvases
         {
             _resourceQuantity = rq;
             _inventory = inventory;
-            ResourceData rd = (ResourceData)rm.GetIResourceData(rq.ResourceId);
-            _nameText.text = rd.GetDisplayName();
+            ResourceData rd = rm.GetResourceData(rq.UniqueId);
+            _nameText.text = rd.DisplayName;
             _icon.sprite = rd.Icon;
             UpdateAvailable();
         }
@@ -59,7 +59,7 @@ namespace GameKit.Core.Crafting.Canvases
             if (_inventory == null)
                 return;
 
-            int current = _inventory.GetResourceQuantity(_resourceQuantity.ResourceId);
+            int current = _inventory.GetResourceQuantity(_resourceQuantity.UniqueId);
             _quantityText.text = $"{current} / {_resourceQuantity.Quantity}";
         }
 

@@ -222,11 +222,8 @@ namespace GameKit.Core.Inventories.Canvases
             {
                 //Default.
                 bool contains = false;
-                if (re.IResourceData != null)
-                {
-                    ResourceData rd = (ResourceData)re.IResourceData;
-                    contains = rd.GetDisplayName().Contains(value, System.StringComparison.OrdinalIgnoreCase);
-                }
+                if (re.ResourceData != null)
+                    contains = re.ResourceData.DisplayName.Contains(value, System.StringComparison.OrdinalIgnoreCase);
 
                 re.SetSelectable(contains);
             }
@@ -269,10 +266,10 @@ namespace GameKit.Core.Inventories.Canvases
              * Keep in mind that calling hide from the object which
              * did not call Show will result in the tooltip ignoring
              * the command. */
-            if (re.IResourceData != null && re.IResourceData.GetResourceId() != rq.ResourceId)
+            if (re.ResourceData != null && re.ResourceData.UniqueId != rq.UniqueId)
                 _tooltipCanvas.Hide(re);
 
-            re.Initialize(this, _tooltipCanvas, rq, new ActiveBagResource(bagIndex, slotIndex));
+            re.Initialize(this, _tooltipCanvas, rq, new BagSlot(bagIndex, slotIndex));
             SetUsedInventorySpaceText();
             _bagEntries[bagIndex].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);
@@ -414,7 +411,7 @@ namespace GameKit.Core.Inventories.Canvases
             {
                 if (_floatingInventoryItem.IsHiding)
                 {
-                    _floatingInventoryItem.Initialize(entry.ResourceData.GetIcon(), _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
+                    _floatingInventoryItem.Initialize(entry.ResourceData.Icon, _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
                     _floatingInventoryItem.Show(entry.transform);
                     entry.CanvasGroup.SetActive(false, true);
                 }

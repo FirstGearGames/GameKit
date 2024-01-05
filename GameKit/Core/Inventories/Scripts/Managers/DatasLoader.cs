@@ -40,8 +40,8 @@ namespace GameKit.Core.Crafting.Managers
         private void AddDatasToManagers()
         {
             ResourceManager rm = GetComponentInParent<ResourceManager>();
-            rm.AddIResourceData((IResourceData[])_resourceDatas);
-            rm.AddIResourceCategoryData((IResourceCategoryData[])_resourceCategoryDatas);
+            rm.AddResourceData(_resourceDatas, true);
+            rm.AddResourceCategoryData(_resourceCategoryDatas);
 
             CraftingManager cm = GetComponentInParent<CraftingManager>();
             cm.AddIRecipe(_recipes);

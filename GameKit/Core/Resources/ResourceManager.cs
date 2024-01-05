@@ -15,26 +15,27 @@ namespace GameKit.Core.Resources
         /// Resource information.
         /// </summary>
         [System.NonSerialized, HideInInspector]
-        public List<IResourceData> ResourceDatas = new List<IResourceData>();
+        public List<ResourceData> ResourceDatas = new List<ResourceData>();
         /// <summary>
         /// Resource category information.
         /// </summary>
-        public List<IResourceCategoryData> ResourceCategoryDatas = new List<IResourceCategoryData>();
+        [System.NonSerialized, HideInInspector]
+        public List<ResourceCategoryData> ResourceCategoryDatas = new List<ResourceCategoryData>();
         #endregion
 
         #region Private.
         /// <summary>
         /// ResourceDatas lookup.
-        /// Key: the resource Id.
+        /// Key: the resource UniqueId.
         /// Value: IResourceData reference.
         /// </summary>
-        private Dictionary<int, IResourceData> _resourceDatasCache = new Dictionary<int, IResourceData>();
+        private Dictionary<uint, ResourceData> _resourceDatasCache = new Dictionary<uint, ResourceData>();
         /// <summary>
         /// ResourceCategoryDatas lookup.
-        /// Key: the resource category Id.
+        /// Key: the resource category UniqueId.
         /// Value: IResourceCategoryData reference.
         /// </summary>
-        private Dictionary<int, IResourceCategoryData> _resourceCategoryDatasCache = new Dictionary<int, IResourceCategoryData>();
+        private Dictionary<uint, ResourceCategoryData> _resourceCategoryDatasCache = new Dictionary<uint, ResourceCategoryData>();
         #endregion
 
         public override void OnStartNetwork()
@@ -53,58 +54,56 @@ namespace GameKit.Core.Resources
         /// Adds data to ResourceDatas.
         /// </summary>
         /// <param name="data"></param>
-        public void AddIResourceData(IResourceData data)
+        public void AddResourceData(ResourceData data, bool applyUniqueId)
         {
+            if (applyUniqueId)
+                data.UniqueId = ((uint)ResourceDatas.Count + 1);
             ResourceDatas.Add(data);
-            _resourceDatasCache.Add(data.GetResourceId(), data);
+            _resourceDatasCache.Add(data.UniqueId, data);
         }
         /// <summary>
         /// Adds datas to ResourceDatas.
         /// </summary>
         /// <param name="datas"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddIResourceData(IEnumerable<IResourceData> datas)
+        public void AddResourceData(IEnumerable<ResourceData> datas, bool applyUniqueId)
         {
-            int index = 0;
-            foreach (IResourceData ird in datas)
-            {
-                AddIResourceData(ird);
-                index++;
-            }
+            foreach (ResourceData rd in datas)
+                AddResourceData(rd, applyUniqueId);
         }
 
         /// <summary>
         /// Adds data to ResourceCategoryDatas.
         /// </summary>
         /// <param name="data"></param>
-        public void AddIResourceCategoryData(IResourceCategoryData data)
+        public void AddResourceCategoryData(ResourceCategoryData data)
         {
             ResourceCategoryDatas.Add(data);
-            _resourceCategoryDatasCache.Add(data.GetResourceCategoryId(), data);
+            _resourceCategoryDatasCache.Add((uint)data.Category, data);
         }
         /// <summary>
         /// Adds datas to ResourceCategoryDatas.
         /// </summary>
         /// <param name="datas"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddIResourceCategoryData(IEnumerable<IResourceCategoryData> datas)
+        public void AddResourceCategoryData(IEnumerable<ResourceCategoryData> datas)
         {
-            foreach (IResourceCategoryData ircd in datas)
-                AddIResourceCategoryData(ircd);
+            foreach (ResourceCategoryData rcd in datas)
+                AddResourceCategoryData(rcd);
         }
 
 
         /// <summary>
         /// Gets a ResourceData for a resource type.
         /// </summary>
-        public IResourceData GetIResourceData(int resourceId)
+        public ResourceData GetResourceData(uint uniqueId)
         {
-            if (resourceId == ResourceConsts.UNSET_RESOURCE_ID)
+            if (uniqueId == ResourceConsts.UNSET_RESOURCE_ID)
                 return null;
 
-            IResourceData result;
-            if (!_resourceDatasCache.TryGetValue(resourceId, out result))
-                Debug.LogError($"ResourceData not found for {resourceId}.");
+            ResourceData result;
+            if (!_resourceDatasCache.TryGetValue(uniqueId, out result))
+                Debug.LogError($"ResourceData not found for {uniqueId}.");
 
             return result;
         }
@@ -112,14 +111,14 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Gets ResourceCategory for a resource type.
         /// </summary>
-        public int GetResourceCategory(int resourceId)
+        public uint GetResourceCategory(uint uniqueId)
         {
-            if (resourceId == ResourceConsts.UNSET_RESOURCE_ID)
+            if (uniqueId == ResourceConsts.UNSET_RESOURCE_ID)
                 return ResourceConsts.UNSET_RESOURCE_CATEGORY;
 
-            IResourceData rd = GetIResourceData(resourceId);
+            ResourceData rd = GetResourceData(uniqueId);
             if (rd != null)
-                return rd.GetResourceCategory();
+                return (uint)rd.Category;
             else
                 return ResourceConsts.UNSET_RESOURCE_CATEGORY;
         }
@@ -127,14 +126,14 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Gets a ResourceCategoryData for a resource type.
         /// </summary>
-        public IResourceCategoryData GetResourceCategoryData(int resourceId)
+        public ResourceCategoryData GetResourceCategoryData(uint uniqueId)
         {
-            if (resourceId == ResourceConsts.UNSET_RESOURCE_ID)
+            if (uniqueId == ResourceConsts.UNSET_RESOURCE_ID)
                 return null;
 
-            IResourceCategoryData result;
-            if (!_resourceCategoryDatasCache.TryGetValue(resourceId, out result))
-                Debug.LogError($"ResourceCategoryData not found for {resourceId}.");
+            ResourceCategoryData result;
+            if (!_resourceCategoryDatasCache.TryGetValue(uniqueId, out result))
+                Debug.LogError($"ResourceCategoryData not found for {uniqueId}.");
 
             return result;
         }

@@ -15,15 +15,11 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// IResourceData for this entry.
         /// </summary>
-        public IResourceData IResourceData;
-        /// <summary>
-        /// Custom ResourceData for IResourceData.
-        /// </summary>
-        public ResourceData ResourceData => (ResourceData)IResourceData;
+        public ResourceData ResourceData;
         /// <summary>
         /// Bag and slot index where this resource sits.
         /// </summary>
-        public ActiveBagResource BagSlot { get; private set; }
+        public BagSlot BagSlot { get; private set; }
         /// <summary>
         /// Current number of items on the stack.
         /// </summary>
@@ -96,7 +92,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ResourceQuantity rq, ActiveBagResource bagSlot)
+        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ResourceQuantity rq, BagSlot bagSlot)
         {
             //If no data then initialize empty.
             if (rq.IsUnset)
@@ -109,8 +105,8 @@ namespace GameKit.Core.Inventories.Canvases
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
             //TODO: do not use instancefinder.
-            IResourceData = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetIResourceData(rq.ResourceId);
-            _icon.sprite = ResourceData.GetIcon();
+            ResourceData = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetResourceData(rq.UniqueId);
+            _icon.sprite = ResourceData.Icon;
             StackCount = rq.Quantity;
             _stackText.text = (StackCount > 1) ? $"{rq.Quantity}" : string.Empty;
 
@@ -120,12 +116,12 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this with no data, resetting values.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ActiveBagResource bagSlot)
+        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, BagSlot bagSlot)
         {
             SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
-            IResourceData = null;
+            ResourceData = null;
             _stackText.text = string.Empty;
             UpdateComponentStates();
         }
@@ -135,7 +131,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// </summary>
         /// <param name="bagIndex">Bag index of this entry.</param>
         /// <param name="slotIndex">Slot index of this entry.</param>
-        public void SetBagSlot(ActiveBagResource bagSlot)
+        public void SetBagSlot(BagSlot bagSlot)
         {
             BagSlot = bagSlot;
         }
@@ -145,7 +141,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// </summary>
         private void UpdateComponentStates()
         {
-            bool hasData = (IResourceData != null);
+            bool hasData = (ResourceData != null);
 
             _icon.enabled = hasData;
             _button.enabled = hasData;

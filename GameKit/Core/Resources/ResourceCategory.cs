@@ -5,7 +5,7 @@ namespace GameKit.Core.Resources
     /// A resource could have multiple categories, such as food and crafting.
     /// </summary>
     [System.Flags]
-    public enum ResourceCategory : int
+    public enum ResourceCategory : uint
     {        
         Unset = 0,
         //Junk.

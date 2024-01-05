@@ -363,7 +363,7 @@ namespace GameKit.Core.Crafting.Canvases
             if (!asServer)
             {
                 EnableButtons(_crafter.CraftsRemaining > 0);
-                Debug.Log($"Crafting result: {r.GetResult().ResourceId}, {result}");
+                Debug.Log($"Crafting result: {r.GetResult().UniqueId}, {result}");
 
                 //If canceled or failed.
                 if (result == CraftingResult.Canceled || result == CraftingResult.Failed)

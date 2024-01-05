@@ -1,16 +1,15 @@
-using GameKit.Core.Resources;
 using UnityEngine;
 
 namespace GameKit.Core.Resources
 {
 
     [CreateAssetMenu(fileName = "ResourceData", menuName = "Game/New ResourceData", order = 1)]
-    public class ResourceData : ScriptableObject, IResourceData
+    public class ResourceData : ScriptableObject
     {
         /// <summary>
-        /// Type of resource this data is for.
+        /// UniqueId of the resource.   
         /// </summary>
-        public ResourceType ResourceType;
+        public uint UniqueId;
         /// <summary>
         /// Type of categories this resource fits into.
         /// </summary>
@@ -31,28 +30,12 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Maximum number of times this item can be stacked.
         /// </summary>
-        [Range(-1, ushort.MaxValue)]
-        public int Stacks;
+        [Range(0, ushort.MaxValue)]
+        public int StackLimit = ResourceConsts.UNSET_STACK_LIMIT;
         /// <summary>
         /// Maximum number of items which may exist with an inventory.
         /// </summary>
-        [Range(-1, ushort.MaxValue)]
-        public int ItemLimit = -1;
-
-        public int GetResourceId() => (int)ResourceType;
-        public int GetResourceCategory() => (int)Category;
-        public string GetDisplayName()
-        {
-            if (string.IsNullOrEmpty(DisplayName))
-                return ResourceType.ToString();
-            else
-                return DisplayName;
-        }
-        public string GetDescription() => Description;
-        public Sprite GetIcon() => Icon;
-        public int GetStackLimit() => Stacks;
-        public int GetMaximumLimit() => ItemLimit;
-
-
+        [Range(0, ushort.MaxValue)]
+        public int QuantityLimit = ResourceConsts.UNSET_QUANTITY_LIMIT;
     }
 }

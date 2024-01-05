@@ -12,6 +12,14 @@ namespace GameKit.Core.Resources
         /// Value for when a resource category is unset.
         /// </summary>
         public const int UNSET_RESOURCE_CATEGORY = 0;
+        /// <summary>
+        /// Value for when a resource does not have a maximum limit.
+        /// </summary>
+        public const int UNSET_QUANTITY_LIMIT = 0;
+        /// <summary>
+        /// Value for when a resource does not have a stack limit.
+        /// </summary>
+        public const int UNSET_STACK_LIMIT = 0;
     }
 
 

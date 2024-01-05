@@ -12,12 +12,12 @@ namespace GameKit.Core.Crafting
         [System.Serializable]
         public struct TypedResourceQuantity
         {
-            public ResourceType ResourceType;
+            public ResourceData ResourceData;
             public int Quantity;
 
-            public TypedResourceQuantity(ResourceType resourceType, int quantity)
+            public TypedResourceQuantity(ResourceData resourceData, int quantity)
             {
-                ResourceType = resourceType;
+                ResourceData = resourceData;
                 Quantity = quantity;
             }
         }
@@ -52,14 +52,14 @@ namespace GameKit.Core.Crafting
 
         public int GetIndex() => Index;
         public void SetIndex(int value) => Index = value;
-        public ResourceQuantity GetResult() => new ResourceQuantity((int)Result.ResourceType, Result.Quantity);
+        public ResourceQuantity GetResult() => new ResourceQuantity(Result.ResourceData.UniqueId, Result.Quantity);
         public List<ResourceQuantity> GetRequiredResources()
         {
             //If needs to be cached.
             if (RequiredResources.Count > 0 && _requiredResourcesCache.Count == 0)
             {
                 foreach (TypedResourceQuantity trq in RequiredResources)
-                    _requiredResourcesCache.Add(new ResourceQuantity((int)trq.ResourceType, trq.Quantity));
+                    _requiredResourcesCache.Add(new ResourceQuantity(trq.ResourceData.UniqueId, trq.Quantity));
             }
 
             return _requiredResourcesCache;

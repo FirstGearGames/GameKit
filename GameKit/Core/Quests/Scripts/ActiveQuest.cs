@@ -42,7 +42,7 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Conditions of Quest.
         /// </summary>
-        private HashSet<int> _gatherableResourceIds = new HashSet<int>();
+        private HashSet<uint> _gatherableResourceIds = new HashSet<uint>();
         /// <summary>
         /// Cached value of if conditions are met.
         /// Value will be null if this has not yet been checked.
@@ -65,7 +65,7 @@ namespace GameKit.Core.Quests
                 {
                     GatherCondition go = (GatherCondition)item;
                     foreach (GatherableResource gr in go.Resources)
-                        _gatherableResourceIds.Add(gr.ResourceData.GetResourceId());
+                        _gatherableResourceIds.Add(gr.ResourceData.UniqueId);
                 }
             }
         }
@@ -99,8 +99,8 @@ namespace GameKit.Core.Quests
                 {
                     foreach (GatherableResource gr in gc.Resources)
                     {
-                        List<ActiveBagResource> abr;                        
-                        inv.BaggedResources.TryGetValue(gr.ResourceData.GetInstanceID(), out abr);
+                        List<BagSlot> abr;                        
+                        inv.BaggedResources.TryGetValue(gr.ResourceData.UniqueId, out abr);
                         //If resource doesnt exist or count is less than required then condition is not met.
                         if (abr == null || abr.Count < gr.Quantity)
                         {
@@ -115,8 +115,8 @@ namespace GameKit.Core.Quests
                 {
                     foreach (ResourceData rd in tc.Objects)
                     {
-                        List<ActiveBagResource> abr;
-                        inv.BaggedResources.TryGetValue(rd.GetInstanceID(), out abr);
+                        List<BagSlot> abr;
+                        inv.BaggedResources.TryGetValue(rd.UniqueId, out abr);
                         //Travel conditions only require one of the item.
                         if (abr == null || abr.Count <= 0)
                         {
@@ -156,10 +156,10 @@ namespace GameKit.Core.Quests
         private void CheckGatherConditionMet(ResourceData rd)
         {
             //Not a resource for this quest.
-            if (_gatherableResourceIds.Contains(rd.GetResourceId()))
+            if (_gatherableResourceIds.Contains(rd.UniqueId))
                 return;
 
-            int resourceId = rd.GetResourceId();
+            uint resourceUniqueId = rd.UniqueId;
 
             foreach (QuestConditionBase item in Quest.Conditions)
             {
@@ -170,7 +170,7 @@ namespace GameKit.Core.Quests
                 //If gatherables contains the resource data see if it's completed.
                 foreach  (GatherableResource gr in go.Resources)
                 {
-                    if (gr.ResourceData.GetResourceId() != resourceId)
+                    if (gr.ResourceData.UniqueId != resourceUniqueId)
                         continue;
 
                     //If here then compare if condition is met.

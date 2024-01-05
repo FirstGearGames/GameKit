@@ -90,9 +90,8 @@ namespace GameKit.Core.Crafting.Canvases
         {
             CraftableCount = count;
             string countText = (count > 0) ? $" ({count})" : string.Empty;
-            IResourceData ird = _resourceManager.GetIResourceData(Recipe.GetResult().ResourceId);
-            ResourceData rd = (ResourceData)ird;
-            _titleTMP.text = $"{rd.GetDisplayName()}{countText}";
+            ResourceData rd = _resourceManager.GetResourceData(Recipe.GetResult().UniqueId);
+            _titleTMP.text = $"{rd.DisplayName}{countText}";
         }
 
 

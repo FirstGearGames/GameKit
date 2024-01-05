@@ -49,6 +49,11 @@ namespace GameKit.Dependencies.Utilities
         }
 
         /// <summary>
+        /// Returns whichever value is lower.
+        /// </summary>
+        public static uint Min(uint a, uint b) => (a < b) ? a : b;
+
+        /// <summary>
         /// Determins if all values passed in are the same.
         /// </summary>
         /// <param name="values">Values to check.</param>

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CraftTime: 1.5
   Result:
-    ResourceType: 1
+    ResourceData: {fileID: 11400000, guid: 9b7eeb25a77dfbc4888bed7329aa165c, type: 2}
     Quantity: 1
   RequiredResources:
-  - ResourceType: 2
-    Quantity: 2
+  - ResourceData: {fileID: 11400000, guid: f10ab11ec16777d4db0a748c8d19a31a, type: 2}
+    Quantity: 4

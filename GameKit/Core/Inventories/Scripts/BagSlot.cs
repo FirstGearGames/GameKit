@@ -3,7 +3,7 @@ namespace GameKit.Core.Inventories
     /// <summary>
     /// A resource which is in an ActiveBag.
     /// </summary>
-    public struct ActiveBagResource
+    public struct BagSlot
     {
         #region Public.
         /// <summary>
@@ -15,7 +15,7 @@ namespace GameKit.Core.Inventories
         /// </summary>
         public int SlotIndex;
 
-        public ActiveBagResource(int bagIndex, int slotIndex)
+        public BagSlot(int bagIndex, int slotIndex)
         {
             BagIndex = bagIndex;
             SlotIndex = slotIndex;
@@ -24,7 +24,7 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Returns if this object matches other.
         /// </summary>
-        public bool Equals(ActiveBagResource other) => (BagIndex == other.BagIndex && SlotIndex == other.SlotIndex);
+        public bool Equals(BagSlot other) => (BagIndex == other.BagIndex && SlotIndex == other.SlotIndex);
         #endregion
     }
 
