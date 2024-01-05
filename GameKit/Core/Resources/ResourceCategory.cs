@@ -12,8 +12,8 @@ namespace GameKit.Core.Resources
         Scrap = 1,
         //Can be used in crafting.
         Crafting = 2,
-        //Can be used as food.
-        Food = 4,
+        //Can be used as food, potions, and so on.
+        Consumable = 4,
         //Can be a weapon.
         Weapon = 8,
         //Can be equipped on characters.
