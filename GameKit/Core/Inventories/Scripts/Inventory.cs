@@ -111,6 +111,17 @@ namespace GameKit.Core.Inventories
         /// ResourceManager to use.
         /// </summary>
         private ResourceManager _resourceManager;
+        /// <summary>
+        /// Resources which are hidden from the player.
+        /// Key: ResourceId.
+        /// Value: Quantity.
+        /// </summary>
+        private Dictionary<uint, int> _hiddenResources = new Dictionary<uint, int>();
+        /// <summary>
+        /// Resources associated with quests which are hidden from the palyer.
+        /// Key: QuestId.
+        /// </summary>
+        private Dictionary<uint, ResourceQuantity> _hiddenQuestResources = new Dictionary<uint, ResourceQuantity>();
         #endregion
 
         private void Awake()
