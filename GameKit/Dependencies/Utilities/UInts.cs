@@ -1,4 +1,6 @@
 ﻿
+using System.Runtime.CompilerServices;
+
 namespace GameKit.Dependencies.Utilities
 {
 
@@ -22,6 +24,7 @@ namespace GameKit.Dependencies.Utilities
         /// <param name="minimum">Inclusive minimum value.</param>
         /// <param name="maximum">Inclusive maximum value.</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint RandomInclusiveRange(uint minimum, uint maximum) => (uint)Ints.RandomInclusiveRange((int)minimum, (int)maximum);
         /// <summary>
         /// Provides a random exclusive int within a given range. Preferred over Unity's Random to eliminate confusion as Unity uses inclusive for floats max, and exclusive for int max. 
@@ -29,6 +32,7 @@ namespace GameKit.Dependencies.Utilities
         /// <param name="minimum">Inclusive minimum value.</param>
         /// <param name="maximum">Exclusive maximum value.</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint RandomExclusiveRange(uint minimum, uint maximum) => (uint)Ints.RandomExclusiveRange((int)minimum, (int)maximum);
 
         /// <summary>
@@ -58,6 +62,7 @@ namespace GameKit.Dependencies.Utilities
         /// </summary>
         /// <param name="values">Values to check.</param>
         /// <returns>True if all values are the same.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ValuesMatch(params uint[] values) => Ints.ValuesMatch((int[])(object)values);
 
     }

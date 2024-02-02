@@ -6,9 +6,9 @@ namespace GameKit.Core.Providers
     public class Provider : MonoBehaviour
     {
         /// <summary>
-        /// UniqueId for this provider.
+        /// Data for this provider.
         /// </summary>
-        public uint UniqueId {get; private set; }
+        public ProviderData ProviderData;
     }
 
 

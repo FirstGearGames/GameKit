@@ -1,5 +1,5 @@
 ﻿
-using UnityEngine;
+using System.Runtime.CompilerServices;
 
 namespace GameKit.Dependencies.Utilities
 {
@@ -7,40 +7,29 @@ namespace GameKit.Dependencies.Utilities
     /// <summary>
     /// Various utility classes relating to floats.
     /// </summary>
-    public static class Ints
+    public static class Bytes
     {
-        private static System.Random _random = new System.Random();
-
         /// <summary>
         /// Pads an index a specified value. Preferred over typical padding so that pad values used with skins can be easily found in the code.
         /// </summary>
-        public static string Pad(this int value, int padding)
-        {
-            if (padding < 0)
-                padding = 0;
-            return value.ToString().PadLeft(padding, '0');
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string Pad(this byte value, int padding) => Ints.Pad(value, padding);
         /// <summary>
         /// Provides a random inclusive int within a given range. Preferred over Unity's Random to eliminate confusion as Unity uses inclusive for floats max, and exclusive for int max. 
         /// </summary>
         /// <param name="minimum">Inclusive minimum value.</param>
         /// <param name="maximum">Inclusive maximum value.</param>
         /// <returns></returns>
-        public static int RandomInclusiveRange(int minimum, int maximum)
-        {
-            return _random.Next(minimum, maximum + 1);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte RandomInclusiveRange(byte minimum, byte maximum) => (byte)Ints.RandomInclusiveRange(minimum, maximum);
         /// <summary>
         /// Provides a random exclusive int within a given range. Preferred over Unity's Random to eliminate confusion as Unity uses inclusive for floats max, and exclusive for int max. 
         /// </summary>
         /// <param name="minimum">Inclusive minimum value.</param>
         /// <param name="maximum">Exclusive maximum value.</param>
         /// <returns></returns>
-        public static int RandomExclusiveRange(int minimum, int maximum)
-        {
-            return _random.Next(minimum, maximum);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte RandomExclusiveRange(byte minimum, byte maximum) => (byte)Ints.RandomExclusiveRange(minimum, maximum);
 
         /// <summary>
         /// Returns a clamped int within a specified range.
@@ -49,47 +38,22 @@ namespace GameKit.Dependencies.Utilities
         /// <param name="minimum">Minimum value.</param>
         /// <param name="maximum">Maximum value.</param>
         /// <returns></returns>
-        public static int Clamp(int value, int minimum, int maximum)
-        {
-            if (value < minimum)
-                value = minimum;
-            else if (value > maximum)
-                value = maximum;
-
-            return value;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte Clamp(byte value, byte minimum, byte maximum) => (byte)Ints.Clamp(value, minimum, maximum);
 
         /// <summary>
         /// Returns whichever value is lower.
         /// </summary>
-        public static int Min(int a, int b) => (a < b) ? a : b;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte Min(byte a, byte b) => (byte)Ints.Min(a, b);
 
         /// <summary>
         /// Determins if all values passed in are the same.
         /// </summary>
         /// <param name="values">Values to check.</param>
         /// <returns>True if all values are the same.</returns>
-        public static bool ValuesMatch(params int[] values)
-        {
-            if (values.Length == 0)
-            {
-                Debug.Log("Ints -> ValuesMatch -> values array is empty.");
-                return false;
-            }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ValuesMatch(params byte[] values) => Ints.ValuesMatch((int[])(object)values);
 
-            //Assign first value as element in first array.
-            int firstValue = values[0];
-            //Check all values.
-            for (int i = 1; i < values.Length; i++)
-            {
-                //If any value doesn't match first value return false.
-                if (firstValue != values[i])
-                    return false;
-            }
-
-            //If this far all values match.
-            return true;
-        }
     }
-
 }
