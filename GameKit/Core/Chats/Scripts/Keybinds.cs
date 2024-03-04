@@ -2,7 +2,7 @@ using GameKit.Core.Chats;
 using GameKit.Dependencies.Utilities;
 using UnityEngine;
 
-#if ENABLE_INPUT_SYSTEM
+#if NEW_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
@@ -13,7 +13,7 @@ namespace GameKit.Core.Chats
     {
         public virtual bool GetBackslashPressed()
         {
-#if ENABLE_INPUT_SYSTEM
+#if NEW_INPUT_SYSTEM
             return NewInput.GetButtonPressed(Key.Backslash);
 #else
             return Input.GetKeyDown(KeyCode.Backslash);
@@ -22,7 +22,7 @@ namespace GameKit.Core.Chats
 
         public virtual bool GetEnterPressed()
         {
-#if ENABLE_INPUT_SYSTEM
+#if NEW_INPUT_SYSTEM
             return NewInput.GetButtonPressed(Key.Enter);
 #else
             return Input.GetKeyDown(KeyCode.Return);
@@ -31,7 +31,7 @@ namespace GameKit.Core.Chats
 
         public virtual bool GetEscapePressed()
         {
-#if ENABLE_INPUT_SYSTEM
+#if NEW_INPUT_SYSTEM
             return NewInput.GetButtonPressed(Key.Escape);
 #else
             return Input.GetKeyDown(KeyCode.Escape);
@@ -40,7 +40,7 @@ namespace GameKit.Core.Chats
 
         public virtual bool GetSlashPressed()
         {
-#if ENABLE_INPUT_SYSTEM
+#if NEW_INPUT_SYSTEM
             return NewInput.GetButtonPressed(Key.Slash);
 #else
             return Input.GetKeyDown(KeyCode.Slash);
@@ -49,7 +49,7 @@ namespace GameKit.Core.Chats
 
         public virtual bool GetTabPressed()
         {
-#if ENABLE_INPUT_SYSTEM
+#if NEW_INPUT_SYSTEM
             return NewInput.GetButtonPressed(Key.Tab);
 #else
             return Input.GetKeyDown(KeyCode.Tab);            

@@ -24,43 +24,31 @@ namespace GameKit.Dependencies.Utilities.Types
             Y = new FloatRange(yMin, yMax);
         }
 
-        /// <summary>
-        /// Clamps value between X, Y Minimum and Maximum.
-        /// </summary>
-        public Vector2 Clamp(Vector2 value)
+        public Vector2 Clamp(Vector2 original)
         {
             return new Vector2(
-                ClampX(value.x),
-                ClampY(value.y)
+                ClampX(original.x),
+                ClampY(original.y)
                 );
         }
 
-        /// <summary>
-        /// Clamps value between X, Y Minimum and Maximum, while keeping Z.
-        /// </summary>
-        public Vector3 Clamp(Vector3 value)
+        public Vector3 Clamp(Vector3 original)
         {
             return new Vector3(
-                ClampX(value.x),
-                ClampY(value.y),
-                value.z
+                ClampX(original.x),
+                ClampY(original.y),
+                original.z
                 );
         }
 
-        /// <summary>
-        /// Clamps value between X Minimum and Maximum.
-        /// </summary>
-        public float ClampX(float value)
+        public float ClampX(float original)
         {
-            return Mathf.Clamp(value, X.Minimum, X.Maximum);
+            return Mathf.Clamp(original, X.Minimum, X.Maximum);
         }
 
-        /// <summary>
-        /// Clamps value between Y Minimum and Maximum.
-        /// </summary>
-        public float ClampY(float value)
+        public float ClampY(float original)
         {
-            return Mathf.Clamp(value, Y.Minimum, Y.Maximum);
+            return Mathf.Clamp(original, Y.Minimum, Y.Maximum);
         }
 
     }

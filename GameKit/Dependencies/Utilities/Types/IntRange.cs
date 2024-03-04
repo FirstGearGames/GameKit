@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace GameKit.Dependencies.Utilities.Types
+﻿namespace GameKit.Dependencies.Utilities.Types
 {
 
 
@@ -25,23 +23,32 @@ namespace GameKit.Dependencies.Utilities.Types
         /// Returns an exclusive random value between Minimum and Maximum.
         /// </summary>
         /// <returns></returns>
-        public int RandomExclusive() => Ints.RandomExclusiveRange(Minimum, Maximum);
+        public float RandomExclusive()
+        {
+            return Ints.RandomExclusiveRange(Minimum, Maximum);
+        }
         /// <summary>
         /// Returns an inclusive random value between Minimum and Maximum.
         /// </summary>
         /// <returns></returns>
-        public int RandomInclusive() => Ints.RandomInclusiveRange(Minimum, Maximum);
+        public float RandomInclusive()
+        {
+            return Ints.RandomInclusiveRange(Minimum, Maximum);
+        }
 
         /// <summary>
-        /// Clamps value between Minimum and Maximum.
+        /// Returns value clamped within minimum and maximum.
         /// </summary>
-        public int Clamp(int value) => Ints.Clamp(value, Minimum, Maximum);
-
-        /// <summary>
-        /// True if value is within range of Minimum and Maximum.
-        /// </summary>
-        public bool InRange(int value) => (value >= Minimum) && (value <= Maximum);
-
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public int Clamp(int value)
+        {
+            if (value < Minimum)
+                return Minimum;
+            if (value > Maximum)
+                return Maximum;
+            return value;
+        }
     }
 
 

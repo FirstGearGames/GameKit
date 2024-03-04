@@ -14,7 +14,10 @@ namespace GameKit.Dependencies.Utilities
         /// <summary>
         /// Pads an index a specified value. Preferred over typical padding so that pad values used with skins can be easily found in the code.
         /// </summary>
-        public static string Pad(this int value, int padding)
+        /// <param name="value"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
+        public static string Pad(int value, int padding)
         {
             if (padding < 0)
                 padding = 0;
