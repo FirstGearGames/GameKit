@@ -7,13 +7,19 @@ namespace GameKit.Dependencies.Utilities
     public interface IWeighted
     {
         float GetWeight();
-        bool IsRepeatable();
+        ByteRange GetQuantity();
     }
 
     public static class WeightedRandom
     {
-
-        public static void GetEntries<T>(List<T> source, IntRange countRange, List<T> results, bool allowRepeatable = true) where T : IWeighted
+        /// <summary>
+        /// Gets random entries by weight.
+        /// </summary>
+        /// <param name="source">Entries to pull from.</param>
+        /// <param name="countRange">Number of entries to get.</param>
+        /// <param name="results">Results of entries. Key is the entry, Value is the number of drops.</param>
+        /// <param name="allowRepeatingDrops">True to allow the same entry to be included within results more than once.</param>
+        public static void GetEntries<T>(List<T> source, IntRange countRange, ref Dictionary<T, uint> results, bool allowRepeatingDrops = false) where T : IWeighted
         {
             if (source == null || source.Count == 0)
             {
@@ -25,7 +31,10 @@ namespace GameKit.Dependencies.Utilities
             //If to not return any then exit early.
             if (count == 0)
                 return;
-             
+
+            //Number of times each item has dropped.
+            Dictionary<T, byte> dropCount = CollectionCaches<T, byte>.RetrieveDictionary();
+
             //Get the total weight.
             float totalWeight = 0f;
             for (int i = 0; i < source.Count; i++)
@@ -49,13 +58,17 @@ namespace GameKit.Dependencies.Utilities
                 {
                     T item = sourceCopy[i];
                     float weight = item.GetWeight();
+
                     if (rnd <= weight)
                     {
-                        results.Add(item);
+                        //Try to get current count.
+                        results.TryGetValueIL2CPP(item, out uint currentCount);
+                        //Set new vlaue.
+                        results[item] = (currentCount + 1);
                         /* If cannot stay in collection then remove it
                          * from copy and remove its weight
                          * from total. */
-                        if (!allowRepeatable || !item.IsRepeatable())
+                        if (!allowRepeatingDrops)
                         {
                             sourceCopy.RemoveAt(i);
                             totalWeight -= weight;
@@ -71,8 +84,10 @@ namespace GameKit.Dependencies.Utilities
                 /* If nothing was added to results then
                  * something went wrong. */
                 if (results.Count == startCount)
-                    return;
+                    break;
             }
+
+            CollectionCaches<T, byte>.Store(dropCount);
 
         }
     }

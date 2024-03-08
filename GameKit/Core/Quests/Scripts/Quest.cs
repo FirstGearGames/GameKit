@@ -1,3 +1,4 @@
+using GameKit.Core.Resources.Droppables;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,6 +31,10 @@ namespace GameKit.Core.Quests
         /// Rewards for completing the quest.
         /// </summary>
         public List<QuestRewardBase> Rewards;
+        /// <summary>
+        /// Droppables which become available when this quest is active.
+        /// </summary>
+        public List<Droppable> Droppables;
     }
 
 }

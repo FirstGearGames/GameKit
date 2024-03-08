@@ -16,7 +16,7 @@ MonoBehaviour:
   Trackable: 1
   Title: Precious Garbage
   Description: One animals garbage is another's ... not garbage.
-  Objectives:
-  - {fileID: 11400000, guid: 54f7440ee322387439e92a07bbcc1655, type: 2}
+  Conditions:
+  - {fileID: 0}
   Rewards:
   - {fileID: 0}
