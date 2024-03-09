@@ -6,7 +6,7 @@ namespace GameKit.Core.Crafting
 {
 
     [CreateAssetMenu(fileName = "Recipe", menuName = "Game/New Recipe", order = 1)]
-    public class RecipeData : ScriptableObject, IRecipeData, IEqualityComparer<IRecipeData>
+    public class RecipeData : ScriptableObject, IEqualityComparer<RecipeData>
     {
         #region Types.
         [System.Serializable]
@@ -54,7 +54,6 @@ namespace GameKit.Core.Crafting
         private List<ResourceQuantity> _requiredResourcesCache = new List<ResourceQuantity>();
         #endregion
 
-        public uint GetUniqueId() => UniqueId;
         public ResourceQuantity GetResult() => new ResourceQuantity(Result.ResourceData.UniqueId, Result.Quantity);
         public List<ResourceQuantity> GetRequiredResources()
         {
@@ -68,25 +67,24 @@ namespace GameKit.Core.Crafting
             return _requiredResourcesCache;
         }
 
-        public float GetCraftTime() => CraftTime;
 
         #region Comparers.
-        public bool Equals(IRecipeData other)
+        public bool Equals(RecipeData other)
         {
             if (other == null)
                 return false;
-            return (UniqueId  == other.GetUniqueId());
+            return (UniqueId  == other.UniqueId);
         }
         public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
-            if (obj.GetType() != typeof(IRecipeData))
+            if (obj.GetType() != typeof(RecipeData))
                 return false;
 
-            return Equals((IRecipeData)obj);
+            return Equals((RecipeData)obj);
         }
-        public int GetHashCode(IRecipeData obj)
+        public int GetHashCode(RecipeData obj)
         {
             return obj.GetHashCode();
         }
@@ -94,7 +92,7 @@ namespace GameKit.Core.Crafting
         {
             return base.GetHashCode();
         }
-        public bool Equals(IRecipeData r1, IRecipeData r2)
+        public bool Equals(RecipeData r1, RecipeData r2)
         {
             bool r1Null = (r1 is null);
             bool r2Null = (r2 is null);
@@ -105,7 +103,7 @@ namespace GameKit.Core.Crafting
             if (r1Null != r2Null)
                 return false;
 
-            return (r1.GetUniqueId() == r2.GetUniqueId());
+            return (r1.UniqueId == r2.UniqueId);
 
         }
         #endregion

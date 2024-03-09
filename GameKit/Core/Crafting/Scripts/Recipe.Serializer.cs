@@ -7,14 +7,14 @@ namespace GameKit.Core.Crafting
 
     public static class Recipe_Serializers
     {
-        public static void WriteIRecipe(this Writer w, IRecipeData value)
+        public static void WriteRecipeData(this Writer w, RecipeData value)
         {
             if (value == null)
                 w.WriteUInt32(ResourceConsts.UNSET_RESOURCE_ID);
             else
-                w.WriteUInt32(value.GetUniqueId());
+                w.WriteUInt32(value.UniqueId);
         }
-        public static IRecipeData ReadIRecipe(this Reader r)
+        public static RecipeData ReadRecipeData(this Reader r)
         {
             uint index = r.ReadUInt32();
             if (index == ResourceConsts.UNSET_RESOURCE_ID)

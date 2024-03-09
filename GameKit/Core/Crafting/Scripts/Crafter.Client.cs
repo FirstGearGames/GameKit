@@ -50,7 +50,7 @@ namespace GameKit.Core.Crafting
             if (!_clientCraftingProgress.Active)
                 return false;
 
-            ServerCancelCrafting(_clientCraftingProgress.Recipe);
+            ServerCancelCrafting(_clientCraftingProgress.RecipeData);
             return true;
         }
 
@@ -59,7 +59,7 @@ namespace GameKit.Core.Crafting
         /// Returns if was able to send craft request to the server.
         /// </summary>
         [Client(Logging = LoggingType.Off)]
-        public bool CraftRecipe_Client(IRecipeData r, int count)
+        public bool CraftRecipe_Client(RecipeData r, int count)
         {
             if (count == 0)
                 return ReturnFailedResponse(CraftingResult.Failed);
@@ -102,7 +102,7 @@ namespace GameKit.Core.Crafting
         /// </summary>
         /// <returns></returns>
         [Client(Logging = LoggingType.Off)]
-        public CraftableRecipeQuantity GetCraftableQuantiy(IRecipeData recipe)
+        public CraftableRecipeQuantity GetCraftableQuantiy(RecipeData recipe)
         {
             //Lowest amount of quantity which can be made.
             int lowestQuantity = int.MaxValue;
@@ -147,7 +147,7 @@ namespace GameKit.Core.Crafting
         {
             _craftableRecipeQuantityCache.Clear();
             //After all counts have been gathered build results.
-            foreach (IRecipeData r in _craftingManager.RecipeDatas)
+            foreach (RecipeData r in _craftingManager.RecipeDatas)
             {
                 //Lowest amount of quantity which can be made.
                 int lowestQuantity = int.MaxValue;
@@ -188,13 +188,13 @@ namespace GameKit.Core.Crafting
         /// Updates client with a recipe progress state.
         /// </summary>
         [TargetRpc]
-        private void TargetCraftingResult(NetworkConnection c, IRecipeData r, CraftingResult result)
+        private void TargetCraftingResult(NetworkConnection c, RecipeData r, CraftingResult result)
         {
             //No crafting is active, nothing to validate against.
             if (!_clientCraftingProgress.Active)
                 return;
             //Different recipe being crafted. Should not be possible.
-            if (r != null && _clientCraftingProgress.Recipe != r)
+            if (r != null && _clientCraftingProgress.RecipeData != r)
                 return;
 
             bool completed = (result == CraftingResult.Completed);

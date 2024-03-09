@@ -72,7 +72,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// <summary>
         /// Currently selected recipe.
         /// </summary>
-        private IRecipeData _selectedRecipe;
+        private RecipeData _selectedRecipe;
         /// <summary>
         /// Number of crafts to perform.
         /// </summary>
@@ -186,7 +186,7 @@ namespace GameKit.Core.Crafting.Canvases
         {
             _recipesContent.DestroyChildren<RecipeEntry>();
 
-            foreach (IRecipeData r in _craftingManager.RecipeDatas)
+            foreach (RecipeData r in _craftingManager.RecipeDatas)
             {
                 RecipeEntry re = Instantiate(_entryPrefab, _recipesContent);
                 re.Initialize(this, _resourceManager, r);
@@ -220,7 +220,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// Selects a recipe to preview.
         /// </summary>
         /// <param name="r"></param>
-        public void SelectRecipe(IRecipeData r)
+        public void SelectRecipe(RecipeData r)
         {
             if (_resourceManager == null || r == null)
             {
@@ -252,7 +252,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// <summary>
         /// Previews a recipe.
         /// </summary>
-        private void PreviewRecipe(IRecipeData r)
+        private void PreviewRecipe(RecipeData r)
         {
             _previewRecipeContent.DestroyChildren<RequiredResourceEntry>();
             _requiredResourceEntries.Clear();
@@ -358,7 +358,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// <param name="r"></param>
         /// <param name="result"></param>
         /// <param name="asServer"></param>
-        private void Crafter_OnCraftingResult(IRecipeData r, CraftingResult result, bool asServer)
+        private void Crafter_OnCraftingResult(RecipeData r, CraftingResult result, bool asServer)
         {
             if (!asServer)
             {
@@ -376,7 +376,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// </summary>
         /// <param name="r"></param>
         /// <param name="percent"></param>
-        private void Crafter_OnCraftingProgressed(IRecipeData r, float percent, float delta)
+        private void Crafter_OnCraftingProgressed(RecipeData r, float percent, float delta)
         {
             _progressImage.fillAmount = percent;
         }

@@ -13,9 +13,9 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// Recipe quantity is for.
         /// </summary>
-        public IRecipeData Recipe;
+        public RecipeData Recipe;
 
-        public CraftableRecipeQuantity(int quantity, IRecipeData recipe)
+        public CraftableRecipeQuantity(int quantity, RecipeData recipe)
         {
             Quantity = quantity;
             Recipe = recipe;

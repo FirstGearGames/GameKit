@@ -20,7 +20,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// <summary>
         /// Recipe this entry is for.
         /// </summary>
-        public IRecipeData Recipe;
+        public RecipeData Recipe;
         /// <summary>
         /// CraftingCanvas for this entry.
         /// </summary>
@@ -37,7 +37,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(CraftingCanvas canvas, ResourceManager rm, IRecipeData r)
+        public void Initialize(CraftingCanvas canvas, ResourceManager rm, RecipeData r)
         {
             _craftingCanvas = canvas;
             _resourceManager = rm;
