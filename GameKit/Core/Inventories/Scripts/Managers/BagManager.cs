@@ -12,7 +12,7 @@ namespace GameKit.Core.Inventories.Bags
         /// </summary>
         [Tooltip("All bags for the game.")]
         [SerializeField]
-        private List<Bag> _bags = new List<Bag>();
+        private List<BagData> _bags = new List<BagData>();
 
         /// <summary>
         /// NetworkManager on or a parent of this object.
@@ -43,13 +43,13 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// Gets a bag.
         /// </summary>
-        public Bag GetBag(int uniqueId)
+        public BagData GetBag(int uniqueId)
         {
             //UniqueIds for bags start on 1. A value of 0 is unset.
             if (uniqueId < 1 || uniqueId > _bags.Count)
             {
                 _networkManager.LogError($"Bag UniqueId {uniqueId} is out of bounds. Id cannot be less than {BAG_ID_OFFSET} nor more than bags count of {_bags.Count}.");
-                return new Bag();
+                return new BagData();
             }
             else
             {

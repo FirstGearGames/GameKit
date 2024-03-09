@@ -2,9 +2,12 @@ using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
-    public class QuestConditionBase : ScriptableObject
+    public abstract class QuestConditionBase : ScriptableObject
     {
-        public ConditionType QuestType;
+        /// <summary>
+        /// Type of condition which must be met.
+        /// </summary>
+        public abstract ConditionType QuestType { get; }
     }
 
 }

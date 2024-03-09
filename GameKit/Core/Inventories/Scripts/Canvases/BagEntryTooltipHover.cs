@@ -11,7 +11,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Bag to show tooltip information for.
         /// </summary>
-        private Bag _bag;
+        private BagData _bag;
         /// <summary>
         /// TooltipCanvas to use.
         /// </summary>
@@ -22,7 +22,7 @@ namespace GameKit.Core.Inventories.Canvases
         private readonly Vector2 _tooltipPivot = new Vector2(0.0f, 1f);
         #endregion
 
-        public void InitializeOnce(Bag bag, FloatingTooltipCanvas tooltipCanvas)
+        public void InitializeOnce(BagData bag, FloatingTooltipCanvas tooltipCanvas)
         {
             _bag = bag;
             _tooltipCanvas = tooltipCanvas;

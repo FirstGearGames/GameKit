@@ -3,10 +3,17 @@ using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
-    [CreateAssetMenu(fileName = "New Gather Condition", menuName = "GameKit/Quests/Gather Condition")]
+    [CreateAssetMenu(fileName = "New Gather Condition", menuName = "Game/Quests/Gather Condition")]
     public class GatherCondition : QuestConditionBase
     {
-        public List<GatherableResource> Resources;
+        /// <summary>
+        /// Type of condition which must be met.
+        /// </summary>
+        public override ConditionType QuestType => ConditionType.Gather;
+        /// <summary>
+        /// Resources which must be gathered.
+        /// </summary>
+        public List<GatherableResource> Resources;        
     }
 
 

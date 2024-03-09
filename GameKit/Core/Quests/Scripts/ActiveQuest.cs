@@ -34,7 +34,7 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Quest which is active.
         /// </summary>
-        public Quest Quest { get; private set; }
+        public QuestData Quest { get; private set; }
         /// <summary>
         /// Object which provided the quest.
         /// </summary>
@@ -53,7 +53,7 @@ namespace GameKit.Core.Quests
         /* initialize with quest manager as well.
          * If a condition becomes met then QuestManager sends
          * a rpc to the server asking server to check. */
-        public ActiveQuest(Quest quest, Provider provider, ClientInstance clientInstance)
+        public ActiveQuest(QuestData quest, Provider provider, ClientInstance clientInstance)
         {
             Quest = quest;
             Provider = provider;

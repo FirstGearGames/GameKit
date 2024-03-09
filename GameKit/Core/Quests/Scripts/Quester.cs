@@ -23,14 +23,14 @@ namespace GameKit.Core.Quests
             /// <summary>
             /// Quest the droppables are for.
             /// </summary>
-            public Quest Quest;
+            public QuestData Quest;
             /// <summary>
             /// Droppables for the quest.
             /// This should not be put into CollectionCaches since it's being set by reference.
             /// </summary>
             public List<DroppableData> Droppables;
 
-            public QuestDroppableData(uint giverId, Quest quest, List<DroppableData> droppables)
+            public QuestDroppableData(uint giverId, QuestData quest, List<DroppableData> droppables)
             {
                 GiverId = giverId;
                 Quest = quest;
@@ -62,7 +62,7 @@ namespace GameKit.Core.Quests
         /// Adds a quest.
         /// </summary>
         /// <returns>True if quest was added.</returns>
-        public void AddQuest(ProviderData provider, Quest quest)
+        public void AddQuest(ProviderData provider, QuestData quest)
         {
             uint providerId = provider.UniqueId;
             List<QuestDroppableData> droppables;
@@ -72,6 +72,17 @@ namespace GameKit.Core.Quests
                 droppables = CollectionCaches<QuestDroppableData>.RetrieveList();
                 _droppableResources[providerId] = droppables;
             }
+            /* //TODO This is pretty much all wrong.
+             *
+             * Droppables need to be stored based on provider which can drop
+             * them. EG: a new dictionary (ProviderData, List<DroppableData> Droppables) where
+             * the key is the provider that drops the object, and value are droppables
+             * the provider is currently capable of due to quests.
+             * 
+             * There needs to be a reverse lookup as well where RemoveQuest can know
+             * which drops to remove. This could be done by reading the provider of
+             * each QuestDroppable, using that Id to find droppables, and removing the supplied
+             * DroppableData for the QuestDroppable. */
 
             //Make sure quest was not already added.
             foreach (QuestDroppableData item in droppables)
@@ -89,7 +100,7 @@ namespace GameKit.Core.Quests
         /// Removes a quest.
         /// </summary>
         /// <returns>True if quest was found and removed.</returns>
-        public bool RemoveQuest(ProviderData provider, Quest quest)
+        public bool RemoveQuest(ProviderData provider, QuestData quest)
         {
             uint providerId = provider.UniqueId;
             List<QuestDroppableData> droppables;

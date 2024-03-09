@@ -44,9 +44,9 @@ namespace GameKit.Core.Inventories
         {
             return;
             BagManager bm = base.NetworkManager.GetInstance<BagManager>();
-            foreach (Bag item in _defaultBags)
+            foreach (BagData item in _defaultBags)
             {
-                Bag b = bm.GetBag(item.UniqueId);
+                BagData b = bm.GetBag(item.UniqueId);
                 AddBag(b, true);
             }
         }
@@ -157,7 +157,7 @@ namespace GameKit.Core.Inventories
             //Add starting with sorted bags.
             foreach (SerializableActiveBag sab in sortedInv)
             {
-                Bag bag = bagManager.GetBag(sab.BagUniqueId);
+                BagData bag = bagManager.GetBag(sab.BagUniqueId);
                 //Fill slots.
                 ResourceQuantity[] rqs = new ResourceQuantity[bag.Space];
                 foreach (SerializableActiveBag.FilledSlot item in sab.FilledSlots)
@@ -173,7 +173,7 @@ namespace GameKit.Core.Inventories
             //Add remaining bags from unsorted.
             foreach (SerializableBag sb in unsortedInv.Bags)
             {
-                Bag b = bagManager.GetBag(sb.UniqueId);
+                BagData b = bagManager.GetBag(sb.UniqueId);
                 AddBag(b, false);
             }
 

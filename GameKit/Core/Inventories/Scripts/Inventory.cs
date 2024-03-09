@@ -104,7 +104,7 @@ namespace GameKit.Core.Inventories
         /// </summary>
         [Tooltip("Default bags to add.")]
         [SerializeField]
-        private Bag[] _defaultBags = new Bag[0];
+        private BagData[] _defaultBags = new BagData[0];
         #endregion
 
         #region Private.
@@ -170,7 +170,7 @@ namespace GameKit.Core.Inventories
         /// </summary>
         /// <param name="bag">Adds an ActiveBag for bag with no entries.</param>
         /// <param name="rebuildBaggedResources">True to rebuild cached bagged resources.</param>
-        public void AddBag(Bag bag, bool rebuildBaggedResources)
+        public void AddBag(BagData bag, bool rebuildBaggedResources)
         {
             ActiveBag ab = new ActiveBag(bag);
             ab.SetIndex(Bags.Count);

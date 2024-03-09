@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GameKit.Core.Resources
 {
 
-    [CreateAssetMenu(fileName = "ResourceCategoryData", menuName = "Game/New ResourceCategoryData", order = 1)]
+    [CreateAssetMenu(fileName = "New ResourceCategoryData", menuName = "Game/Resources/ResourceCategoryData", order = 1)]
     public class ResourceCategoryData : ScriptableObject
     {
         /// <summary>

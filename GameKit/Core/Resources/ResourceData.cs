@@ -3,7 +3,7 @@ using UnityEngine;
 namespace GameKit.Core.Resources
 {
 
-    [CreateAssetMenu(fileName = "ResourceData", menuName = "Game/New ResourceData", order = 1)]
+    [CreateAssetMenu(fileName = "New ResourceData", menuName = "Game/Resources/ResourceData", order = 1)]
     public class ResourceData : ResourceDataBase
     {
         /// <summary>

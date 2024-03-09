@@ -58,7 +58,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// Information about the bag used.
         /// </summary>
-        public Bag Bag { get; private set; }
+        public BagData Bag { get; private set; }
         /// <summary>
         /// Index of this bag within it's placement, such as an inventory.
         /// </summary>
@@ -95,7 +95,7 @@ namespace GameKit.Core.Inventories.Bags
         public ResourceQuantity[] Slots { get; private set; } = new ResourceQuantity[0];
         #endregion
 
-        public ActiveBag(Bag b)
+        public ActiveBag(BagData b)
         {
             Bag = b;
             Slots = new ResourceQuantity[b.Space];
@@ -107,7 +107,7 @@ namespace GameKit.Core.Inventories.Bags
             Index = -1;
         }
 
-        public ActiveBag(Bag b, int index, ResourceQuantity[] slots)
+        public ActiveBag(BagData b, int index, ResourceQuantity[] slots)
         {
             Bag = b;
             Index = index;
@@ -160,9 +160,9 @@ namespace GameKit.Core.Inventories.Bags
             ResourceQuantity[] slots = r.ReadArrayAllocated<ResourceQuantity>();
 
             BagManager manager = r.NetworkManager.GetInstance<BagManager>();
-            Bag bag;
+            BagData bag;
             if (manager == null)
-                bag = new Bag();
+                bag = new BagData();
             else
                 bag = manager.GetBag(uniqueId);
 

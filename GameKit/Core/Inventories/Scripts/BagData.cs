@@ -3,25 +3,12 @@ using UnityEngine;
 
 namespace GameKit.Core.Inventories.Bags
 {
-    public struct SerializableBag
-    {
-        /// <summary>
-        /// Unique Id for this bag. This is generally a database Id for the bag.
-        /// </summary>
-        public int UniqueId;
-
-        public SerializableBag(int uniqueId)
-        {
-            UniqueId = uniqueId;
-        }
-    }
-
     /// <summary>
     /// Information about a bag.
     /// </summary>
     [System.Serializable]
-    [CreateAssetMenu(fileName = "New Bag", menuName = "GameKit/Inventory/Create Bag")]
-    public class Bag : ScriptableObject
+    [CreateAssetMenu(fileName = "New Bag", menuName = "Game/Inventory/BagData")]
+    public class BagData : ScriptableObject
     {
         /// <summary>
         /// Unique Id for this bag. This is generally a database Id for the bag.

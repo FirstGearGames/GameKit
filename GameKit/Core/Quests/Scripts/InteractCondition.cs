@@ -1,15 +1,19 @@
+using GameKit.Core.Providers;
 using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
-    [CreateAssetMenu(fileName = "New Interact Condition", menuName = "GameKit/Quests/Interact Condition")]
+    [CreateAssetMenu(fileName = "New Interact Condition", menuName = "Game/Quests/Interact Condition")]
     public class InteractCondition : QuestConditionBase
     {
         /// <summary>
-        /// Object to interact with.
-        /// This could be an NPC, world object, and more.
+        /// Type of condition which must be met.
         /// </summary>
-        public uint ObjectId;
+        public override ConditionType QuestType => ConditionType.Interactive;
+        /// <summary>
+        /// Provider to interact with.
+        /// </summary>
+        public ProviderData ProviderData;
     }
 
 

@@ -3641,9 +3641,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42bda8c7c6d3926408b57fd03262135b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _resourceDatas: []
-  _resourceCategoryDatas: []
-  _recipeDatas: []
+  _resourceDatas:
+  - {fileID: 11400000, guid: 06ebe3bc174078343bd8e342a3ec8d24, type: 2}
+  - {fileID: 11400000, guid: f10ab11ec16777d4db0a748c8d19a31a, type: 2}
+  - {fileID: 11400000, guid: 40a45c09059ce3a45aac342bdcafeedd, type: 2}
+  - {fileID: 11400000, guid: 8256e29568ccb7e4483ba0b09035cbb9, type: 2}
+  - {fileID: 11400000, guid: d8ca8a27764ab8f4a9ed6441ca14475a, type: 2}
+  - {fileID: 11400000, guid: 128fb9fb65c2c8a45bcec69e81152056, type: 2}
+  - {fileID: 11400000, guid: 519aa7b5772b32e4eb69af78efc216eb, type: 2}
+  - {fileID: 11400000, guid: 9b7eeb25a77dfbc4888bed7329aa165c, type: 2}
+  - {fileID: 11400000, guid: 69de988c276da234db9296bcc59cf945, type: 2}
+  _resourceCategoryDatas:
+  - {fileID: 11400000, guid: 7d14258c9fd701c4ba2b5c6ad024149b, type: 2}
+  - {fileID: 11400000, guid: af0fd57f13ed48749969ea2dc745409e, type: 2}
+  - {fileID: 11400000, guid: deec55c5b983ec843b67d10a5658cc9a, type: 2}
+  - {fileID: 11400000, guid: 59148adfdb353f64b9a05620cd27a3ce, type: 2}
+  - {fileID: 11400000, guid: d6c3c6ece756c30479e334d4ea4fd6e3, type: 2}
+  _recipeDatas:
+  - {fileID: 11400000, guid: 4238442ce1af438429d3d375996fac72, type: 2}
+  - {fileID: 11400000, guid: e0797d1aef7d52c409517228890df3bc, type: 2}
   _droppableDatas: []
 --- !u!1 &1055867887
 GameObject:
@@ -5586,7 +5602,7 @@ PrefabInstance:
         type: 3}
       propertyPath: _spawnablePrefabs
       value: 
-      objectReference: {fileID: 11400000, guid: a00102936f8af3341b6f3322ef07f139,
+      objectReference: {fileID: 11400000, guid: 96ff56a27d9deb64eab5ef00bb267d97,
         type: 2}
     - target: {fileID: 7443408887813606051, guid: 0b650fca685f2eb41a86538aa883e4c1,
         type: 3}

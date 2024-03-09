@@ -9,7 +9,7 @@ namespace GameKit.Core.Resources.Droppables
     /// <summary>
     /// A resource which can be dropped.
     /// </summary>
-    [CreateAssetMenu(fileName = "Droppable", menuName = "Game/New Droppable", order = 1)]
+    [CreateAssetMenu(fileName = "New Droppable", menuName = "Game/Resources/DroppableData", order = 1)]
     public class DroppableData : ScriptableObject, IWeighted
     {
         /// <summary>

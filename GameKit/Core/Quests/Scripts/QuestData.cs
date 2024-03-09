@@ -1,12 +1,26 @@
+using GameKit.Core.Providers;
 using GameKit.Core.Resources.Droppables;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameKit.Core.Quests
 {
-    [CreateAssetMenu(fileName = "New Quest", menuName = "GameKit/Quests/Quest", order = int.MinValue)]
-    public class Quest : ScriptableObject
+    [CreateAssetMenu(fileName = "New QuestData", menuName = "Game/Quests/QuestData", order = int.MinValue)]
+    public class QuestData : ScriptableObject
     {
+        [System.Serializable]
+        public struct QuestDroppableData
+        {
+            /// <summary>
+            /// Provider which can drop the resource.
+            /// </summary>
+            public ProviderData Provider;
+            /// <summary>
+            /// Resource which can be dropped.
+            /// </summary>
+            public DroppableData Droppable;
+        }
+
         /// <summary>
         /// UniqueId for this quest.
         /// </summary>
@@ -34,7 +48,7 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Droppables which become available when this quest is active.
         /// </summary>
-        public List<DroppableData> Droppables;
+        public List<QuestDroppableData> QuestDroppables;
     }
 
 }

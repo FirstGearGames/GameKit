@@ -7,8 +7,8 @@ namespace GameKit.Core.Worlds
     /// <summary>
     /// Any area in any world which can be traveled to.
     /// </summary>
-    [CreateAssetMenu(fileName = "New Area", menuName = "GameKit/Worlds/Area")]
-    public class Area : ScriptableObject
+    [CreateAssetMenu(fileName = "New AreaData", menuName = "Game/Worlds/AreaData")]
+    public class AreaData : ScriptableObject
     {
         /// <summary>
         /// Id for the area.

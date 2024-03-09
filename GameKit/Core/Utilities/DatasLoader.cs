@@ -6,6 +6,7 @@ using Sirenix.OdinInspector;
 using GameKit.Dependencies.Utilities.Types.Editing;
 using GameKit.Core.Crafting;
 using GameKit.Dependencies.Utilities;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -72,7 +73,8 @@ namespace GameKit.Core.Utilities
         /// <summary>
         /// Finds and sets all loadables.
         /// </summary>
-        [Button("Find Loadables.")]
+        [PropertySpace]
+        [Button("Find Loadables.", ButtonSizes.Large)]
         private void FindLoadables()
         {
             Debug.Log($"Please wait ...");
@@ -87,16 +89,30 @@ namespace GameKit.Core.Utilities
                 System.Type t = AssetDatabase.GetMainAssetTypeAtPath(path);
                 if (t == typeof(ResourceData))
                 {
-                    ResourceData rd = AssetDatabase.LoadAssetAtPath<ResourceData>(path);
-                    _resourceDatas.Add(rd);
+                    ResourceData data = AssetDatabase.LoadAssetAtPath<ResourceData>(path);
+                    _resourceDatas.Add(data);
                 }    
-                //Todo add the rest
+                else if (t == typeof(ResourceCategoryData))
+                {
+                    ResourceCategoryData data = AssetDatabase.LoadAssetAtPath<ResourceCategoryData>(path);
+                    _resourceCategoryDatas.Add(data);
+                }
+                else if (t == typeof(RecipeData))
+                {
+                    RecipeData data = AssetDatabase.LoadAssetAtPath<RecipeData>(path);
+                    _recipeDatas.Add(data);
+                }
+                else if (t == typeof(DroppableData))
+                {
+                    DroppableData data = AssetDatabase.LoadAssetAtPath<DroppableData>(path);
+                    _droppableDatas.Add(data);
+                }
             }
 
             EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
 
-            Debug.Log($"... Loading complete.");
+            Debug.Log($"... Loading complete. Please save your scene.");
 
         }
 #endif

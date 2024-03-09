@@ -5,7 +5,7 @@ using GameKit.Core.Resources;
 namespace GameKit.Core.Crafting
 {
 
-    [CreateAssetMenu(fileName = "Recipe", menuName = "Game/New Recipe", order = 1)]
+    [CreateAssetMenu(fileName = "New Recipe", menuName = "Game/Crafting/RecipeData", order = 1)]
     public class RecipeData : ScriptableObject, IEqualityComparer<RecipeData>
     {
         #region Types.
