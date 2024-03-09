@@ -1,5 +1,3 @@
-using GameKit.Core.Inventories.Canvases;
-using GameKit.Core.Providers;
 using GameKit.Dependencies.Utilities;
 using GameKit.Dependencies.Utilities.Types;
 using System.Collections.Generic;
