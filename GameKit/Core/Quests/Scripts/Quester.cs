@@ -1,6 +1,5 @@
 using FishNet.Object;
 using GameKit.Core.Providers;
-using GameKit.Core.Resources;
 using GameKit.Core.Resources.Droppables;
 using GameKit.Dependencies.Utilities;
 using GameKit.Dependencies.Utilities.Types;
@@ -29,9 +28,9 @@ namespace GameKit.Core.Quests
             /// Droppables for the quest.
             /// This should not be put into CollectionCaches since it's being set by reference.
             /// </summary>
-            public List<Droppable> Droppables;
+            public List<DroppableData> Droppables;
 
-            public QuestDroppableData(uint giverId, Quest quest, List<Droppable> droppables)
+            public QuestDroppableData(uint giverId, Quest quest, List<DroppableData> droppables)
             {
                 GiverId = giverId;
                 Quest = quest;
@@ -119,7 +118,7 @@ namespace GameKit.Core.Quests
         /// <param name="maxDrops">Maximum drop results to gather. Item quantities can exceed this value.</param>
         /// <param name="allowRepeatingDrops">True to allow the same drop to be added to results more than once. Item quantities can exceed this value.</param>
         /// <returns>True if droppables were found. True does not indicate a resource dropped.</returns>
-        public bool GetRandomDroppables(ProviderData provider, ref Dictionary<Droppable, uint> results, int maxDrops = 3, bool allowRepeatingDrops = false)
+        public bool GetRandomDroppables(ProviderData provider, ref Dictionary<DroppableData, uint> results, int maxDrops = 3, bool allowRepeatingDrops = false)
         {
             if (!_droppableResources.TryGetValueIL2CPP(provider.UniqueId, out List<QuestDroppableData> droppables))
                 return false;
@@ -137,11 +136,11 @@ namespace GameKit.Core.Quests
              * We will save some perf though by simple using the single
              * droppables collection reference if it's the only collection. */
 
-            List<Droppable> allDroppables;
+            List<DroppableData> allDroppables;
             bool combineDroppables = (droppables.Count > 1);
             if (combineDroppables)
             {
-                allDroppables = CollectionCaches<Droppable>.RetrieveList();
+                allDroppables = CollectionCaches<DroppableData>.RetrieveList();
                 foreach (QuestDroppableData item in droppables)
                     allDroppables.AddRange(item.Droppables);
             }
@@ -155,7 +154,7 @@ namespace GameKit.Core.Quests
             /* If allDroppables was combined by multiple collections then store it
              * as it's no longer needed. */
             if (combineDroppables)
-                CollectionCaches<Droppable>.Store(allDroppables);
+                CollectionCaches<DroppableData>.Store(allDroppables);
 
             return true;
         }

@@ -6,7 +6,7 @@ namespace GameKit.Core.Crafting
 {
 
     [CreateAssetMenu(fileName = "Recipe", menuName = "Game/New Recipe", order = 1)]
-    public class Recipe : ScriptableObject, IRecipe, IEqualityComparer<IRecipe>
+    public class RecipeData : ScriptableObject, IRecipeData, IEqualityComparer<IRecipeData>
     {
         #region Types.
         [System.Serializable]
@@ -25,10 +25,14 @@ namespace GameKit.Core.Crafting
 
         #region Public.
         /// <summary>
-        /// Index of the recipe. This value is set at runtime automatically.
+        /// True if should be recognized and used. False to remove from the game.
         /// </summary>
-        [System.NonSerialized, HideInInspector]
-        public int Index;
+        public bool Enabled = true;
+        /// <summary>
+        /// UniqueId of the resource.   
+        /// </summary>
+        [HideInInspector, System.NonSerialized]
+        public uint UniqueId = ResourceConsts.UNSET_RESOURCE_ID;
         /// <summary>
         /// The time it takes this recipe to be crafted.
         /// </summary>
@@ -50,8 +54,7 @@ namespace GameKit.Core.Crafting
         private List<ResourceQuantity> _requiredResourcesCache = new List<ResourceQuantity>();
         #endregion
 
-        public int GetIndex() => Index;
-        public void SetIndex(int value) => Index = value;
+        public uint GetUniqueId() => UniqueId;
         public ResourceQuantity GetResult() => new ResourceQuantity(Result.ResourceData.UniqueId, Result.Quantity);
         public List<ResourceQuantity> GetRequiredResources()
         {
@@ -68,22 +71,22 @@ namespace GameKit.Core.Crafting
         public float GetCraftTime() => CraftTime;
 
         #region Comparers.
-        public bool Equals(IRecipe other)
+        public bool Equals(IRecipeData other)
         {
             if (other == null)
                 return false;
-            return (Index == other.GetIndex());
+            return (UniqueId  == other.GetUniqueId());
         }
         public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
-            if (obj.GetType() != typeof(IRecipe))
+            if (obj.GetType() != typeof(IRecipeData))
                 return false;
 
-            return Equals((IRecipe)obj);
+            return Equals((IRecipeData)obj);
         }
-        public int GetHashCode(IRecipe obj)
+        public int GetHashCode(IRecipeData obj)
         {
             return obj.GetHashCode();
         }
@@ -91,7 +94,7 @@ namespace GameKit.Core.Crafting
         {
             return base.GetHashCode();
         }
-        public bool Equals(IRecipe r1, IRecipe r2)
+        public bool Equals(IRecipeData r1, IRecipeData r2)
         {
             bool r1Null = (r1 is null);
             bool r2Null = (r2 is null);
@@ -102,7 +105,7 @@ namespace GameKit.Core.Crafting
             if (r1Null != r2Null)
                 return false;
 
-            return (r1.GetIndex() == r2.GetIndex());
+            return (r1.GetUniqueId() == r2.GetUniqueId());
 
         }
         #endregion

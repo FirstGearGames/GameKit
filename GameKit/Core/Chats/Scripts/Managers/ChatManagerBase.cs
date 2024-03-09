@@ -10,6 +10,7 @@ using GameKit.Dependencies.Inspectors;
 using GameKit.Dependencies.Utilities;
 using System.Text.RegularExpressions;
 using System.Text;
+using FishNet.Managing;
 
 namespace GameKit.Core.Chats.Managers
 {

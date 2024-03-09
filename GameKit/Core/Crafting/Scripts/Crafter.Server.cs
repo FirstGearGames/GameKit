@@ -59,7 +59,7 @@ namespace GameKit.Core.Crafting
         /// Cancels crafting of the current recipe.
         /// </summary>
         [ServerRpc]
-        private void ServerCancelCrafting(IRecipe r)
+        private void ServerCancelCrafting(IRecipeData r)
         {
             //Did not deserialize, client did something bad.
             if (IsRecipeNull(r, true))
@@ -99,7 +99,7 @@ namespace GameKit.Core.Crafting
         /// Tries to craft a recipe for a client.
         /// </summary>
         [ServerRpc]
-        private void ServerCraftRecipe(IRecipe r)
+        private void ServerCraftRecipe(IRecipeData r)
         {
             //Did not deserialize, client did something bad.
             if (IsRecipeNull(r, true))
@@ -125,7 +125,7 @@ namespace GameKit.Core.Crafting
         /// Sends a crafting result to owner and checks to take action for the failed result.
         /// </summary>
         [Server]
-        private void SendFailedCraftingResult(IRecipe r, CraftingResult result)
+        private void SendFailedCraftingResult(IRecipeData r, CraftingResult result)
         {
             //If owner is clientHost just send response.
             if (base.Owner.IsLocalClient)
@@ -153,7 +153,7 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// Resets or increases the sequential count and returns the value.
         /// </summary>
-        private int SetSequentialCount(IRecipe r, ref int sequentialCount)
+        private int SetSequentialCount(IRecipeData r, ref int sequentialCount)
         {
             //Recipe change.
             if (r != _lastCraftedRecipe)
@@ -173,7 +173,7 @@ namespace GameKit.Core.Crafting
         /// Called on the server when crafting completes.
         /// </summary>
         [Server(Logging = LoggingType.Off)]
-        private void CraftingCompleted_Server(IRecipe r)
+        private void CraftingCompleted_Server(IRecipeData r)
         {
             _lastCompletedCraftTime = Time.unscaledTime;
             _lastCraftedRecipe = r;
@@ -189,7 +189,7 @@ namespace GameKit.Core.Crafting
         /// <param name="r"></param>
         /// <param name="kick"></param>
         /// <returns></returns>
-        private bool IsRecipeNull(IRecipe r, bool kick)
+        private bool IsRecipeNull(IRecipeData r, bool kick)
         {
             bool isNull = (r == null);
             if (isNull && kick)

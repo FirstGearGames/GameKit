@@ -269,7 +269,7 @@ namespace GameKit.Core.Inventories.Canvases
             if (re.ResourceData != null && re.ResourceData.UniqueId != rq.UniqueId)
                 _tooltipCanvas.Hide(re);
 
-            re.Initialize(this, _tooltipCanvas, rq, new BagSlot(bagIndex, slotIndex));
+            re.Initialize(ClientInstance.Instance, this, _tooltipCanvas, rq, new BagSlot(bagIndex, slotIndex));
             SetUsedInventorySpaceText();
             _bagEntries[bagIndex].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);

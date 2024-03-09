@@ -6,15 +6,14 @@ namespace GameKit.Core.Resources
     public class ResourceDataBase : ScriptableObject
     {
         /// <summary>
+        /// True if should be recognized and used. False to remove from the game.
+        /// </summary>
+        public bool Enabled = true;
+        /// <summary>
         /// UniqueId of the resource.   
         /// </summary>
         [HideInInspector, System.NonSerialized]
         public uint UniqueId = ResourceConsts.UNSET_RESOURCE_ID;
-        /// <summary>
-        /// Id of something this object is associated with.
-        /// </summary>
-        [HideInInspector, System.NonSerialized]
-        public uint RuntimeId = ResourceConsts.UNSET_RESOURCE_ID;
         /// <summary>
         /// Maximum number of times this item can be stacked.
         /// </summary>

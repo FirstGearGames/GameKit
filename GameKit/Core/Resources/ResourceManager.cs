@@ -12,12 +12,12 @@ namespace GameKit.Core.Resources
     {
         #region Public.
         /// <summary>
-        /// Resource information.
+        /// Resource datas.
         /// </summary>
         [System.NonSerialized, HideInInspector]
         public List<ResourceData> ResourceDatas = new List<ResourceData>();
         /// <summary>
-        /// Resource category information.
+        /// Resource category datas.
         /// </summary>
         [System.NonSerialized, HideInInspector]
         public List<ResourceCategoryData> ResourceCategoryDatas = new List<ResourceCategoryData>();
@@ -27,13 +27,13 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// ResourceDatas lookup.
         /// Key: the resource UniqueId.
-        /// Value: IResourceData reference.
+        /// Value: ResourceData reference.
         /// </summary>
         private Dictionary<uint, ResourceData> _resourceDatasCache = new Dictionary<uint, ResourceData>();
         /// <summary>
         /// ResourceCategoryDatas lookup.
         /// Key: the resource category UniqueId.
-        /// Value: IResourceCategoryData reference.
+        /// Value: ResourceCategoryData reference.
         /// </summary>
         private Dictionary<uint, ResourceCategoryData> _resourceCategoryDatasCache = new Dictionary<uint, ResourceCategoryData>();
         #endregion
@@ -56,6 +56,9 @@ namespace GameKit.Core.Resources
         /// <param name="data"></param>
         public void AddResourceData(ResourceData data, bool applyUniqueId)
         {
+            if (!data.Enabled)
+                return;
+
             if (applyUniqueId)
                 data.UniqueId = ((uint)ResourceDatas.Count + 1);
             ResourceDatas.Add(data);

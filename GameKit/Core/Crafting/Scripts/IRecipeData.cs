@@ -4,11 +4,13 @@ using System.Collections.Generic;
 namespace GameKit.Core.Crafting
 {
 
-    public interface IRecipe
+    public interface IRecipeData
     {
-        public int GetIndex();
-        public void SetIndex(int value);
-
+        /// <summary>
+        /// Gets the UniqueId for the recipe.
+        /// </summary>
+        /// <returns></returns>
+        public uint GetUniqueId();
         /// <summary>
         /// Gets the time it takes this recipe to be crafted.
         /// </summary>

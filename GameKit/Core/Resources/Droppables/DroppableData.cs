@@ -12,8 +12,17 @@ namespace GameKit.Core.Resources.Droppables
     /// A resource which can be dropped.
     /// </summary>
     [CreateAssetMenu(fileName = "Droppable", menuName = "Game/New Droppable", order = 1)]
-    public class Droppable : ScriptableObject, IWeighted
+    public class DroppableData : ScriptableObject, IWeighted
     {
+        /// <summary>
+        /// True if should be recognized and used. False to remove from the game.
+        /// </summary>
+        public bool Enabled = true;
+        /// <summary>
+        /// UniqueId of the droppable.   
+        /// </summary>
+        [HideInInspector, System.NonSerialized]
+        public uint UniqueId = ResourceConsts.UNSET_RESOURCE_ID;
         /// <summary>
         /// Resource to drop.
         /// </summary>
@@ -30,7 +39,6 @@ namespace GameKit.Core.Resources.Droppables
 
         public float GetWeight() => DropRate;
         public ByteRange GetQuantity() => Quantity;
-        //todo: make sure droppable quantity is a minimum of 1 in some manager.
 
     }
 
@@ -39,9 +47,9 @@ namespace GameKit.Core.Resources.Droppables
         /// <summary>
         /// Converts droppable results to a ResourceQuantity collection.
         /// </summary>
-        public static void ToResourceQuantities(this Dictionary<Droppable, byte> drops, ref List<ResourceQuantity> results)
+        public static void ToResourceQuantities(this Dictionary<DroppableData, byte> drops, ref List<ResourceQuantity> results)
         {
-            foreach (KeyValuePair<Droppable, byte> item in drops)
+            foreach (KeyValuePair<DroppableData, byte> item in drops)
             {
                 ResourceQuantity rq = new ResourceQuantity(item.Key.ResourceData.UniqueId, item.Value);
                 results.Add(rq);

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using GameKit.Core.FloatingContainers.Tooltips;
 using GameKit.Core.Resources;
+using GameKit.Core.Dependencies;
 
 namespace GameKit.Core.Inventories.Canvases
 {
@@ -92,7 +93,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ResourceQuantity rq, BagSlot bagSlot)
+        public void Initialize(ClientInstance clientInstance, InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ResourceQuantity rq, BagSlot bagSlot)
         {
             //If no data then initialize empty.
             if (rq.IsUnset)
@@ -104,8 +105,7 @@ namespace GameKit.Core.Inventories.Canvases
             SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
-            //TODO: do not use instancefinder.
-            ResourceData = InstanceFinder.NetworkManager.GetInstance<ResourceManager>().GetResourceData(rq.UniqueId);
+            ResourceData = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetResourceData(rq.UniqueId);
             _icon.sprite = ResourceData.Icon;
             StackCount = rq.Quantity;
             _stackText.text = (StackCount > 1) ? $"{rq.Quantity}" : string.Empty;

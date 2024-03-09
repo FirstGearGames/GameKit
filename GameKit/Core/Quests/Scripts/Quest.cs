@@ -34,7 +34,7 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Droppables which become available when this quest is active.
         /// </summary>
-        public List<Droppable> Droppables;
+        public List<DroppableData> Droppables;
     }
 
 }

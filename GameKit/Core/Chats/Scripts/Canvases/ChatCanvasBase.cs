@@ -582,8 +582,7 @@ namespace GameKit.Core.Chats.Canvases
             string name = words[1].ToLower();
 
             _excludedTellConnections.Clear();
-            //TODO: do not use instancefinder.
-            _excludedTellConnections.Add(InstanceFinder.ClientManager.Connection);
+            _excludedTellConnections.Add(_chatManagerBase.ClientManager.Connection);
             IChatEntity foundEntity = _chatManagerBase.GetChatEntity(name, true, _excludedTellConnections);
             //If found.
             if (foundEntity != null)

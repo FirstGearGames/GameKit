@@ -16,11 +16,6 @@
             "name": "com.unity.textmeshpro",
             "expression": "",
             "define": "TEXTMESHPRO"
-        },
-        {
-            "name": "com.unity.inputsystem",
-            "expression": "",
-            "define": "NEW_INPUTSYSTEM"
         }
     ],
     "noEngineReferences": false

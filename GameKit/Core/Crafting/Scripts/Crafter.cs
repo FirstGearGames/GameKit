@@ -42,7 +42,7 @@ namespace GameKit.Core.Crafting
             /// <summary>
             /// Recipe being crafted.
             /// </summary>
-            public IRecipe Recipe;
+            public IRecipeData Recipe;
             /// <summary>
             /// Time passed since crafting this recipe started.
             /// </summary>
@@ -62,7 +62,7 @@ namespace GameKit.Core.Crafting
             /// </summary>
             /// <param name="r"></param>
             /// <param name="timeRemaining"></param>
-            public void Initialize(IRecipe r, float multiplier)
+            public void Initialize(IRecipeData r, float multiplier)
             {
                 Recipe = r;
                 _timePassed = 0f;
@@ -90,17 +90,17 @@ namespace GameKit.Core.Crafting
         /// </summary>
         /// <param name="recipe"></param>
         /// <param name="asServer">zzdfgdgd</param>
-        public delegate void CraftingStartedDel(IRecipe recipe, bool asServer);
+        public delegate void CraftingStartedDel(IRecipeData recipe, bool asServer);
         /// <summary>
         /// Called when crafting progresses.
         /// </summary>
         public event CraftingProgressedDel OnCraftingProgressed;
-        public delegate void CraftingProgressedDel(IRecipe recipe, float percent, float delta);
+        public delegate void CraftingProgressedDel(IRecipeData recipe, float percent, float delta);
         /// <summary>
         /// Called when a crafting result occurs. This could be completed, failed, ect.
         /// </summary>
         public event CraftingResultDel OnCraftingResult;
-        public delegate void CraftingResultDel(IRecipe recipe, CraftingResult result, bool asServer);
+        public delegate void CraftingResultDel(IRecipeData recipe, CraftingResult result, bool asServer);
         #endregion
 
         #region Private.
@@ -123,7 +123,7 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// The last recipe which crafting had completed.
         /// </summary>
-        private IRecipe _lastCraftedRecipe;
+        private IRecipeData _lastCraftedRecipe;
         /// <summary>
         /// Last unscaled time a completed recipe was sent to the client.
         /// </summary>
@@ -174,7 +174,7 @@ namespace GameKit.Core.Crafting
         /// </summary>
         /// <param name="r"></param>
         /// <returns></returns>
-        private bool HasCraftingResources(IRecipe r, int totalCrafts = 1)
+        private bool HasCraftingResources(IRecipeData r, int totalCrafts = 1)
         {
             foreach (ResourceQuantity rq in r.GetRequiredResources())
             {
@@ -191,7 +191,7 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// Crafts a recipe on the server.
         /// </summary>
-        private void BeginCraftingRecipe(IRecipe r, CraftingProgress cp, ref int sequentialCount)
+        private void BeginCraftingRecipe(IRecipeData r, CraftingProgress cp, ref int sequentialCount)
         {
             int seqCount = SetSequentialCount(r, ref sequentialCount);
             //Calculate multiplier.
@@ -222,7 +222,7 @@ namespace GameKit.Core.Crafting
                 if (cp.Percent >= 1f)
                     return;
 
-                IRecipe recipe = cp.Recipe;
+                IRecipeData recipe = cp.Recipe;
                 float delta = (asServer) ? (float)base.TimeManager.TickDelta : Time.unscaledDeltaTime;
                 cp.AddTimePassed(delta);
                 float percentComplete = cp.Percent;
@@ -279,7 +279,7 @@ namespace GameKit.Core.Crafting
         /// Invokes a crafting result.
         /// </summary>
         /// <param name="cr"></param>
-        private void InvokeCraftingResult(IRecipe recipe, CraftingResult cr, bool asServer)
+        private void InvokeCraftingResult(IRecipeData recipe, CraftingResult cr, bool asServer)
         {
             TryResetCraftsRemaining(cr);
             TryResetCraftingProgress(cr, asServer);
@@ -291,7 +291,7 @@ namespace GameKit.Core.Crafting
         /// </summary>
         /// <param name="recipe">Recipe to check if there is enough space for.</param>
         /// <returns>True if a no space response was invoked.</returns>
-        private bool TryInvokeNoSpace(IRecipe recipe, bool asServer)
+        private bool TryInvokeNoSpace(IRecipeData recipe, bool asServer)
         {
             if (!HasInventorySpace(recipe))
             {
@@ -307,7 +307,7 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// Returns the inventory has enough space to accomodate a recipe.
         /// </summary>
-        private bool HasInventorySpace(IRecipe recipe)
+        private bool HasInventorySpace(IRecipeData recipe)
         {
             ResourceQuantity receivedResourceQuantity = recipe.GetResult();
             ResourceData resourceData = _resourceManager.GetResourceData(receivedResourceQuantity.UniqueId);

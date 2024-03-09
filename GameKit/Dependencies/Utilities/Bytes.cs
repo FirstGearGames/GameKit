@@ -13,7 +13,7 @@ namespace GameKit.Dependencies.Utilities
         /// Pads an index a specified value. Preferred over typical padding so that pad values used with skins can be easily found in the code.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Pad(this byte value, int padding) => Ints.Pad(value, padding);
+        public static string Pad(this byte value, int padding) => Ints.PadInt(value, padding);
         /// <summary>
         /// Provides a random inclusive int within a given range. Preferred over Unity's Random to eliminate confusion as Unity uses inclusive for floats max, and exclusive for int max. 
         /// </summary>
@@ -45,7 +45,7 @@ namespace GameKit.Dependencies.Utilities
         /// Returns whichever value is lower.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte Min(byte a, byte b) => (byte)Ints.Min(a, b);
+        public static byte Min(byte a, byte b) => (a < b) ? a : b;
 
         /// <summary>
         /// Determins if all values passed in are the same.

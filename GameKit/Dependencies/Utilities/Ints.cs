@@ -17,10 +17,8 @@ namespace GameKit.Dependencies.Utilities
         /// <param name="value"></param>
         /// <param name="padding"></param>
         /// <returns></returns>
-        public static string Pad(int value, int padding)
+        public static string PadInt(int value, int padding)
         {
-            if (padding < 0)
-                padding = 0;
             return value.ToString().PadLeft(padding, '0');
         }
 
@@ -61,11 +59,6 @@ namespace GameKit.Dependencies.Utilities
 
             return value;
         }
-
-        /// <summary>
-        /// Returns whichever value is lower.
-        /// </summary>
-        public static int Min(int a, int b) => (a < b) ? a : b;
 
         /// <summary>
         /// Determins if all values passed in are the same.

@@ -1,5 +1,5 @@
-using FishNet.Managing;
 using FishNet.Serializing;
+using GameKit.Core.Resources;
 
 namespace GameKit.Core.Crafting
 {
@@ -7,17 +7,17 @@ namespace GameKit.Core.Crafting
 
     public static class Recipe_Serializers
     {
-        public static void WriteIRecipe(this Writer w, IRecipe value)
+        public static void WriteIRecipe(this Writer w, IRecipeData value)
         {
             if (value == null)
-                w.WriteInt32(-1);
+                w.WriteUInt32(ResourceConsts.UNSET_RESOURCE_ID);
             else
-                w.WriteInt32(value.GetIndex());
+                w.WriteUInt32(value.GetUniqueId());
         }
-        public static IRecipe ReadIRecipe(this Reader r)
+        public static IRecipeData ReadIRecipe(this Reader r)
         {
-            int index = r.ReadInt32();
-            if (index == -1)
+            uint index = r.ReadUInt32();
+            if (index == ResourceConsts.UNSET_RESOURCE_ID)
                 return null;
 
             CraftingManager cm = r.NetworkManager.GetInstance<CraftingManager>();

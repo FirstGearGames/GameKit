@@ -16,7 +16,7 @@ namespace GameKit.Core.Crafting
         /// All recipes for this game.
         /// </summary>
         [System.NonSerialized, HideInInspector]
-        public List<IRecipe> Recipes = new List<IRecipe>();
+        public List<RecipeData> RecipeDatas = new List<RecipeData>();
         #endregion
 
         #region Private.
@@ -25,7 +25,7 @@ namespace GameKit.Core.Crafting
         /// Key: the resourceId to be made.
         /// Value: Recipe reference.
         /// </summary>
-        private Dictionary<int, IRecipe> _recipesCached = new Dictionary<int, IRecipe>();
+        private Dictionary<uint, RecipeData> _recipeDatasCached = new Dictionary<uint, RecipeData>();
         #endregion
 
         public override void OnStartNetwork()
@@ -43,29 +43,33 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// Adds recipe to Recipes.
         /// </summary>
-        public void AddIRecipe(IRecipe recipe)
+        public void AddRecipeData(RecipeData data, bool applyUniqueId)
         {
-            recipe.SetIndex(Recipes.Count);
-            Recipes.Add(recipe);
-            _recipesCached[recipe.GetIndex()] = recipe;
+            if (!data.Enabled)
+                return;
+            if (applyUniqueId)
+                data.UniqueId = (uint)(RecipeDatas.Count + 1);
+
+            RecipeDatas.Add(data);
+            _recipeDatasCached[data.UniqueId] = data;
         }
         /// <summary>
         /// Adds recipes to Recipes.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddIRecipe(IEnumerable<IRecipe> recipes)
+        public void AddRecipeData(IEnumerable<RecipeData> datas, bool applyUniqueId)
         {
-            foreach (IRecipe ir in recipes)
-                AddIRecipe(ir);
+            foreach (RecipeData rd in datas)
+                AddRecipeData(rd, applyUniqueId);
         }
 
         /// <summary>
         /// Gets a recipe for a resource type.
         /// </summary>
-        public IRecipe GetRecipe(int rId)
+        public RecipeData GetRecipe(uint rId)
         {
-            IRecipe result;
-            if (!_recipesCached.TryGetValue(rId, out result))
+            RecipeData result;
+            if (!_recipeDatasCached.TryGetValue(rId, out result))
                 Debug.LogError($"Recipe not found for {rId}.");
 
             return result;

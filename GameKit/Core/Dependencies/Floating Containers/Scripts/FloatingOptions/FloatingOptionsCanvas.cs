@@ -8,6 +8,7 @@ using GameKit.Core.Dependencies;
 using GameKit.Dependencies.Utilities.Types.OptionMenuButtons;
 using GameKit.Dependencies.Utilities;
 using UnityEngine.UI;
+using FishNet.Managing;
 
 namespace GameKit.Core.FloatingContainers.OptionMenuButtons
 {
@@ -141,7 +142,7 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
             {
                 /* //TODO: instancefinder can be passed in but will default to null since this
                  * might be used outside of the network. If networkmanager is null then use static log. */
-                InstanceFinder.NetworkManager.LogError($"A null Transform cannot be used as the starting point.");
+                NetworkManagerExtensions.LogError($"A null Transform cannot be used as the starting point.");
                 return;
             }
 

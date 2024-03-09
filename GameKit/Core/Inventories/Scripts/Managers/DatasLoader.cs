@@ -1,5 +1,6 @@
 using UnityEngine;
 using GameKit.Core.Resources;
+using GameKit.Core.Resources.Droppables;
 
 namespace GameKit.Core.Crafting.Managers
 {
@@ -27,8 +28,15 @@ namespace GameKit.Core.Crafting.Managers
         /// </summary>
         [Tooltip("All recipes for this game.")]
         [SerializeField]
-        private Recipe[] _recipes = new Recipe[0];
+        private RecipeData[] _recipeDatas = new RecipeData[0];
+        /// <summary>
+        /// All droppables for this game.
+        /// </summary>
+        [Tooltip("All droppables for this game.")]
+        [SerializeField]
+        private DroppableData[] _droppableDatas = new DroppableData[0];
         #endregion
+
         private void Awake()
         {
             AddDatasToManagers();
@@ -44,7 +52,10 @@ namespace GameKit.Core.Crafting.Managers
             rm.AddResourceCategoryData(_resourceCategoryDatas);
 
             CraftingManager cm = GetComponentInParent<CraftingManager>();
-            cm.AddIRecipe(_recipes);
+            cm.AddRecipeData(_recipeDatas, true);
+
+            DroppableManager dm = GetComponentInParent<DroppableManager>();
+            dm.AddDroppableData(_droppableDatas, true);
         }
 
     }

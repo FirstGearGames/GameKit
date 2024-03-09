@@ -6,6 +6,7 @@ using GameKit.Dependencies.Utilities;
 using GameKit.Core.Crafting;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
+using FishNet.Managing;
 
 namespace GameKit.Core.Inventories
 {
@@ -156,7 +157,7 @@ namespace GameKit.Core.Inventories
         /// <param name="r"></param>
         /// <param name="result"></param>
         /// <param name="asServer"></param>
-        private void Crafter_OnCraftingResult(IRecipe r, CraftingResult result, bool asServer)
+        private void Crafter_OnCraftingResult(IRecipeData r, CraftingResult result, bool asServer)
         {
             //Only update if as server, or as client and not host. This prevents double updating as host.
             bool canUpdateResources = (asServer || (!asServer && !base.IsHost));
@@ -451,7 +452,7 @@ namespace GameKit.Core.Inventories
         /// Updates inventory resources using a recipe.
         /// This removes required resources while adding created.
         /// </summary>
-        private void UpdateResourcesFromRecipe(IRecipe r, bool sendToClient = true)
+        private void UpdateResourcesFromRecipe(IRecipeData r, bool sendToClient = true)
         {
             //Remove needed resources first so space used is removed.
             foreach (ResourceQuantity rq in r.GetRequiredResources())
