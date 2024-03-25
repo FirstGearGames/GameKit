@@ -26,11 +26,11 @@ namespace GameKit.Core.Quests
             public QuestData Quest;
             /// <summary>
             /// Droppables for the quest.
-            /// This should not be put into CollectionCaches since it's being set by reference.
+            /// A HashSet is used so drops cannot be duplicated due to multiple quest having the same drop.
             /// </summary>
-            public List<DroppableData> Droppables;
+            public HashSet<DroppableData> Droppables;
 
-            public QuestDroppableData(uint giverId, QuestData quest, List<DroppableData> droppables)
+            public QuestDroppableData(uint giverId, QuestData quest, HashSet<DroppableData> droppables)
             {
                 GiverId = giverId;
                 Quest = quest;
@@ -40,60 +40,60 @@ namespace GameKit.Core.Quests
         #endregion
 
         /// <summary>
-        /// Resources which can be dropped.
-        /// Key: object which can drop the resource, such as a NPC.
-        /// Value: droppables for the NPC.
+        /// Droppables for providers.
         /// </summary>
-        private Dictionary<uint, List<QuestDroppableData>> _droppableResources;
+        private Dictionary<ProviderData, List<DroppableData>> _providerDroppables;
+        /// <summary>
+        /// Current quests.
+        /// </summary>
+        private Dictionary<QuestData, ProviderData> _quests;
 
         private void Awake()
         {
-            _droppableResources = CollectionCaches<uint, List<QuestDroppableData>>.RetrieveDictionary();
+            _providerDroppables = CollectionCaches<ProviderData, List<DroppableData>>.RetrieveDictionary();
+            _quests = CollectionCaches<QuestData, ProviderData>.RetrieveDictionary();
         }
 
         private void OnDestroy()
         {
-            foreach (List<QuestDroppableData> item in _droppableResources.Values)
-                CollectionCaches<QuestDroppableData>.Store(item);
-            CollectionCaches<uint, List<QuestDroppableData>>.Store(_droppableResources);
+            CollectionCaches<QuestData, ProviderData>.StoreAndDefault(ref _quests);
+
+            foreach (List<DroppableData> item in _providerDroppables.Values)
+                CollectionCaches<DroppableData>.Store(item);
+            CollectionCaches<ProviderData, List<DroppableData>>.StoreAndDefault(ref _providerDroppables);
         }
 
         /// <summary>
         /// Adds a quest.
         /// </summary>
         /// <returns>True if quest was added.</returns>
-        public void AddQuest(ProviderData provider, QuestData quest)
+        public bool AddQuest(ProviderData provider, QuestData quest)
         {
-            uint providerId = provider.UniqueId;
-            List<QuestDroppableData> droppables;
-            //If no quest are set for the giver yet.
-            if (!_droppableResources.TryGetValueIL2CPP(providerId, out droppables))
-            {
-                droppables = CollectionCaches<QuestDroppableData>.RetrieveList();
-                _droppableResources[providerId] = droppables;
-            }
-            /* //TODO This is pretty much all wrong.
-             *
-             * Droppables need to be stored based on provider which can drop
-             * them. EG: a new dictionary (ProviderData, List<DroppableData> Droppables) where
-             * the key is the provider that drops the object, and value are droppables
-             * the provider is currently capable of due to quests.
-             * 
-             * There needs to be a reverse lookup as well where RemoveQuest can know
-             * which drops to remove. This could be done by reading the provider of
-             * each QuestDroppable, using that Id to find droppables, and removing the supplied
-             * DroppableData for the QuestDroppable. */
+            /* Quest is already added.
+             * This is a small limitation allowing
+             * the same quest to not be added twice
+             * even if by different providers. */
+            if (!_quests.TryAdd(quest, provider))
+                return false;
 
-            //Make sure quest was not already added.
-            foreach (QuestDroppableData item in droppables)
+            /* Add each droppable to providerDroppables. This allows providers to
+             * use GetRandomDroppables which will return possible quest drops. */
+            foreach (QuestData.QuestDroppableData item in quest.QuestDroppables)
             {
-                if (item.Quest == quest)
-                    return;
+                foreach (ProviderData pd in item.Providers)
+                {
+                    List<DroppableData> currentDroppables;
+                    if (!_providerDroppables.TryGetValue(pd, out currentDroppables))
+                    {
+                        currentDroppables = CollectionCaches<DroppableData>.RetrieveList();
+                        _providerDroppables[pd] = currentDroppables;
+                    }
+                    currentDroppables.Add(item.Droppable);
+                }
+
             }
 
-            //Add all droppables for quest.
-            QuestDroppableData qdd = new QuestDroppableData(providerId, quest, quest.Droppables);
-            droppables.Add(qdd);
+            return true;
         }
 
         /// <summary>
@@ -102,22 +102,31 @@ namespace GameKit.Core.Quests
         /// <returns>True if quest was found and removed.</returns>
         public bool RemoveQuest(ProviderData provider, QuestData quest)
         {
-            uint providerId = provider.UniqueId;
-            List<QuestDroppableData> droppables;
-            //Provider has not given any quests.
-            if (!_droppableResources.TryGetValueIL2CPP(providerId, out droppables))
+            //Quest does not exist.
+            if (!_quests.Remove(quest))
                 return false;
 
-            //Find the quest in droppables.
-            for (int i = 0; i < droppables.Count; i++)
-            {
-                if (droppables[i].Quest == quest)
-                {
-                    droppables.RemoveAt(i);
-                    return true;
-                }
+            //uint providerId = provider.UniqueId;
+            //List<QuestDroppableData> droppables;
+            ////Provider has not given any quests.
+            //if (!_droppableResources.TryGetValueIL2CPP(providerId, out droppables))
+            //    return false;
 
-            }
+            ////Find the quest in droppables.
+            //for (int i = 0; i < droppables.Count; i++)
+            //{
+            //    if (droppables[i].Quest == quest)
+            //    {
+            //        droppables.RemoveAt(i);
+            //        return true;
+            //    }
+
+            //}
+
+
+            /* //TODO to remove droppables in RemoveQuest simply take the same QuestData
+            * and look up Providers, and remove the first droppable entry. Since DroppableData
+            * is a class the removal will be by reference. */
 
             //If here then quest was not found.
             return false;
@@ -126,46 +135,19 @@ namespace GameKit.Core.Quests
         /// <summary>
         /// Tries to spawn any droppables for quests under a provider.
         /// </summary>
+        /// <param name="results">Droppables to drop, and how many of each.</param>
         /// <param name="maxDrops">Maximum drop results to gather. Item quantities can exceed this value.</param>
         /// <param name="allowRepeatingDrops">True to allow the same drop to be added to results more than once. Item quantities can exceed this value.</param>
         /// <returns>True if droppables were found. True does not indicate a resource dropped.</returns>
         public bool GetRandomDroppables(ProviderData provider, ref Dictionary<DroppableData, uint> results, int maxDrops = 3, bool allowRepeatingDrops = false)
         {
-            if (!_droppableResources.TryGetValueIL2CPP(provider.UniqueId, out List<QuestDroppableData> droppables))
+            if (!_providerDroppables.TryGetValueIL2CPP(provider, out List<DroppableData> droppables))
                 return false;
 
             if (maxDrops < 1)
                 maxDrops = 1;
             IntRange quantity = new IntRange(0, maxDrops);
-
-            /* Add all droppables to a single collection.
-             * This could be optimized by building the collection
-             * every time a quest with droppables is added, but
-             * at the same time the odds of there being more than 1
-             * droppable collections is very unlikely.
-             * 
-             * We will save some perf though by simple using the single
-             * droppables collection reference if it's the only collection. */
-
-            List<DroppableData> allDroppables;
-            bool combineDroppables = (droppables.Count > 1);
-            if (combineDroppables)
-            {
-                allDroppables = CollectionCaches<DroppableData>.RetrieveList();
-                foreach (QuestDroppableData item in droppables)
-                    allDroppables.AddRange(item.Droppables);
-            }
-            else
-            {
-                allDroppables = droppables[0].Droppables;
-            }
-
-            WeightedRandom.GetEntries(allDroppables, quantity, ref results, allowRepeatingDrops);
-
-            /* If allDroppables was combined by multiple collections then store it
-             * as it's no longer needed. */
-            if (combineDroppables)
-                CollectionCaches<DroppableData>.Store(allDroppables);
+            WeightedRandom.GetEntries(droppables, quantity, ref results, allowRepeatingDrops);
 
             return true;
         }

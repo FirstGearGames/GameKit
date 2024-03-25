@@ -12,9 +12,9 @@ namespace GameKit.Core.Quests
         public struct QuestDroppableData
         {
             /// <summary>
-            /// Provider which can drop the resource.
+            /// Providers which can drop the resource.
             /// </summary>
-            public ProviderData Provider;
+            public ProviderData[] Providers;
             /// <summary>
             /// Resource which can be dropped.
             /// </summary>
