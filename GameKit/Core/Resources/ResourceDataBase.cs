@@ -24,5 +24,9 @@ namespace GameKit.Core.Resources
         /// </summary>
         [Range(0, ushort.MaxValue)]
         public int QuantityLimit = ResourceConsts.UNSET_QUANTITY_LIMIT;
+        /// <summary>
+        /// True if this resource is visible in player bags. False if the resource is hidden when acquired.
+        /// </summary>
+        public bool IsBaggable = true;
     }
 }

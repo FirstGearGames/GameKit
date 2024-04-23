@@ -81,11 +81,6 @@ namespace GameKit.Core.Quests
 
             //Most if not all conditions will require access to the inventory.
             Inventory inv = ClientInstance.Inventory;
-            /* //TODO: Make another 'bagged resources' exclusively for hidden objects.
-             * hidden objects wont be aquired nearly as often but could be in the thousands
-             * such as area tokens. We dont want to put that load into the more commonly iterated
-             * bagged resources. Also exclude common resource actions like swapping from hidden objects,
-             * as well ignore stack limits and what not from hidden items. */
             foreach (QuestConditionBase item in Quest.Conditions)
             {
                 //Check gather condition.
@@ -93,14 +88,29 @@ namespace GameKit.Core.Quests
                 {
                     foreach (GatherableResource gr in gc.Resources)
                     {
-                        List<BagSlot> abr;                        
-                        inv.BaggedResources.TryGetValue(gr.ResourceData.UniqueId, out abr);
-                        //If resource doesnt exist or count is less than required then condition is not met.
-                        if (abr == null || abr.Count < gr.Quantity)
+                        if (gr.ResourceData.IsBaggable)
                         {
-                            _isConditionsMet = false;
-                            return false;
+                            List<BagSlot> abr;
+                            inv.BaggedResources.TryGetValue(gr.ResourceData.UniqueId, out abr);
+                            //If resource doesnt exist or count is less than required then condition is not met.
+                            if (abr == null || abr.Count < gr.Quantity)
+                            {
+                                _isConditionsMet = false;
+                                return false;
+                            }
                         }
+                        //Not able to be in a bag.
+                        else
+                        {
+                            inv.HiddenResources.TryGetValue(gr.ResourceData.UniqueId, out uint quantity);
+                            if (quantity < gr.Quantity)
+                            {
+                                _isConditionsMet = false;
+                                return false;
+                            }
+
+                        }
+
                     }
                 }
 

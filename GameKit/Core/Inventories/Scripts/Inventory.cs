@@ -96,6 +96,11 @@ namespace GameKit.Core.Inventories
         /// Resource UniqueIds and bag slots they occupy.
         /// </summary>
         public Dictionary<uint, List<BagSlot>> BaggedResources { get; private set; } = new();
+        /// <summary>
+        /// Resource UniqueIds and the number of the resource.
+        /// These resources are not shown in the players bags but can be used to add hidden tokens or currencies.
+        /// </summary>
+        public Dictionary<uint, uint> HiddenResources {get; private set; } = new();
         #endregion
 
         #region Serialized.
