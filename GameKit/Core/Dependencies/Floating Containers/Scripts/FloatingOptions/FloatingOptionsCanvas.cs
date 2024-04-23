@@ -139,9 +139,7 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         {
             if (startingPoint == null)
             {
-                /* //TODO: instancefinder can be passed in but will default to null since this
-                 * might be used outside of the network. If networkmanager is null then use static log. */
-                NetworkManagerExtensions.LogError($"A null Transform cannot be used as the starting point.");
+                NetworkManagerExtensions.LogError($"A null Transform cannot be used as the starting point.");                
                 return;
             }
 

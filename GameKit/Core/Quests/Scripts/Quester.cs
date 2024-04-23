@@ -106,30 +106,26 @@ namespace GameKit.Core.Quests
             if (!_quests.Remove(quest))
                 return false;
 
-            //uint providerId = provider.UniqueId;
-            //List<QuestDroppableData> droppables;
-            ////Provider has not given any quests.
-            //if (!_droppableResources.TryGetValueIL2CPP(providerId, out droppables))
-            //    return false;
+            foreach (QuestData.QuestDroppableData item in quest.QuestDroppables)
+            {
+                foreach (ProviderData pd in item.Providers)
+                {
+                    if (_providerDroppables.TryGetValue(pd, out List<DroppableData> lst))
+                    {
+                        lst.Remove(item.Droppable);
+                        /* If no more entries then provider is no longer holding
+                         * quest droppables. Remove provider data and return list to cache. */
+                        if (lst.Count == 0)
+                        {
+                            _providerDroppables.Remove(pd);
+                            CollectionCaches<DroppableData>.Store(lst);
+                        }
+                    }
+                }
+            }
 
-            ////Find the quest in droppables.
-            //for (int i = 0; i < droppables.Count; i++)
-            //{
-            //    if (droppables[i].Quest == quest)
-            //    {
-            //        droppables.RemoveAt(i);
-            //        return true;
-            //    }
-
-            //}
-
-
-            /* //TODO to remove droppables in RemoveQuest simply take the same QuestData
-            * and look up Providers, and remove the first droppable entry. Since DroppableData
-            * is a class the removal will be by reference. */
-
-            //If here then quest was not found.
-            return false;
+            //If here quest was found and droppables were removed for it.
+            return true;
         }
 
         /// <summary>
