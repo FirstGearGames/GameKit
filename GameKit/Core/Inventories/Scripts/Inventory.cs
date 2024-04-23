@@ -7,6 +7,7 @@ using GameKit.Core.Crafting;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
 using FishNet.Managing;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 namespace GameKit.Core.Inventories
 {
@@ -45,7 +46,7 @@ namespace GameKit.Core.Inventories
         /// Value: quantity of the resource.
         /// </summary>
         [HideInInspector]
-        public Dictionary<uint, int> ResourceQuantities = new Dictionary<uint, int>();
+        public Dictionary<ResourceData, int> ResourceQuantities = new Dictionary<ResourceData, int>();
         /// <summary>
         /// Maximum space of all bags.
         /// </summary>        
@@ -95,12 +96,12 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Resource UniqueIds and bag slots they occupy.
         /// </summary>
-        public Dictionary<uint, List<BagSlot>> BaggedResources { get; private set; } = new();
+        public Dictionary<ResourceData, List<BagSlot>> BaggedResources { get; private set; } = new();
         /// <summary>
         /// Resource UniqueIds and the number of the resource.
         /// These resources are not shown in the players bags but can be used to add hidden tokens or currencies.
         /// </summary>
-        public Dictionary<uint, uint> HiddenResources {get; private set; } = new();
+        public Dictionary<ResourceData, int> HiddenResources { get; private set; } = new();
         #endregion
 
         #region Serialized.
@@ -206,7 +207,6 @@ namespace GameKit.Core.Inventories
             return result;
         }
 
-        //TODO: Is SendToClient needed???
         /// <summary>
         /// Adds or removes a resource quantity. Values can be negative to subtract quantity.
         /// </summary>
@@ -309,95 +309,129 @@ namespace GameKit.Core.Inventories
         /// <returns>Quantity which could not be added due to no available space.</returns>
         private int AddResourceQuantity(uint uniqueId, uint qPositive, bool sendToClient)
         {
-            int quantity = (int)qPositive;
-
             ResourceData rd = _resourceManager.GetResourceData(uniqueId);
             int stackLimit = rd.StackLimit;
-            List<BagSlot> baggedResources;
-            //If none are bagged yet.
-            if (!BaggedResources.TryGetValue(uniqueId, out baggedResources))
-            {
-                /* If there's no available slots then
-                 * none can be bagged. Return full quantity
-                 * as not added. */
-                if (AvailableSlots == 0)
-                    return quantity;
+            //Amount which was allowed to be added.
+            int added;
+            int resourceCount = 0;
+            if (rd.IsBaggable)
+                added = AddBaggedResource(ref resourceCount);
+            else
+                added = AddHiddenResource(ref resourceCount);
 
-                //Otherwise add new bagged resources because at least one will be added.
-                baggedResources = new List<BagSlot>();
-                BaggedResources.Add(uniqueId, baggedResources);
+            if (added > 0)
+            {
+                ResourceQuantities[rd] = resourceCount;
+                CompleteResourceQuantityChange(uniqueId, resourceCount);
+
+                /* Only send to update inventory
+                 * if the owner of this is not the clientHost.
+                 * IsLocalClient would return false if server
+                 * only because client is obviously not
+                 * running as server only. */
+                if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient && added > 0)
+                    TargetModifyResourceQuantity(base.Owner, uniqueId, added);
+
             }
 
-            //Check if can be added to existing stacks.
-            for (int i = 0; i < baggedResources.Count; i++)
-            {
-                BagSlot br = baggedResources[i];
-                ActiveBag bag = Bags[br.BagIndex];
-                //Number currently in the slot.
-                int slotCount = bag.Slots[br.SlotIndex].Quantity;
-                //How many more can be added to this slot.
-                int availableCount = (stackLimit - slotCount);
+            //Return how many were not added.
+            return ((int)qPositive - added);
 
-                int addCount = Mathf.Min(availableCount, quantity);
-                //If can add onto the stack.
-                if (addCount > 0)
+            int AddBaggedResource(ref int totalResourceCount)
+            {
+                int added = 0;
+                int quantityRemaining = (int)qPositive;
+                List<BagSlot> baggedResources;
+                //If none are bagged yet.
+                if (!BaggedResources.TryGetValue(rd, out baggedResources))
                 {
-                    bag.Slots[br.SlotIndex].Quantity += addCount;
-                    quantity -= addCount;
-                    OnBagSlotUpdated?.Invoke(br.BagIndex, br.SlotIndex, bag.Slots[br.SlotIndex]);
+                    /* If there's no available slots then
+                     * none can be bagged. Return full quantity
+                     * as not added. */
+                    if (AvailableSlots == 0)
+                        return 0;
+
+                    //Otherwise add new bagged resources because at least one will be added.
+                    baggedResources = new List<BagSlot>();
+                    BaggedResources.Add(rd, baggedResources);
                 }
 
-                //If all was added then break.
-                if (quantity == 0)
-                    break;
-            }
-
-            //If quantity remains then try to add to remaining slots.
-            if (quantity > 0)
-            {
-                for (int bagIndex = 0; bagIndex < Bags.Count; bagIndex++)
+                //Check if can be added to existing stacks.
+                for (int i = 0; i < baggedResources.Count; i++)
                 {
-                    ActiveBag bag = Bags[bagIndex];
+                    BagSlot br = baggedResources[i];
+                    ActiveBag bag = Bags[br.BagIndex];
+                    //Number currently in the slot.
+                    int slotCount = bag.Slots[br.SlotIndex].Quantity;
+                    //How many more can be added to this slot.
+                    int availableCount = (stackLimit - slotCount);
 
-                    int slotsCount = bag.MaximumSlots;
-                    for (int slotIndex = 0; slotIndex < slotsCount; slotIndex++)
+                    int addCount = Mathf.Min(availableCount, quantityRemaining);
+                    //If can add onto the stack.
+                    if (addCount > 0)
                     {
-                        //Already has an item.
-                        if (!bag.Slots[slotIndex].IsUnset)
-                            continue;
-
-                        int addCount = Mathf.Min(stackLimit, quantity);
-                        bag.Slots[slotIndex].Update(uniqueId, addCount);
-                        quantity -= addCount;
-                        //Since filling an empty slot add it to bagged resources.
-                        baggedResources.Add(new BagSlot(bagIndex, slotIndex));
-                        OnBagSlotUpdated?.Invoke(bagIndex, slotIndex, bag.Slots[slotIndex]);
-
-                        //If no more quantity, exit.
-                        if (quantity == 0)
-                            break;
+                        bag.Slots[br.SlotIndex].Quantity += addCount;
+                        added += added;
+                        OnBagSlotUpdated?.Invoke(br.BagIndex, br.SlotIndex, bag.Slots[br.SlotIndex]);
                     }
 
-                    //If no more quantity, exit.
-                    if (quantity == 0)
+                    //If all was added then break.
+                    if (quantityRemaining == 0)
                         break;
                 }
+
+                //If quantity remains then try to add to empty bag slots.
+                if (quantityRemaining > 0)
+                {
+                    for (int bagIndex = 0; bagIndex < Bags.Count; bagIndex++)
+                    {
+                        ActiveBag bag = Bags[bagIndex];
+
+                        int slotsCount = bag.MaximumSlots;
+                        for (int slotIndex = 0; slotIndex < slotsCount; slotIndex++)
+                        {
+                            //Already has an item.
+                            if (!bag.Slots[slotIndex].IsUnset)
+                                continue;
+
+                            int addCount = Mathf.Min(stackLimit, quantityRemaining);
+                            added += addCount;
+                            quantityRemaining -= addCount;
+                            bag.Slots[slotIndex].Update(uniqueId, addCount);
+                            //Since filling an empty slot add it to bagged resources.
+                            baggedResources.Add(new BagSlot(bagIndex, slotIndex));
+                            OnBagSlotUpdated?.Invoke(bagIndex, slotIndex, bag.Slots[slotIndex]);
+
+                            //If no more quantity, exit.
+                            if (quantityRemaining == 0)
+                                break;
+                        }
+
+                        //If no more quantity, exit.
+                        if (quantityRemaining == 0)
+                            break;
+                    }
+                }
+
+                totalResourceCount = GetResourceCount(baggedResources, uniqueId);
+                return added;
             }
 
-            int resourceCount = GetResourceCount(baggedResources, uniqueId);
-            ResourceQuantities[uniqueId] = resourceCount;
-            CompleteResourceQuantityChange(uniqueId, resourceCount);
+            //Adds resource and returns amount added.
+            int AddHiddenResource(ref int totalResourceCount)
+            {
+                int quantityRemaining = (int)qPositive;
+                HiddenResources.TryGetValue(rd, out totalResourceCount);
 
-            /* Only send to update inventory
-             * if the owner of this is not the clientHost.
-             * IsLocalClient would return false if server
-             * only because client is obviously not
-             * running as server only. */
-            uint added = (qPositive - (uint)quantity);
-            if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient && added > 0)
-                TargetModifyResourceQuantity(base.Owner, uniqueId, (int)added);
+                int availableCount = (rd.QuantityLimit - totalResourceCount);
+                int added = Mathf.Min(availableCount, quantityRemaining);
+                //If can add onto the stack.
+                if (added > 0)
+                    HiddenResources[rd] = totalResourceCount;
 
-            return quantity;
+                return added;
+            }
+
         }
 
         /// <summary>

@@ -91,7 +91,7 @@ namespace GameKit.Core.Quests
                         if (gr.ResourceData.IsBaggable)
                         {
                             List<BagSlot> abr;
-                            inv.BaggedResources.TryGetValue(gr.ResourceData.UniqueId, out abr);
+                            inv.BaggedResources.TryGetValue(gr.ResourceData, out abr);
                             //If resource doesnt exist or count is less than required then condition is not met.
                             if (abr == null || abr.Count < gr.Quantity)
                             {
@@ -102,7 +102,7 @@ namespace GameKit.Core.Quests
                         //Not able to be in a bag.
                         else
                         {
-                            inv.HiddenResources.TryGetValue(gr.ResourceData.UniqueId, out uint quantity);
+                            inv.HiddenResources.TryGetValue(gr.ResourceData, out int quantity);
                             if (quantity < gr.Quantity)
                             {
                                 _isConditionsMet = false;
@@ -120,7 +120,7 @@ namespace GameKit.Core.Quests
                     foreach (ResourceData rd in tc.Objects)
                     {
                         List<BagSlot> abr;
-                        inv.BaggedResources.TryGetValue(rd.UniqueId, out abr);
+                        inv.BaggedResources.TryGetValue(rd, out abr);
                         //Travel conditions only require one of the item.
                         if (abr == null || abr.Count <= 0)
                         {

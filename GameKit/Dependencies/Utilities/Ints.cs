@@ -86,6 +86,28 @@ namespace GameKit.Dependencies.Utilities
             //If this far all values match.
             return true;
         }
+
+        /// <summary>
+        /// Adds a quantity limiting maximum value.
+        /// </summary>
+        public static int AddClampMax(this int value, int quantity, int max)
+        {
+            value += quantity;
+            if (value > max)
+                value = max;
+            return value;
+        }
+
+        /// <summary>
+        /// Adds a quantity limiting minimum value.
+        /// </summary>
+        public static int AddClampMin(this int value, int quantity, int min)
+        {
+            value += quantity;
+            if (value > max)
+                value = max;
+            return value;
+        }
     }
 
 }
