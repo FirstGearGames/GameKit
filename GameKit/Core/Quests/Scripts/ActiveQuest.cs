@@ -86,12 +86,6 @@ namespace GameKit.Core.Quests
              * such as area tokens. We dont want to put that load into the more commonly iterated
              * bagged resources. Also exclude common resource actions like swapping from hidden objects,
              * as well ignore stack limits and what not from hidden items. */
-
-            /* //TODO: when defeating mobs only give their token if a quests requires it. 
-             * There needs to be some way to associate target Ids such as quest Ids for tokens.
-             * This way if two quests require defeating the same mob you can get tokens dropped for both.
-             * But in the scenario a single quest is abandoned the tokens can be removed for only that
-             * single quests. */
             foreach (QuestConditionBase item in Quest.Conditions)
             {
                 //Check gather condition.
