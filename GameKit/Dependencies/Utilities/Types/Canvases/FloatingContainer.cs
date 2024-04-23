@@ -1,5 +1,6 @@
-using GameKit.Dependencies;
-using GameKit.Dependencies.Inspectors;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -14,19 +15,19 @@ namespace GameKit.Dependencies.Utilities.Types.CanvasContainers
         /// RectTransform to move.
         /// </summary>
         [Tooltip("RectTransform to move.")]
-        [SerializeField, Group("Components")]
+        [SerializeField, BoxGroup("Components")]
         protected RectTransform RectTransform;
         /// <summary>
         /// True to use edge avoidance.
         /// </summary>
         [Tooltip("True to use edge avoidance.")]
-        [SerializeField, Group("Sizing")]
+        [SerializeField, BoxGroup("Sizing")]
         protected bool UseEdgeAvoidance = true;
         /// <summary>
         /// How much to avoid screen edges when being moved.
         /// </summary>
         [Tooltip("How much to avoid screen edges when being moved.")]
-        [SerializeField, Group("Sizing"), ShowIf(nameof(UseEdgeAvoidance), true)]
+        [SerializeField, BoxGroup("Sizing"), ShowIf(nameof(UseEdgeAvoidance), true)]
         protected Vector2 EdgeAvoidance;
         #endregion
 

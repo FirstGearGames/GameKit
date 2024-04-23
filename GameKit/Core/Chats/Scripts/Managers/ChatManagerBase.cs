@@ -4,13 +4,12 @@ using System;
 using FishNet.Connection;
 using UnityEngine;
 using System.Runtime.CompilerServices;
-using FishNet;
 using FishNet.Transporting;
-using GameKit.Dependencies.Inspectors;
 using GameKit.Dependencies.Utilities;
 using System.Text.RegularExpressions;
 using System.Text;
 using FishNet.Managing;
+using Sirenix.OdinInspector;
 
 namespace GameKit.Core.Chats.Managers
 {
@@ -131,7 +130,7 @@ namespace GameKit.Core.Chats.Managers
         /// <param name="value">New value.</param>
         public void SetKeepChatSelected(bool value) => _keepChatSelected = value;
         [Tooltip("True to keep the chat window selected after sending a message. False to deselect the chat window after sending a message.")]
-        [SerializeField, Group("Outbound")]
+        [SerializeField, BoxGroup("Outbound")]
         private bool _keepChatSelected;
         #endregion
 

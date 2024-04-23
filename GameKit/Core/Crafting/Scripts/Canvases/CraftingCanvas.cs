@@ -1,4 +1,3 @@
-using GameKit.Dependencies.Inspectors;
 using GameKit.Dependencies.Utilities;
 using System.Collections.Generic;
 
@@ -7,6 +6,7 @@ using UnityEngine.UI;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories;
 using GameKit.Core.Dependencies;
+using Sirenix.OdinInspector;
 
 namespace GameKit.Core.Crafting.Canvases
 {
@@ -16,57 +16,57 @@ namespace GameKit.Core.Crafting.Canvases
         /// Prefab for each recipe listing.
         /// </summary>
         [Tooltip("Prefab for each recipe listing.")]
-        [SerializeField, Group("Recipes")]
+        [SerializeField, BoxGroup("Recipes")]
         private RecipeEntry _entryPrefab;
         /// <summary>
         /// Content transform that holds recipes.
         /// </summary>
         [Tooltip("Content transform that holds recipes.")]
-        [SerializeField, Group("Recipes")]
+        [SerializeField, BoxGroup("Recipes")]
         private Transform _recipesContent;
 
         /// <summary>
         /// Prefab for requires recipe resources.
         /// </summary>
         [Tooltip("Prefab for requires recipe resources.")]
-        [SerializeField, Group("Preview")]
+        [SerializeField, BoxGroup("Preview")]
         private RequiredResourceEntry _requiredResourceEntryPrefab;
         /// <summary>
         /// Content transform that holds recipe previews.
         /// </summary>
         [Tooltip("Content transform that holds recipe previews.")]
-        [SerializeField, Group("Preview")]
+        [SerializeField, BoxGroup("Preview")]
         private Transform _previewRecipeContent;
         /// <summary>
         /// Script that holds recipe result.
         /// </summary>
         [Tooltip("Script that holds recipe result.")]
-        [SerializeField, Group("Preview")]
+        [SerializeField, BoxGroup("Preview")]
         private RequiredResourceEntry _previewResult;
 
         /// <summary>
         /// Image for the crafting progress bar.
         /// </summary>
         [Tooltip("Image for the crafting progress bar.")]
-        [SerializeField, Group("Crafting")]
+        [SerializeField, BoxGroup("Crafting")]
         private Image _progressImage;
         /// <summary>
         /// Button to craft one item for hte current recipe.
         /// </summary>
         [Tooltip("Button to craft one item.")]
-        [SerializeField, Group("Crafting")]
+        [SerializeField, BoxGroup("Crafting")]
         private Button _craftOneButton;
         /// <summary>
         /// Button to craft all possible items for the current recipe.
         /// </summary>
         [Tooltip("Button to craft all possible items for the current recipe.")]
-        [SerializeField, Group("Crafting")]
+        [SerializeField, BoxGroup("Crafting")]
         private Button _craftAllButton;
         /// <summary>
         /// Button to cancel crafting progress.
         /// </summary>
         [Tooltip("Button to cancel crafting progress.")]
-        [SerializeField, Group("Crafting")]
+        [SerializeField, BoxGroup("Crafting")]
         private Button _cancelCraftingButton;
 
         /// <summary>

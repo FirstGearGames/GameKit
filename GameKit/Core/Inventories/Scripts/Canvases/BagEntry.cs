@@ -1,4 +1,3 @@
-using FishNet;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,12 +5,10 @@ using UnityEngine.UI;
 
 using GameKit.Dependencies.Utilities;
 using GameKit.Core.FloatingContainers.Tooltips;
-using GameKit.Dependencies.Inspectors;
-using GameKit.Core.Inventories;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
-using UnityEngine.EventSystems;
 using GameKit.Core.Dependencies;
+using Sirenix.OdinInspector;
 
 namespace GameKit.Core.Inventories.Canvases
 {
@@ -33,45 +30,45 @@ namespace GameKit.Core.Inventories.Canvases
         /// RectTransform for this script. Used to resize based on number of resource entries and bag size.
         /// </summary>
         [Tooltip("RectTransform for this script. Used to resize based on number of resource entries and bag size.")]
-        [SerializeField, Group("Sizing")]
+        [SerializeField, BoxGroup("Sizing")]
         private RectTransform _rectTransform;
         /// <summary>
         /// RectTransform for the bag header. This is used to add additional size to this bags RectTransform.
         /// </summary>
         [Tooltip("RectTransform for the bag header.")]
-        [SerializeField, Group("Sizing")]
+        [SerializeField, BoxGroup("Sizing")]
         private RectTransform _bagHeader;
         /// <summary>
         /// LayoutGroup for resource entries.
         /// </summary>
         public GridLayoutGroup GridLayoutGroup => _gridLayoutGroup;
         [Tooltip("LayoutGroup for resource entries.")]
-        [SerializeField, Group("Sizing")]
+        [SerializeField, BoxGroup("Sizing")]
         private GridLayoutGroup _gridLayoutGroup;        
         /// <summary>
         /// Text to show bag information.
         /// </summary>
         [Tooltip("Text to show bag information.")]
-        [SerializeField, Group("Header")]
+        [SerializeField, BoxGroup("Header")]
         private TextMeshProUGUI _bagTitleText;
         /// <summary>
         /// TooltipHover to show hovered bag information.
         /// </summary>
         [Tooltip("TooltipHover to show hovered bag information.")]
-        [SerializeField, Group("Header")]
+        [SerializeField, BoxGroup("Header")]
         private BagEntryTooltipHover _tooltipHover;
 
         /// <summary>
         /// Content where each resource entry is instantiated.
         /// </summary>
         [Tooltip("Content where each resource entry is instantiated.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private Transform _content;
         /// <summary>
         /// Prefab for resource entries.
         /// </summary>
         [Tooltip("Prefab for resource entries.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private ResourceEntry _resourceEntryPrefab;
         #endregion
 

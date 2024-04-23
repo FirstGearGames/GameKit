@@ -4,7 +4,6 @@ using FishNet.Object;
 using GameKit.Core.Chats.Managers;
 using GameKit.Core.Dependencies;
 using GameKit.Core.Chats;
-using GameKit.Dependencies.Inspectors;
 using GameKit.Dependencies.Utilities;
 using GameKit.Dependencies.Utilities.ObjectPooling;
 using GameKit.Dependencies.Utilities.Types;
@@ -13,6 +12,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 
 namespace GameKit.Core.Chats.Canvases
 {
@@ -26,87 +26,87 @@ namespace GameKit.Core.Chats.Canvases
         /// Hotkey checker for the chat.
         /// </summary>
         [Tooltip("Hotkey checker for the chat.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private Keybinds _keybinds;
         /// <summary>
         /// CanvasGroup for the entire chat canvas.
         /// </summary>
         [Tooltip("CanvasGroup for the entire chat canvas.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private CanvasGroup _canvasGroup;
         /// <summary>
         /// Scrollbar for the chat.
         /// </summary>
         [Tooltip("Scrollbar for the chat.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private Scrollbar _scrollbar;
         /// <summary>
         /// Transform to child messages under.
         /// </summary>
         [Tooltip("Transform to child messages under.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private Transform _content;
         /// <summary>
         /// Prefab to spawn for messages.
         /// </summary>
         [Tooltip("Prefab to spawn for messages.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private ChatEntry _entryPrefab;
         /// <summary>
         /// Maximum number of messages to be displayed at once.
         /// </summary>
         [Tooltip("Maximum number of messages to be displayed at once.")]
-        [SerializeField, Group("Misc")]
+        [SerializeField, BoxGroup("Misc")]
         private ushort _maximumMessages = 100;
 
         /// <summary>
         /// Text for outbound messages.
         /// </summary>
         [Tooltip("Text for outbound messages.")]
-        [SerializeField, Group("Outbound")]
+        [SerializeField, BoxGroup("Outbound")]
         private TMP_InputField _outboundText;
         /// <summary>
         /// Maximum length a message may be.
         /// </summary>
         [Tooltip("Maximum length a message may be.")]
-        [SerializeField, Group("Outbound")]
+        [SerializeField, BoxGroup("Outbound")]
         private ushort _maximumMessageSize = 500;
         /// <summary>
         /// Text to show current message target.
         /// </summary>
         [Tooltip("Text to show current message target.")]
-        [SerializeField, Group("Outbound")]
+        [SerializeField, BoxGroup("Outbound")]
         private TextMeshProUGUI _messageTargetText;
 
         /// <summary>
         /// Name color for messages from self.
         /// </summary>
         [Tooltip("Name color for messages from self.")]
-        [SerializeField, Group("Colors")]
+        [SerializeField, BoxGroup("Colors")]
         private Color _selfColor;
         /// <summary>
         /// Name color for messages from enemies.
         /// </summary>
         [Tooltip("Name color for messages from enemies.")]
-        [SerializeField, Group("Colors")]
+        [SerializeField, BoxGroup("Colors")]
         private Color _enemyColor;
         /// <summary>
         /// Name color for messages from friendlies.
         /// </summary>
         [Tooltip("Name color for messages from friendlies.")]
-        [SerializeField, Group("Colors")]
+        [SerializeField, BoxGroup("Colors")]
         private Color _friendlyColor;
         /// <summary>
         /// Name color for messages from others when spectating.
         /// </summary>
         [Tooltip("Name color for messages from others when spectating.")]
-        [SerializeField, Group("Colors")]
+        [SerializeField, BoxGroup("Colors")]
         private Color _directColor;
         /// <summary>
         /// Color for messages.
         /// </summary>
         [Tooltip("Color for messages.")]
-        [SerializeField, Group("Colors")]
+        [SerializeField, BoxGroup("Colors")]
         private Color _messageColor;
         #endregion
 

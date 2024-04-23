@@ -3,8 +3,8 @@ using TMPro;
 
 using GameKit.Dependencies.Utilities.Types;
 using GameKit.Dependencies.Utilities.Types.CanvasContainers;
-using GameKit.Dependencies.Inspectors;
 using GameKit.Core.Dependencies;
+using Sirenix.OdinInspector;
 
 namespace GameKit.Core.FloatingContainers.Tooltips
 {
@@ -16,13 +16,13 @@ namespace GameKit.Core.FloatingContainers.Tooltips
         /// Container to show the tooltip.
         /// </summary>
         [Tooltip("Container to show the tooltip.")]
-        [SerializeField, Group("Components")]
+        [SerializeField, BoxGroup("Components")]
         ResizableContainer _container;
         /// <summary>
         /// TextMeshPro to show tooltip text.
         /// </summary>
         [Tooltip("TextMeshPro to show tooltip text.")]
-        [SerializeField, Group("Components")]
+        [SerializeField, BoxGroup("Components")]
         private TextMeshProUGUI _text;
         #endregion
 

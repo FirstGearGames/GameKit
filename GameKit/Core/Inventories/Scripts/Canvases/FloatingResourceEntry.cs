@@ -1,6 +1,6 @@
-using GameKit.Dependencies.Inspectors;
 using GameKit.Dependencies.Utilities;
 using GameKit.Dependencies.Utilities.Types.CanvasContainers;
+using Sirenix.OdinInspector;
 using TMPro;
 
 using UnityEngine;
@@ -14,7 +14,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// Text used to show the items count.
         /// </summary>
         [Tooltip("Text used to show the items count.")]
-        [SerializeField, Group("Components")]
+        [SerializeField, BoxGroup("Components")]
         protected TextMeshProUGUI ItemCountText;
         #endregion
 

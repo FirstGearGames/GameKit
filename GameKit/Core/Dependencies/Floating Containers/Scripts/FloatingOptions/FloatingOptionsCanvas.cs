@@ -1,5 +1,3 @@
-using FishNet;
-using GameKit.Dependencies.Inspectors;
 using GameKit.Dependencies.Utilities.Types.CanvasContainers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +7,7 @@ using GameKit.Dependencies.Utilities.Types.OptionMenuButtons;
 using GameKit.Dependencies.Utilities;
 using UnityEngine.UI;
 using FishNet.Managing;
+using Sirenix.OdinInspector;
 
 namespace GameKit.Core.FloatingContainers.OptionMenuButtons
 {
@@ -19,19 +18,19 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// RectTransform to resize to fit buttons.
         /// </summary>
         [Tooltip("RectTransform to resize to fit buttons.")]
-        [SerializeField, Group("Components")]
+        [SerializeField, BoxGroup("Components")]
         private RectTransform _rectTransform;
         /// <summary>
         /// If not null the size of padding will be considered when resizing.
         /// </summary>
         [Tooltip("If not null the size of padding will be considered when resizing.")]
-        [SerializeField, Group("Components")]
+        [SerializeField, BoxGroup("Components")]
         private RectTransform _paddingTransform;
         /// <summary>
         /// Transform to add buttons to.
         /// </summary>
         [Tooltip("Transform to add buttons to.")]
-        [SerializeField, Group("Components")]
+        [SerializeField, BoxGroup("Components")]
         private RectTransform _content;
         /// <summary>
         /// 
@@ -47,14 +46,14 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// Default prefab to use for each button.
         /// </summary>
         [Tooltip("Default prefab to use for each button.")]
-        [SerializeField, Group("Buttons")]
+        [SerializeField, BoxGroup("Buttons")]
         private OptionMenuButton _buttonPrefab;
 
         /// <summary>
         /// Maximum width and height of the RectTransform. Resizing will occur based on the number of buttons and their sizes but will stay within this range.
         /// </summary>
         [Tooltip("Maximum width and height of the RectTransform. Resizing will occur based on the number of buttons and their sizes but will stay within this range.")]
-        [SerializeField, Group("Sizing")]
+        [SerializeField, BoxGroup("Sizing")]
         private Vector2 _sizeLimits = new Vector2(1400f, 800f);
         #endregion
 

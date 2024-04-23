@@ -6,11 +6,10 @@ using System;
 using UnityEngine.UI;
 using GameKit.Dependencies.Utilities;
 using GameKit.Core.FloatingContainers.Tooltips;
-using GameKit.Dependencies.Inspectors;
-using GameKit.Core.Inventories;
 using GameKit.Core.Resources;
 using GameKit.Core.Dependencies;
 using GameKit.Core.Inventories.Bags;
+using Sirenix.OdinInspector;
 
 namespace GameKit.Core.Inventories.Canvases
 {
@@ -22,45 +21,45 @@ namespace GameKit.Core.Inventories.Canvases
         /// TextMeshPro to show which category is selected.
         /// </summary>
         [Tooltip("TextMeshPro to show which category is selected.")]
-        [SerializeField, Group("Header")]
+        [SerializeField, BoxGroup("Header")]
         private TextMeshProUGUI _categoryText;
         /// <summary>
         /// Input used to search the current category.
         /// </summary>
         [Tooltip("Input used to search the current category.")]
-        [SerializeField, Group("Header")]
+        [SerializeField, BoxGroup("Header")]
         private TMP_InputField _searchInput;
 
         /// <summary>
         /// ScrollRect to disable when dragging entries.
         /// </summary>
         [Tooltip("ScrollRect to disable when dragging entries.")]
-        [SerializeField, Group("Collection")]
+        [SerializeField, BoxGroup("Collection")]
         private ScrollRect _scrollRect;
         /// <summary>
         /// Prefab to use for resource entries.
         /// </summary>
         [Tooltip("Prefab to use for resource entries.")]
-        [SerializeField, Group("Collection")]
+        [SerializeField, BoxGroup("Collection")]
         private BagEntry _bagEntryPrefab;
         /// <summary>
         /// Transform to place instantiated bags.
         /// </summary>
         [Tooltip("Transform to place instantiated bags.")]
-        [SerializeField, Group("Collection")]
+        [SerializeField, BoxGroup("Collection")]
         private Transform _bagContent;
         /// <summary>
         /// FloatingImage prefab to use to show moving of item entries.
         /// </summary>
         [Tooltip("FloatingImage prefab to use to show moving of item entries.")]
-        [SerializeField, Group("Collection")]
+        [SerializeField, BoxGroup("Collection")]
         private FloatingResourceEntry _floatingInventoryItemPrefab;
 
         /// <summary>
         /// Text to show amount of space used in the inventory.
         /// </summary>
         [Tooltip("Text to show amount of space used in the inventory.")]
-        [SerializeField, Group("Footer")]
+        [SerializeField, BoxGroup("Footer")]
         private TextMeshProUGUI _inventorySpaceText;
         #endregion
 
