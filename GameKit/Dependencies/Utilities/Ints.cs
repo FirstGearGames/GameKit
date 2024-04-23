@@ -104,8 +104,8 @@ namespace GameKit.Dependencies.Utilities
         public static int AddClampMin(this int value, int quantity, int min)
         {
             value += quantity;
-            if (value > max)
-                value = max;
+            if (value < min)
+                value = min;
             return value;
         }
     }

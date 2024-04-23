@@ -173,12 +173,12 @@ namespace GameKit.Core.Inventories.Canvases
 
             if (subscribe)
             {
-                ci.Inventory.OnBagsChannged += Inventory_OnBagsChanged;
+                ci.Inventory.OnBagsChanged += Inventory_OnBagsChanged;
                 ci.Inventory.OnBagSlotUpdated += Inventory_OnBagSlotUpdated;
             }
             else
             {
-                ci.Inventory.OnBagsChannged -= Inventory_OnBagsChanged;
+                ci.Inventory.OnBagsChanged -= Inventory_OnBagsChanged;
                 ci.Inventory.OnBagSlotUpdated -= Inventory_OnBagSlotUpdated;
             }
         }

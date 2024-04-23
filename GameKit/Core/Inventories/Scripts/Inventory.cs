@@ -46,7 +46,7 @@ namespace GameKit.Core.Inventories
         /// Value: quantity of the resource.
         /// </summary>
         [HideInInspector]
-        public Dictionary<ResourceData, int> ResourceQuantities = new Dictionary<ResourceData, int>();
+        public Dictionary<uint, int> ResourceQuantities = new Dictionary<uint, int>();
         /// <summary>
         /// Maximum space of all bags.
         /// </summary>        
@@ -96,12 +96,12 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Resource UniqueIds and bag slots they occupy.
         /// </summary>
-        public Dictionary<ResourceData, List<BagSlot>> BaggedResources { get; private set; } = new();
+        public Dictionary<uint, List<BagSlot>> BaggedResources { get; private set; } = new();
         /// <summary>
         /// Resource UniqueIds and the number of the resource.
         /// These resources are not shown in the players bags but can be used to add hidden tokens or currencies.
         /// </summary>
-        public Dictionary<ResourceData, int> HiddenResources { get; private set; } = new();
+        public Dictionary<uint, int> HiddenResources { get; private set; } = new();
         #endregion
 
         #region Serialized.
@@ -310,26 +310,27 @@ namespace GameKit.Core.Inventories
         private int AddResourceQuantity(uint uniqueId, uint qPositive, bool sendToClient)
         {
             ResourceData rd = _resourceManager.GetResourceData(uniqueId);
-            int stackLimit = rd.StackLimit;
             //Amount which was allowed to be added.
             int added;
-            int resourceCount = 0;
             if (rd.IsBaggable)
-                added = AddBaggedResource(ref resourceCount);
+                added = AddBaggedResource();
             else
-                added = AddHiddenResource(ref resourceCount);
+                added = AddHiddenResource();
 
             if (added > 0)
             {
-                ResourceQuantities[rd] = resourceCount;
-                CompleteResourceQuantityChange(uniqueId, resourceCount);
+                //Try to get current count.
+                ResourceQuantities.TryGetValue(uniqueId, out int currentAdded);
+                int newAdded = (added + currentAdded);
+                ResourceQuantities[uniqueId] = newAdded;
+                CompleteResourceQuantityChange(uniqueId, newAdded);
 
                 /* Only send to update inventory
                  * if the owner of this is not the clientHost.
                  * IsLocalClient would return false if server
                  * only because client is obviously not
                  * running as server only. */
-                if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient && added > 0)
+                if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient)
                     TargetModifyResourceQuantity(base.Owner, uniqueId, added);
 
             }
@@ -337,13 +338,14 @@ namespace GameKit.Core.Inventories
             //Return how many were not added.
             return ((int)qPositive - added);
 
-            int AddBaggedResource(ref int totalResourceCount)
+            int AddBaggedResource()
             {
+                int stackLimit = rd.StackLimit;
                 int added = 0;
                 int quantityRemaining = (int)qPositive;
                 List<BagSlot> baggedResources;
                 //If none are bagged yet.
-                if (!BaggedResources.TryGetValue(rd, out baggedResources))
+                if (!BaggedResources.TryGetValue(rd.UniqueId, out baggedResources))
                 {
                     /* If there's no available slots then
                      * none can be bagged. Return full quantity
@@ -353,7 +355,7 @@ namespace GameKit.Core.Inventories
 
                     //Otherwise add new bagged resources because at least one will be added.
                     baggedResources = new List<BagSlot>();
-                    BaggedResources.Add(rd, baggedResources);
+                    BaggedResources.Add(rd.UniqueId, baggedResources);
                 }
 
                 //Check if can be added to existing stacks.
@@ -413,21 +415,18 @@ namespace GameKit.Core.Inventories
                     }
                 }
 
-                totalResourceCount = GetResourceCount(baggedResources, uniqueId);
                 return added;
             }
 
             //Adds resource and returns amount added.
-            int AddHiddenResource(ref int totalResourceCount)
+            int AddHiddenResource()
             {
+                int currentlyAdded;
                 int quantityRemaining = (int)qPositive;
-                HiddenResources.TryGetValue(rd, out totalResourceCount);
+                HiddenResources.TryGetValue(rd.UniqueId, out currentlyAdded);
 
-                int availableCount = (rd.QuantityLimit - totalResourceCount);
+                int availableCount = (rd.QuantityLimit - currentlyAdded);
                 int added = Mathf.Min(availableCount, quantityRemaining);
-                //If can add onto the stack.
-                if (added > 0)
-                    HiddenResources[rd] = totalResourceCount;
 
                 return added;
             }
