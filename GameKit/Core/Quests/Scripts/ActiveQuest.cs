@@ -49,7 +49,6 @@ namespace GameKit.Core.Quests
         /// </summary>
         private bool? _isConditionsMet;
 
-        //TODO add quest manager to player.
         /* initialize with quest manager as well.
          * If a condition becomes met then QuestManager sends
          * a rpc to the server asking server to check. */

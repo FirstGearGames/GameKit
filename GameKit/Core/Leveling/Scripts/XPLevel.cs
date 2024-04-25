@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GameKit.Core.Leveling
 {
     /// <summary>
-    /// A simple level system where the XP requirement per level is always the same but level requirement increases by a set amount.
+    /// A simple level system which scales required XP to levels gained by the power of multiplier per level.
     /// </summary>
     public class XPLevel : LevelBase
     {
@@ -33,8 +33,8 @@ namespace GameKit.Core.Leveling
             {
                 float baseIncrease = (1f + INCREASE_PER_LEVEL);
                 long power = (base.Level - STARTING_LEVEL);
-                //Make sure power is a minimum of 1.
-                power = (long)Mathf.Max(power, 1);
+                //Power needs to scale with levels gained.
+                power += 1;
                 float multiplier = Mathf.Pow(baseIncrease, power);
                 long xpRequirement = (long)Mathf.Clamp(multiplier * STARTING_LEVEL_EXPERIENCE, STARTING_LEVEL_EXPERIENCE, uint.MaxValue);
                 SetMaxExperience((uint)xpRequirement);

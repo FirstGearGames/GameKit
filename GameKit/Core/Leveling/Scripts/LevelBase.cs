@@ -8,6 +8,11 @@ namespace GameKit.Core.Leveling
         Negative = 2,
         Zero = 3,
     }
+
+    /// <summary>
+    /// Adds levels as experience is gained. Levels may also be removed with removed experience.
+    /// This can be used as a base for character levels, or even tiers of skills.
+    /// </summary>
     public class LevelBase
     {
         /// <summary>
@@ -70,8 +75,6 @@ namespace GameKit.Core.Leveling
             long difference = (long)Mathf.Clamp((level - Level), int.MinValue, int.MaxValue);
             ModifyLevel(difference, resetExperience);
         }
-
-
 
         /// <summary>
         /// Sets a new level clamped between 0 and MaxLevel.
