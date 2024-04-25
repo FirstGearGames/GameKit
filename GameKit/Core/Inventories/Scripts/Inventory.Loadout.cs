@@ -38,21 +38,6 @@ namespace GameKit.Core.Inventories
         private const string SORTED_INVENTORY_FILENAME = "inventory_sorted.json";
 
         /// <summary>
-        /// Called when the server spawns this object.
-        /// </summary>
-        private void OnStartServer_Loadout()
-        {
-            return;
-            BagManager bm = base.NetworkManager.GetInstance<BagManager>();
-            foreach (BagData item in _defaultBags)
-            {
-                BagData b = bm.GetBag(item.UniqueId);
-                AddBag(b, true);
-            }
-        }
-
-
-        /// <summary>
         /// Called when this spawns for a client.
         /// </summary>
         private void OnSpawnServer_Loadout(NetworkConnection c)
@@ -62,22 +47,32 @@ namespace GameKit.Core.Inventories
             string loadoutPath = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
             if (!File.Exists(resourcesPath) || !File.Exists(loadoutPath))
             {
-                Debug.LogWarning($"One or more paths missing.");
-                return;
+                Debug.Log($"Inventory json does not exist. Adding default bags.");
+                BagManager bm = base.NetworkManager.GetInstance<BagManager>();
+                foreach (BagData item in _defaultBags)
+                {
+                    BagData b = bm.GetBag(item.UniqueId);
+                    AddBag(b, true);
+                }
             }
-            try
+            else
             {
-                //Load as text and let client deserialize.
-                string resources = File.ReadAllText(resourcesPath);
-                string loadout = File.ReadAllText(loadoutPath);
+                try
+                {
+                    //Load as text and let client deserialize.
+                    string resources = File.ReadAllText(resourcesPath);
+                    string loadout = File.ReadAllText(loadoutPath);
 
-                UnsortedInventory ui = JsonConvert.DeserializeObject<UnsortedInventory>(resources);
-                List<SerializableActiveBag> sab = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(loadout);
-                //TODO: Save types in a database rather than JSON.
-                TgtApplyLoadout(c, ui, sab);
+                    UnsortedInventory ui = JsonConvert.DeserializeObject<UnsortedInventory>(resources);
+                    List<SerializableActiveBag> sab = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(loadout);
+                    //TODO: Save types in a database rather than JSON.
+                    TgtApplyLoadout(c, ui, sab);
+                }
+                catch
+                {
+                    Debug.LogError($"Failed to load json files for resources or loadout.");
+                }
             }
-            catch { }
-
         }
 
 

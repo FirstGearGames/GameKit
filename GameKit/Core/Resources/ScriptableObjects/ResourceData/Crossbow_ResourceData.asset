@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2918aa4b5d3dd8945a61e83592837c8e, type: 3}
   m_Name: Crossbow_ResourceData
   m_EditorClassIdentifier: 
-  ResourceType: 9001
+  Enabled: 1
+  StackLimit: 1
+  QuantityLimit: 65535
+  IsBaggable: 1
   Category: 24
   DisplayName: Crossbow
   Description: Do you really need an excuse to own a crossbow?
   Icon: {fileID: -71728835, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
-  Stacks: 1
-  ItemLimit: 4

@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2918aa4b5d3dd8945a61e83592837c8e, type: 3}
   m_Name: Bone_ResourceData
   m_EditorClassIdentifier: 
-  ResourceType: 3001
+  Enabled: 1
+  StackLimit: 5
+  QuantityLimit: 65535
+  IsBaggable: 1
   Category: 3
   DisplayName: Bone
   Description: People sure collect some weird things.
   Icon: {fileID: -693445840, guid: de7fd6530fc3868488a3da464c9b2d64, type: 3}
-  Stacks: 10
-  ItemLimit: -1

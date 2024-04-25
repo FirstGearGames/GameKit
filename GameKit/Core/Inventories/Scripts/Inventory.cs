@@ -146,11 +146,6 @@ namespace GameKit.Core.Inventories
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
         }
 
-        public override void OnStartServer()
-        {
-            OnStartServer_Loadout();
-        }
-
         public override void OnSpawnServer(NetworkConnection connection)
         {
             OnSpawnServer_Loadout(connection);
@@ -388,7 +383,6 @@ namespace GameKit.Core.Inventories
                      * as not added. */
                     if (AvailableSlots == 0)
                         return 0;
-
                     //Otherwise add new bagged resources because at least one will be added.
                     baggedResources = new List<BagSlot>();
                     BaggedResources.Add(rd.UniqueId, baggedResources);
@@ -408,6 +402,7 @@ namespace GameKit.Core.Inventories
                     //If can add onto the stack.
                     if (addCount > 0)
                     {
+                        quantityRemaining -= addCount;
                         bag.Slots[br.SlotIndex].Quantity += addCount;
                         thisAdded += addCount;
                         OnBagSlotUpdated?.Invoke(br.BagIndex, br.SlotIndex, bag.Slots[br.SlotIndex]);
@@ -457,6 +452,7 @@ namespace GameKit.Core.Inventories
             //Adds resource and returns amount added.
             int AddHiddenResource()
             {
+                Debug.LogError("????");
                 ResourceQuantities.TryGetValue(uniqueId, out int currentlyAdded);
 
                 int availableCount = (rd.QuantityLimit - currentlyAdded);
