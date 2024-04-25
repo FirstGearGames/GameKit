@@ -736,15 +736,15 @@ MonoBehaviour:
       - m_Target: {fileID: 1533198127}
         m_TargetAssemblyTypeName: GameKit.Crafting.Testing.ChangeResourcesCanvas,
           GameKit.Testing
-        m_MethodName: AddRandomResources
-        m_Mode: 1
+        m_MethodName: AddOrRemoveRandomResources
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &159533029
 MonoBehaviour:
@@ -3172,7 +3172,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 10110384}
   m_HandleRect: {fileID: 10110383}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4439,8 +4439,8 @@ MonoBehaviour:
       - m_Target: {fileID: 1533198127}
         m_TargetAssemblyTypeName: GameKit.Crafting.Testing.ChangeResourcesCanvas,
           GameKit.Testing
-        m_MethodName: RemoveRandomResources
-        m_Mode: 1
+        m_MethodName: AddOrRemoveRandomResources
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -5072,7 +5072,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
 --- !u!114 &1533198124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7611,6 +7611,7 @@ MonoBehaviour:
   _networkBehaviours:
   - {fileID: 2142677670}
   - {fileID: 2142677671}
+  - {fileID: 2142677672}
   <SerializedRootNetworkBehaviour>k__BackingField: {fileID: 0}
   <NestedRootNetworkBehaviours>k__BackingField: []
   SerializedTransformProperties:
@@ -7694,9 +7695,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0036fbabdd50b254bbfa0e65dd1169cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 2142677667}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 2142677667}
 --- !u!224 &2611784262993518690 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6014181622678393074, guid: d9ee5cd05b7ecb84095f0c2513632cfb, type: 3}
