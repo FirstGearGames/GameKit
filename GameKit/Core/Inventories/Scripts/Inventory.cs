@@ -130,20 +130,15 @@ namespace GameKit.Core.Inventories
         private Dictionary<uint, ResourceQuantity> _hiddenQuestResources = new Dictionary<uint, ResourceQuantity>();
         #endregion
 
-        private void Awake()
-        {
-            InitializeOnce();
-        }
-
-        private void InitializeOnce()
-        {
-            Crafter crafter = GetComponent<Crafter>();
-            crafter.OnCraftingResult += Crafter_OnCraftingResult;
-        }
-
         public override void OnStartNetwork()
         {
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
+        }
+
+        public override void OnStartServer()
+        {
+            Crafter crafter = GetComponent<Crafter>();
+            crafter.OnCraftingResult += Crafter_OnCraftingResult;
         }
 
         public override void OnSpawnServer(NetworkConnection connection)
@@ -154,15 +149,23 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Called after receiving a crafting result.
         /// </summary>
-        /// <param name="r"></param>
-        /// <param name="result"></param>
-        /// <param name="asServer"></param>
+        /// <param name="r">Recipe the result is for.</param>
+        /// <param name="result">The crafting result.</param>
+        /// <param name="asServer">True if callback is for server.</param>
         private void Crafter_OnCraftingResult(RecipeData r, CraftingResult result, bool asServer)
         {
-            //Only update if as server, or as client and not host. This prevents double updating as host.
-            bool canUpdateResources = (asServer || (!asServer && !base.IsHost));
-            if (canUpdateResources && result == CraftingResult.Completed)
+            if (result == CraftingResult.Completed)
                 UpdateResourcesFromRecipe(r, false);
+        }
+
+        /// <summary>
+        /// Adds a Bag using an ActiveBag.
+        /// </summary>
+        private void AddBag(SerializableActiveBag sab)
+        {
+
+            ActiveBag ab = new();
+            //todo Add bag manager with bag data to look up bag.
         }
 
         /// <summary>
@@ -170,24 +173,34 @@ namespace GameKit.Core.Inventories
         /// </summary>
         /// <param name="bag">Adds an ActiveBag for bag with no entries.</param>
         /// <param name="rebuildBaggedResources">True to rebuild cached bagged resources.</param>
-        public void AddBag(BagData bag, bool rebuildBaggedResources)
+        public void AddBag(BagData bag)
         {
             ActiveBag ab = new ActiveBag(bag);
             ab.SetIndex(Bags.Count);
-            AddBag(ab, rebuildBaggedResources);
+            AddBag(ab);
         }
 
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
         /// <param name="activeBag">ActiveBag information to add.</param>
-        /// <param name="rebuildBaggedResources">True to rebuild cached bagged resources.</param>
-        public void AddBag(ActiveBag activeBag, bool rebuildBaggedResources)
+        public void AddBag(ActiveBag activeBag)
         {
             Bags.Insert(activeBag.Index, activeBag);
             OnBagsChanged?.Invoke(true, activeBag);
+
+            if (base.IsServerInitialized && !Owner.IsLocalClient)
+                TgtAddBag(base.Owner, activeBag.ToSerializable());
         }
 
+        /// <summary>
+        /// Adds a Bag to Inventory.
+        /// </summary>
+        [TargetRpc]
+        private void TgtAddBag(NetworkConnection c, SerializableActiveBag bag)
+        {
+
+        }
 
         /// <summary>
         /// Returns the held quantity of a resource.
@@ -351,7 +364,7 @@ namespace GameKit.Core.Inventories
 
         }
 
-        /// <summary>
+                /// <summary>
         /// Removes a resource from the first available stacks regardless of the stack quantity.
         /// </summary>
         /// <param name="uniqueId">Resource to remove.</param>
@@ -453,6 +466,8 @@ namespace GameKit.Core.Inventories
             }
 
         }
+
+
 
         /// <summary>
         /// Invokes that a bag slot was updated for the supplied bagSlot.

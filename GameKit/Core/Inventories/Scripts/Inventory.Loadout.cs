@@ -42,18 +42,19 @@ namespace GameKit.Core.Inventories
         /// </summary>
         private void OnSpawnServer_Loadout(NetworkConnection c)
         {
-            //return;
             string resourcesPath = Path.Combine(Application.dataPath, UNSORTED_INVENTORY_FILENAME);
             string loadoutPath = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
             if (!File.Exists(resourcesPath) || !File.Exists(loadoutPath))
             {
-                Debug.Log($"Inventory json does not exist. Adding default bags.");
                 BagManager bm = base.NetworkManager.GetInstance<BagManager>();
                 foreach (BagData item in _defaultBags)
                 {
                     BagData b = bm.GetBag(item.UniqueId);
-                    AddBag(b, true);
+                    AddBag(b);
                 }
+
+                SaveInventoryUnsorted_Server();                
+                Debug.Log($"Inventory json files did not exist. They were created with default bags.");
             }
             else
             {
@@ -162,14 +163,14 @@ namespace GameKit.Core.Inventories
                 }
                 //Create active bag and add.
                 ActiveBag ab = new ActiveBag(bag, sab.Index, rqs);
-                AddBag(ab, false);
+                AddBag(ab);
             }
 
             //Add remaining bags from unsorted.
             foreach (SerializableBag sb in unsortedInv.Bags)
             {
                 BagData b = bagManager.GetBag(sb.UniqueId);
-                AddBag(b, false);
+                AddBag(b);
             }
 
             /* This builds a cache of resources currently in the inventory.
@@ -202,17 +203,17 @@ namespace GameKit.Core.Inventories
         /// //TODO: Adding resources on the server should be calling SaveInventoryUnsorted but does not.
         public void InventorySortedChanged()
         {
-            SaveInventorySorted();
+            SaveInventorySorted_Client();
         }
 
         /// <summary>
-        /// Saves the clients inventory loadout locally.
+        /// Saves the clients inventory loadout.
         /// </summary>
         [Client]
-        private void SaveInventorySorted()
+        private void SaveInventorySorted_Client()
         {
             string s = InventoryToJson();
-            SaveInventoryUnsorted();
+            SaveInventoryUnsorted_Server();
             string path = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
             try
             {
@@ -225,7 +226,7 @@ namespace GameKit.Core.Inventories
         /// Saves current inventory resource quantities to the server database.
         /// </summary>
         [Server]
-        private void SaveInventoryUnsorted()
+        private void SaveInventoryUnsorted_Server()
         {
             List<SerializableBag> bags = CollectionCaches<SerializableBag>.RetrieveList();
             //Resource UNiqueIds and quantity of each.

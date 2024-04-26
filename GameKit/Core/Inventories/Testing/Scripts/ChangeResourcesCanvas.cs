@@ -68,11 +68,14 @@ namespace GameKit.Crafting.Testing
                 }
 
                 string addedRemovedText = (add) ? "Added " : "Removed ";
-                    Debug.Log($"{addedRemovedText} {tryModify - notModified} of {tryModify} items.");
-                
+                Debug.Log($"{addedRemovedText} {tryModify - notModified} of {tryModify} items.");
+
                 inv.InventorySortedChanged();
-                CraftingCanvas cmt = GameObject.FindObjectOfType<CraftingCanvas>();
-                cmt.RefreshAvailableRecipes();
+                if (ci.Owner.IsLocalClient)
+                {
+                    CraftingCanvas cmt = GameObject.FindObjectOfType<CraftingCanvas>();
+                    cmt.RefreshAvailableRecipes();
+                }
             }
 
 
