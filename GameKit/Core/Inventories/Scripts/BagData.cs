@@ -14,8 +14,8 @@ namespace GameKit.Core.Inventories.Bags
         /// Unique Id for this bag. This is generally a database Id for the bag.
         /// </summary>
         [System.NonSerialized]
-        public int UniqueId = UNSET_UNIQUEID;
-        public void SetUniqueId(int id) => UniqueId = id;
+        public uint UniqueId = InventoryConsts.UNSET_BAG_ID;
+        public void SetUniqueId(uint id) => UniqueId = id;
         /// <summary>
         /// Maximum amount of slots in this bag.
         /// </summary>
@@ -28,11 +28,6 @@ namespace GameKit.Core.Inventories.Bags
         /// Description of the bag.
         /// </summary>
         public string Description;
-
-        /// <summary>
-        /// Id for an unset uniqueId.
-        /// </summary>
-        public const int UNSET_UNIQUEID = 0;
 
         /// <summary>
         /// Makes this object network serializable.

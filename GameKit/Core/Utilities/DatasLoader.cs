@@ -7,6 +7,7 @@ using GameKit.Dependencies.Utilities.Types.Editing;
 using GameKit.Core.Crafting;
 using GameKit.Dependencies.Utilities;
 using System.Linq;
+using GameKit.Core.Inventories.Bags;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -44,6 +45,12 @@ namespace GameKit.Core.Utilities
         [Tooltip("All droppables for this game.")]
         [SerializeField]
         private List<DroppableData> _droppableDatas = new();
+        /// <summary>
+        /// All bag datas for this game.
+        /// </summary>
+        [Tooltip("All bag datas for this game.")]
+        [SerializeField]
+        private List<BagData> _bagDatas = new();
         #endregion
 
         private void Awake()
@@ -65,6 +72,9 @@ namespace GameKit.Core.Utilities
 
             DroppableManager dm = GetComponentInParent<DroppableManager>();
             dm.AddDroppableData(_droppableDatas, true);
+
+            BagManager bm = GetComponentInParent<BagManager>();
+            bm.AddBagData(_bagDatas, true);
         }
 
         #region Editor.

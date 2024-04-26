@@ -1,59 +1,82 @@
-
 using FishNet.Managing;
+using FishNet.Object;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameKit.Core.Inventories.Bags
 {
-    public class BagManager : MonoBehaviour
+    public class BagManager : NetworkBehaviour
     {
+        #region Public.
         /// <summary>
         /// All bags for the game.
         /// </summary>
-        [Tooltip("All bags for the game.")]
-        [SerializeField]
-        private List<BagData> _bags = new List<BagData>();
+        [HideInInspector]
+        public List<BagData> BagDatas = new List<BagData>();
+        #endregion
 
+        #region Private.
         /// <summary>
         /// NetworkManager on or a parent of this object.
         /// </summary>
         private NetworkManager _networkManager;
         /// <summary>
-        /// Offset applied to a bag's UniqueId when setting or getting from _bags.
+        /// Cache of BagDatas.
+        /// Key: UniqueId of BagDAta.
+        /// Value: BagData.
         /// </summary>
-        public const int BAG_ID_OFFSET = 1;
+        private Dictionary<uint, BagData> _bagDatasCache = new();
+        #endregion
 
-        private void Awake()
+        public override void OnStartNetwork()
         {
-            InitializeOnce();
+            base.NetworkManager.RegisterInstance(this);
         }
 
         /// <summary>
-        /// Initializes this for use.
+        /// Adds bag datas.
         /// </summary>
-        private void InitializeOnce()
+        /// <param name="bags">Datas to add.</param>
+        /// <param name="applyUniqueId">True to assign uniqueIds to the bags.</param>
+        public void AddBagData(List<BagData> bags, bool applyUniqueId)
         {
-            _networkManager = GetComponentInParent<NetworkManager>();
-            _networkManager.RegisterInstance(this);
+            foreach (BagData item in bags)
+                AddBagData(item, applyUniqueId);
+        }
 
-            for (int i = 0; i < _bags.Count; i++)
-                _bags[i].SetUniqueId(i + 1);
+        /// <summary>
+        /// Adds data to ResourceDatas.
+        /// </summary>
+        /// <param name="data"></param>
+        public void AddBagData(BagData data, bool applyUniqueId)
+        {
+            //Set minimum quantity to 1.
+            if (data.Space == InventoryConsts.UNSET_BAG_SPACE)
+            {
+                base.NetworkManager.LogError($"BagData {data.Name} does not have Space set.");
+                return;
+            }
+
+            if (applyUniqueId)
+                data.UniqueId = ((uint)BagDatas.Count + 1);
+
+            BagDatas.Add(data);
+            _bagDatasCache.Add(data.UniqueId, data);
         }
 
         /// <summary>
         /// Gets a bag.
         /// </summary>
-        public BagData GetBag(int uniqueId)
+        public BagData GetBagData(uint uniqueId)
         {
-            //UniqueIds for bags start on 1. A value of 0 is unset.
-            if (uniqueId < 1 || uniqueId > _bags.Count)
+            if (!_bagDatasCache.TryGetValue(uniqueId, out BagData value))
             {
-                _networkManager.LogError($"Bag UniqueId {uniqueId} is out of bounds. Id cannot be less than {BAG_ID_OFFSET} nor more than bags count of {_bags.Count}.");
-                return new BagData();
+                _networkManager.LogError($"BagData could not be found for UniqueId {uniqueId}.");
+                return null;
             }
             else
             {
-                return _bags[uniqueId - 1];
+                return value;
             }
         }
     }

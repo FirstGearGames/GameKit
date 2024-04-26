@@ -32,7 +32,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// UniqueId for the Bag used.
         /// </summary>
-        public int BagUniqueId;
+        public uint BagUniqueId;
         /// <summary>
         /// Index of this bag within it's placement, such as an inventory.
         /// </summary>
@@ -42,7 +42,7 @@ namespace GameKit.Core.Inventories.Bags
         /// </summary>
         public List<FilledSlot> FilledSlots;
 
-        public SerializableActiveBag(int bagUniqueId, int index) : this()
+        public SerializableActiveBag(uint bagUniqueId, int index) : this()
         {
             BagUniqueId = bagUniqueId;
             Index = index;
@@ -66,11 +66,11 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// Maximum space in this bag.
         /// </summary>
-        public int MaximumSlots => Bag.Space;
+        public uint MaximumSlots => Bag.Space;
         /// <summary>
         /// Used space in this bag.
         /// </summary>
-        public int UsedSlots
+        public uint UsedSlots
         {
             get
             {
@@ -82,13 +82,13 @@ namespace GameKit.Core.Inventories.Bags
                         setCount++;
                 }
 
-                return setCount;
+                return (uint)setCount;
             }
         }
         /// <summary>
         /// Space available for use within the inventory.
         /// </summary>
-        public int AvailableSlots => (MaximumSlots - UsedSlots);
+        public uint AvailableSlots => (MaximumSlots - UsedSlots);
         /// <summary>
         /// All slots in this bag.
         /// </summary>
@@ -149,24 +149,20 @@ namespace GameKit.Core.Inventories.Bags
     {
         public static void WriteActiveBag(this Writer w, ActiveBag value)
         {
-            w.WriteUInt16((ushort)value.Bag.UniqueId);
-            w.WriteUInt16((ushort)value.Index);
+            w.WriteUInt32(value.Bag.UniqueId);
+            w.WriteInt32(value.Index);
             w.WriteArray<ResourceQuantity>(value.Slots);
         }
         public static ActiveBag ReadActiveBag(this Reader r)
         {
-            int uniqueId = r.ReadUInt16();
-            int index = r.ReadUInt16();
+            uint uniqueId = r.ReadUInt32();
+            int index = r.ReadInt32();
             ResourceQuantity[] slots = r.ReadArrayAllocated<ResourceQuantity>();
 
             BagManager manager = r.NetworkManager.GetInstance<BagManager>();
-            BagData bag;
-            if (manager == null)
-                bag = new BagData();
-            else
-                bag = manager.GetBag(uniqueId);
+            BagData bagData = manager.GetBagData(uniqueId);
 
-            ActiveBag ab = new ActiveBag(bag, index, slots);
+            ActiveBag ab = new ActiveBag(bagData, index, slots);
             return ab;
         }
 

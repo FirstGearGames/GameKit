@@ -1,6 +1,3 @@
-
-using UnityEngine;
-
 namespace GameKit.Core.Inventories.Bags
 {
     public struct SerializableBag
@@ -8,9 +5,9 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// Unique Id for this bag. This is generally a database Id for the bag.
         /// </summary>
-        public int UniqueId;
+        public uint UniqueId;
 
-        public SerializableBag(int uniqueId)
+        public SerializableBag(uint uniqueId)
         {
             UniqueId = uniqueId;
         }
