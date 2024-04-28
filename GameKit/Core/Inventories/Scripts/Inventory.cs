@@ -101,6 +101,11 @@ namespace GameKit.Core.Inventories
         /// These resources are not shown in the players bags but can be used to add hidden tokens or currencies.
         /// </summary>
         public Dictionary<uint, int> HiddenResources { get; private set; } = new();
+        /// <summary>
+        /// Resources associated with quests which are hidden from the palyer.
+        /// Key: QuestId.
+        /// </summary>
+        private Dictionary<uint, ResourceQuantity> HiddenQuestResources = new Dictionary<uint, ResourceQuantity>();
         #endregion
 
         #region Serialized.
@@ -118,21 +123,15 @@ namespace GameKit.Core.Inventories
         /// </summary>
         private ResourceManager _resourceManager;
         /// <summary>
-        /// Resources which are hidden from the player.
-        /// Key: ResourceId.
-        /// Value: Quantity.
+        /// BagManager to use.
         /// </summary>
-        private Dictionary<uint, int> _hiddenResources = new Dictionary<uint, int>();
-        /// <summary>
-        /// Resources associated with quests which are hidden from the palyer.
-        /// Key: QuestId.
-        /// </summary>
-        private Dictionary<uint, ResourceQuantity> _hiddenQuestResources = new Dictionary<uint, ResourceQuantity>();
+        private BagManager _bagManager;    
         #endregion
 
         public override void OnStartNetwork()
         {
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
+            _bagManager = base.NetworkManager.GetInstance<BagManager>();
         }
 
         public override void OnStartServer()
@@ -163,8 +162,14 @@ namespace GameKit.Core.Inventories
         /// </summary>
         private void AddBag(SerializableActiveBag sab)
         {
+            BagData bd = _bagManager.GetBagData(sab.BagUniqueId);
 
-            ActiveBag ab = new();
+            ResourceQuantity[] rqs = new ResourceQuantity[bd.Space];
+            foreach (var item in SerializableActiveBag.FilledSlot)
+            {
+
+            }
+            ActiveBag ab = new(bd,  sab.Index, sab.FilledSlots
             //todo Add bag manager with bag data to look up bag.
         }
 

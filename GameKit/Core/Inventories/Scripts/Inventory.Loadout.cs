@@ -46,10 +46,9 @@ namespace GameKit.Core.Inventories
             string loadoutPath = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
             if (!File.Exists(resourcesPath) || !File.Exists(loadoutPath))
             {
-                BagManager bm = base.NetworkManager.GetInstance<BagManager>();
                 foreach (BagData item in _defaultBags)
                 {
-                    BagData b = bm.GetBag(item.UniqueId);
+                    BagData b = _bagManager.GetBagData(item.UniqueId);
                     AddBag(b);
                 }
 
@@ -148,12 +147,10 @@ namespace GameKit.Core.Inventories
                 }
             }
 
-
-            BagManager bagManager = base.NetworkManager.GetInstance<BagManager>();
             //Add starting with sorted bags.
             foreach (SerializableActiveBag sab in sortedInv)
             {
-                BagData bag = bagManager.GetBag(sab.BagUniqueId);
+                BagData bag = _bagManager.GetBagData(sab.BagUniqueId);
                 //Fill slots.
                 ResourceQuantity[] rqs = new ResourceQuantity[bag.Space];
                 foreach (SerializableActiveBag.FilledSlot item in sab.FilledSlots)
@@ -169,7 +166,7 @@ namespace GameKit.Core.Inventories
             //Add remaining bags from unsorted.
             foreach (SerializableBag sb in unsortedInv.Bags)
             {
-                BagData b = bagManager.GetBag(sb.UniqueId);
+                BagData b = _bagManager.GetBagData(sb.UniqueId);
                 AddBag(b);
             }
 

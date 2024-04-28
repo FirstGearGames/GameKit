@@ -18,6 +18,11 @@ namespace GameKit.Core.Resources
             UniqueId = uniqueId;
             Quantity = quantity;
         }
+
+        public ResourceQuantity ToNative()
+        {
+            return new ResourceQuantity(UniqueId, Quantity);
+        }
     }
 
     [System.Serializable]

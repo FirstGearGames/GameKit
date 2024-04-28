@@ -15,7 +15,6 @@ namespace GameKit.Core.Inventories.Bags
         /// </summary>
         [System.NonSerialized]
         public uint UniqueId = InventoryConsts.UNSET_BAG_ID;
-        public void SetUniqueId(uint id) => UniqueId = id;
         /// <summary>
         /// Maximum amount of slots in this bag.
         /// </summary>

@@ -1,34 +1,11 @@
-using FishNet.Managing;
 using FishNet.Serializing;
 using GameKit.Core.Resources;
 using System.Collections.Generic;
-using Unity.Plastic.Newtonsoft.Json;
 
 namespace GameKit.Core.Inventories.Bags
 {
     public struct SerializableActiveBag
     {
-        /// <summary>
-        /// Information about a slot and it's resources.
-        /// </summary>
-        public struct FilledSlot
-        {
-            /// <summary>
-            /// Slot containing resources.
-            /// </summary>
-            public int Slot;
-            /// <summary>
-            /// Resources within slot.
-            /// </summary>
-            public SerializableResourceQuantity ResourceQuantity;
-
-            public FilledSlot(int slot, SerializableResourceQuantity resourceQuantity)
-            {
-                Slot = slot;
-                ResourceQuantity = resourceQuantity;
-            }
-        }
-
         /// <summary>
         /// UniqueId for the Bag used.
         /// </summary>
@@ -48,6 +25,7 @@ namespace GameKit.Core.Inventories.Bags
             Index = index;
             FilledSlots = new List<FilledSlot>();
         }
+
     }
     /// <summary>
     /// A bag which exist. This can be in the world, inventory, etc.
@@ -66,11 +44,11 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// Maximum space in this bag.
         /// </summary>
-        public uint MaximumSlots => Bag.Space;
+        public int MaximumSlots => Bag.Space;
         /// <summary>
         /// Used space in this bag.
         /// </summary>
-        public uint UsedSlots
+        public int UsedSlots
         {
             get
             {
@@ -82,13 +60,13 @@ namespace GameKit.Core.Inventories.Bags
                         setCount++;
                 }
 
-                return (uint)setCount;
+                return setCount;
             }
         }
         /// <summary>
         /// Space available for use within the inventory.
         /// </summary>
-        public uint AvailableSlots => (MaximumSlots - UsedSlots);
+        public int AvailableSlots => (MaximumSlots - UsedSlots);
         /// <summary>
         /// All slots in this bag.
         /// </summary>
@@ -127,7 +105,7 @@ namespace GameKit.Core.Inventories.Bags
                 if (rq.IsUnset)
                     continue;
 
-                result.FilledSlots.Add(new SerializableActiveBag.FilledSlot(i, rq.ToSerializable()));
+                result.FilledSlots.Add(new FilledSlot(i, rq.ToSerializable()));
             }
 
             return result;
