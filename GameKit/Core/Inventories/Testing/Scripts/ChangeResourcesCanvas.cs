@@ -70,7 +70,6 @@ namespace GameKit.Crafting.Testing
                 string addedRemovedText = (add) ? "Added " : "Removed ";
                 Debug.Log($"{addedRemovedText} {tryModify - notModified} of {tryModify} items.");
 
-                inv.InventorySortedChanged();
                 if (ci.Owner.IsLocalClient)
                 {
                     CraftingCanvas cmt = GameObject.FindObjectOfType<CraftingCanvas>();

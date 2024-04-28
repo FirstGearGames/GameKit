@@ -53,7 +53,7 @@ namespace GameKit.Core.Inventories
                     AddBag(b);
                 }
 
-                SaveInventoryUnsorted_Server();                
+                SaveInventoryUnsorted_Server();
                 Debug.Log($"Inventory json files did not exist. They were created with default bags.");
             }
             else
@@ -211,13 +211,12 @@ namespace GameKit.Core.Inventories
         private void SaveInventorySorted_Client()
         {
             string s = InventoryToJson();
-            SaveInventoryUnsorted_Server();
             string path = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
             try
             {
                 File.WriteAllText(path, s);
             }
-            catch { }
+            catch { }            
         }
 
         /// <summary>
