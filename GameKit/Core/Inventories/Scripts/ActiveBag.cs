@@ -1,3 +1,5 @@
+using FishNet;
+using FishNet.Managing;
 using FishNet.Serializing;
 using GameKit.Core.Resources;
 using System.Collections.Generic;
@@ -93,25 +95,6 @@ namespace GameKit.Core.Inventories.Bags
         }
 
         /// <summary>
-        /// Returns a serializable type containing this active bags information.
-        /// </summary>
-        /// <returns></returns>
-        public SerializableActiveBag ToSerializable()
-        {
-            SerializableActiveBag result = new SerializableActiveBag(Bag.UniqueId, Index);
-            for (int i = 0; i < Slots.Length; i++)
-            {
-                ResourceQuantity rq = Slots[i];
-                if (rq.IsUnset)
-                    continue;
-
-                result.FilledSlots.Add(new FilledSlot(i, rq.ToSerializable()));
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Sets Index for this bag.
         /// </summary>
         public void SetIndex(int value) => Index = value;
@@ -125,6 +108,59 @@ namespace GameKit.Core.Inventories.Bags
 
     public static class ActiveBagExtensions
     {
+        /// <summary>
+        /// Returns a serializable type containing this active bags information.
+        /// </summary>
+        /// <returns></returns>
+        public static SerializableActiveBag ToSerializable(this ActiveBag ab)
+        {
+            SerializableActiveBag result = new SerializableActiveBag(ab.Bag.UniqueId, ab.Index);
+            for (int i = 0; i < ab.Slots.Length; i++)
+            {
+                ResourceQuantity rq = ab.Slots[i];
+                if (rq.IsUnset)
+                    continue;
+
+                result.FilledSlots.Add(new FilledSlot(i, rq.ToSerializable()));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a serializable type containing this active bags information.
+        /// </summary>
+        /// <returns></returns>
+        /// <param name="bagManager">BagManager to use. If left null InstanceFinder will be used.</param>
+        public static ActiveBag ToNative(this SerializableActiveBag sab, BagManager bagManager = null)
+        {
+            if (bagManager == null)
+            {
+                if (!InstanceFinder.TryGetInstance<BagManager>(out bagManager))
+                {
+                    NetworkManagerExtensions.LogError($"BagManager could not be found.");
+                    return default;
+                }
+            }
+
+            BagData bd = bagManager.GetBagData(sab.BagUniqueId);
+            ActiveBag result = new(bd, sab.Index, sab.FilledSlots.GetResourceQuantity(bd.Space));
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a serializable type containing this active bags collection information.
+        /// </summary>
+        /// <returns></returns>
+        public static List<SerializableActiveBag> ToSerializable(this List<ActiveBag> activeBags)
+        {
+            List<SerializableActiveBag> result = new List<SerializableActiveBag>();
+            foreach (ActiveBag item in activeBags)
+                result.Add(item.ToSerializable());
+
+            return result;
+        }
+
         public static void WriteActiveBag(this Writer w, ActiveBag value)
         {
             w.WriteUInt32(value.Bag.UniqueId);
@@ -144,14 +180,6 @@ namespace GameKit.Core.Inventories.Bags
             return ab;
         }
 
-        public static List<SerializableActiveBag> ToSerializable(this List<ActiveBag> activeBags)
-        {
-            List<SerializableActiveBag> result = new List<SerializableActiveBag>();
-            foreach (ActiveBag item in activeBags)
-                result.Add(item.ToSerializable());
-
-            return result;
-        }
     }
 
 }

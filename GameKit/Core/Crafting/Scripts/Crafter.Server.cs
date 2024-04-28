@@ -64,7 +64,12 @@ namespace GameKit.Core.Crafting
             //Did not deserialize, client did something bad.
             if (IsRecipeNull(r, true))
                 return;
-            //If crafting isn't active then confirm cancel.
+            /* If crafting isn't active then send
+             * cancel confirmation. This simply means that the client
+             * probably sent a cancel and it arrived shortly
+             * after the server already finished crafting. 
+             *
+             * The called method checks for exploits before sending. */
             if (!_serverCraftingProgress.Active)
             {
                 SendFailedCraftingResult(r, CraftingResult.Canceled);
@@ -73,20 +78,24 @@ namespace GameKit.Core.Crafting
             //Can cancel.
             else
             {
-                //This cancel happened very recently to another.
-                if ((Time.unscaledTime - _serverCancelTime) < CANCEL_TIME_LIMIT)
+                //Perform checks if owner is not clientHost.
+                if (!base.Owner.IsLocalClient)
                 {
-                    _serverCanceledCount++;
-                    if (_serverCanceledCount > 2)
+                    //This cancel happened very recently to another.
+                    if ((Time.unscaledTime - _serverCancelTime) < CANCEL_TIME_LIMIT)
                     {
-                        base.Owner.Kick(KickReason.UnusualActivity, LoggingType.Common, $"Connection Id {base.Owner.ClientId} has been kicked for too many crafting cancels.");
-                        return;
+                        _serverCanceledCount++;
+                        if (_serverCanceledCount > 2)
+                        {
+                            base.Owner.Kick(KickReason.UnusualActivity, LoggingType.Common, $"Connection Id {base.Owner.ClientId} has been kicked for too many crafting cancels.");
+                            return;
+                        }
                     }
-                }
-                //Enough tiem passed.
-                else
-                {
-                    _serverCanceledCount = 0;
+                    //Enough time passed.
+                    else
+                    {
+                        _serverCanceledCount = 0;
+                    }
                 }
 
                 _failedActionTime = -1f;
@@ -127,27 +136,25 @@ namespace GameKit.Core.Crafting
         [Server]
         private void SendFailedCraftingResult(RecipeData r, CraftingResult result)
         {
-            //If owner is clientHost just send response.
-            if (base.Owner.IsLocalClient)
-            {
-                TargetCraftingResult(base.Owner, r, result);
-            }
-            //Otherwise perform security checks.
-            else
+            /* If owner is not clientHost then check if
+             * the owner may be abusing the crafting system. */
+            if (!base.Owner.IsLocalClient)
             {
                 float unscaledTime = Time.unscaledTime;
                 //Recently failed another craft attempt, likely trying to cheat.
                 if (_failedActionTime != -1f && (unscaledTime - _failedActionTime) <= FAILED_TIME_LIMIT)
                 {
                     base.Owner.Kick(KickReason.UnusualActivity, LoggingType.Common, $"Connection Id {base.Owner.ClientId} has been kicked for too many failed crafting attempts.");
+                    return;
                 }
                 //First failed attempt.
                 else
                 {
                     _failedActionTime = unscaledTime;
-                    TargetCraftingResult(base.Owner, r, result);
                 }
             }
+
+            TargetCraftingResult(base.Owner, r, result);
         }
 
         /// <summary>

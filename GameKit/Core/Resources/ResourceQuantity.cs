@@ -48,11 +48,6 @@ namespace GameKit.Core.Resources
             Quantity = quantity;
         }
 
-        public SerializableResourceQuantity ToSerializable()
-        {
-            return new SerializableResourceQuantity(UniqueId, Quantity);
-        }
-
         /// <summary>
         /// Gives this ResourceQuantity unset values.
         /// </summary>
@@ -86,6 +81,27 @@ namespace GameKit.Core.Resources
         }
     }
 
+    public static class ResourceQuantityExtensions
+    {
+
+        /// <summary>
+        /// Makes this object network serializable.
+        /// </summary>
+        /// <returns></returns>
+        public static SerializableResourceQuantity ToSerializable(this ResourceQuantity rq)
+        {
+            return new SerializableResourceQuantity(rq.UniqueId, rq.Quantity);
+        }
+
+        /// <summary>
+        /// Makes this object native.
+        /// </summary>
+        /// <returns></returns>
+        public static ResourceQuantity ToNative(this SerializableResourceQuantity srq)
+        {
+            return new ResourceQuantity(srq.UniqueId, srq.Quantity);
+        }
+    }
 
 
 }

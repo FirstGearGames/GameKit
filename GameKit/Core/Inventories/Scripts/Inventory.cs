@@ -7,6 +7,7 @@ using GameKit.Core.Crafting;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
 using FishNet.Managing;
+using System.Runtime.CompilerServices;
 
 namespace GameKit.Core.Inventories
 {
@@ -109,6 +110,7 @@ namespace GameKit.Core.Inventories
         #endregion
 
         #region Serialized.
+        //TODO this should probably be under the BagManager.
         /// <summary>
         /// Default bags to add.
         /// </summary>
@@ -160,24 +162,19 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Adds a Bag using an ActiveBag.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddBag(SerializableActiveBag sab)
         {
             BagData bd = _bagManager.GetBagData(sab.BagUniqueId);
-
-            ResourceQuantity[] rqs = new ResourceQuantity[bd.Space];
-            foreach (var item in SerializableActiveBag.FilledSlot)
-            {
-
-            }
-            ActiveBag ab = new(bd,  sab.Index, sab.FilledSlots
-            //todo Add bag manager with bag data to look up bag.
+            ActiveBag ab = new(bd, sab.Index, sab.FilledSlots.GetResourceQuantity(bd.Space));
+            AddBag(ab);
         }
 
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
         /// <param name="bag">Adds an ActiveBag for bag with no entries.</param>
-        /// <param name="rebuildBaggedResources">True to rebuild cached bagged resources.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddBag(BagData bag)
         {
             ActiveBag ab = new ActiveBag(bag);
@@ -194,17 +191,17 @@ namespace GameKit.Core.Inventories
             Bags.Insert(activeBag.Index, activeBag);
             OnBagsChanged?.Invoke(true, activeBag);
 
-            if (base.IsServerInitialized && !Owner.IsLocalClient)
+            if (base.IsServerInitialized)
                 TgtAddBag(base.Owner, activeBag.ToSerializable());
         }
 
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
-        [TargetRpc]
+        [TargetRpc(ExcludeServer = true)]
         private void TgtAddBag(NetworkConnection c, SerializableActiveBag bag)
         {
-
+            AddBag(bag);
         }
 
         /// <summary>
@@ -226,6 +223,7 @@ namespace GameKit.Core.Inventories
         /// <param name="quantity">Number of items to remove or add.</param>
         /// <param name="sendToClient">True to send the changes to the client.</param>
         /// <returns>Quantity which could not be added or removed due to space limitations or missing resources.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ModifiyResourceQuantity(uint uniqueId, int quantity, bool sendToClient = true)
         {
             if (quantity == 0)
@@ -261,12 +259,7 @@ namespace GameKit.Core.Inventories
                 ResourceQuantities[uniqueId] = newQuantity;
                 CompleteResourceQuantityChange(uniqueId, newQuantity);
 
-                /* Only send to update inventory
-                 * if the owner of this is not the clientHost.
-                 * IsLocalClient would return false if server
-                 * only because client is obviously not
-                 * running as server only. */
-                if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient)
+                if (sendToClient && base.IsServerInitialized)
                     TargetModifyResourceQuantity(base.Owner, uniqueId, added);
             }
 
@@ -400,12 +393,7 @@ namespace GameKit.Core.Inventories
 
                 CompleteResourceQuantityChange(uniqueId, newQuantity);
 
-                /* Only send to update inventory
-                 * if the owner of this is not the clientHost.
-                 * IsLocalClient would return false if server
-                 * only because client is obviously not
-                 * running as server only. */
-                if (sendToClient && base.IsServerInitialized && !base.Owner.IsLocalClient)
+                if (sendToClient && base.IsServerInitialized)
                     TargetModifyResourceQuantity(base.Owner, uniqueId, -removed);
             }
 
@@ -491,7 +479,7 @@ namespace GameKit.Core.Inventories
         /// <param name="c"></param>
         /// <param name="uniqueId">Resource being modified.</param>
         /// <param name="quantity">Quantity being added or removed.</param>
-        [TargetRpc]
+        [TargetRpc(ExcludeServer = true)]
         private void TargetModifyResourceQuantity(NetworkConnection c, uint uniqueId, int quantity)
         {
             ModifiyResourceQuantity(uniqueId, quantity);

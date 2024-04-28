@@ -186,6 +186,7 @@ namespace GameKit.Core.Crafting
 
         /// <summary>
         /// Updates client with a recipe progress state.
+        /// This is entirely for visuals; the server sends different messages for removing and adding resources via crafting.
         /// </summary>
         [TargetRpc]
         private void TargetCraftingResult(NetworkConnection c, RecipeData r, CraftingResult result)
@@ -219,7 +220,6 @@ namespace GameKit.Core.Crafting
                     CraftRecipe_Client(r, CraftsRemaining);
             }
         }
-
 
     }
 
