@@ -47,7 +47,10 @@ namespace GameKit.Crafting.Testing
             //Client has to ask server to add.
             if (base.IsClientOnlyStarted)
             {
-                ServerAdd();
+                if (add)
+                    ServerAdd();
+                else
+                    ServerRemove();
                 return;
             }
 
@@ -56,7 +59,7 @@ namespace GameKit.Crafting.Testing
                 Inventory inv = ci.Inventory;
                 int tryModify = 0;
                 int notModified = 0;
-                const int maxIterations = 5;
+                const int maxIterations = 1;
                 for (int i = 0; i < maxIterations; i++)
                 {
                     int count = Ints.RandomInclusiveRange(1, 2);

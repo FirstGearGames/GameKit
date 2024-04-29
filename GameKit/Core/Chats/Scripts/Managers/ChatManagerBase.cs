@@ -211,7 +211,7 @@ namespace GameKit.Core.Chats.Managers
             LoadFilteredChatWords(true);
 
             //No need to also track client side if server.
-            if (!base.IsServerStarted)
+            if (!base.IsServerInitialized)
             {
                 //Listen for future clients.
                 base.ClientManager.OnRemoteConnectionState += ClientManager_OnRemoteConnectionState;

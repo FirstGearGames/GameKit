@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace GameKit.Core.Resources
@@ -83,7 +85,6 @@ namespace GameKit.Core.Resources
 
     public static class ResourceQuantityExtensions
     {
-
         /// <summary>
         /// Makes this object network serializable.
         /// </summary>
@@ -94,12 +95,40 @@ namespace GameKit.Core.Resources
         }
 
         /// <summary>
+        /// Makes this object network serializable.
+        /// </summary>
+        /// <returns></returns>
+        public static List<SerializableResourceQuantity> ToSerializable(this List<ResourceQuantity> rqs)
+        {
+            List<SerializableResourceQuantity> result = new();
+            foreach (ResourceQuantity rq in rqs)
+                result.Add(rq.ToSerializable());
+
+            return result;
+        }
+
+
+        /// <summary>
         /// Makes this object native.
         /// </summary>
         /// <returns></returns>
         public static ResourceQuantity ToNative(this SerializableResourceQuantity srq)
         {
             return new ResourceQuantity(srq.UniqueId, srq.Quantity);
+        }
+
+        /// <summary>
+        /// Makes this object native.
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<ResourceQuantity> ToNative(this List<SerializableResourceQuantity> srqs)
+        {
+            List<ResourceQuantity> result = new();
+            foreach (SerializableResourceQuantity srq in srqs)
+                result.Add(rq.ToNative());
+
+            return result;
         }
     }
 

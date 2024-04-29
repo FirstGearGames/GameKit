@@ -329,7 +329,7 @@ namespace GameKit.Core.Crafting
              * into same type entries. */
             if (resourceData.StackLimit > 1)
             {
-                foreach (ActiveBag b in _inventory.Bags)
+                foreach (ActiveBag b in _inventory.ActiveBags)
                 {
                     foreach (ResourceQuantity rq in b.Slots)
                     {

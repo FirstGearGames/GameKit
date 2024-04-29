@@ -381,7 +381,7 @@ namespace GameKit.Core.Inventories.Canvases
             _bagContent.DestroyChildren<BagEntry>(true);
             _bagEntries.Clear();
 
-            foreach (ActiveBag b in _inventory.Bags)
+            foreach (ActiveBag b in _inventory.ActiveBags)
             {
                 BagEntry be = Instantiate(_bagEntryPrefab, _bagContent);
                 be.Initialize(this, _clientInstance, _tooltipCanvas, b);
