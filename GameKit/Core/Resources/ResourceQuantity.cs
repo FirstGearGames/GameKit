@@ -126,7 +126,7 @@ namespace GameKit.Core.Resources
         {
             List<ResourceQuantity> result = new();
             foreach (SerializableResourceQuantity srq in srqs)
-                result.Add(rq.ToNative());
+                result.Add(srq.ToNative());
 
             return result;
         }

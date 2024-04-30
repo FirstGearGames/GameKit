@@ -1,6 +1,5 @@
 using FishNet;
 using FishNet.Managing;
-using FishNet.Serializing;
 using GameKit.Core.Resources;
 using System.Collections.Generic;
 
@@ -9,23 +8,43 @@ namespace GameKit.Core.Inventories.Bags
     public struct SerializableActiveBag
     {
         /// <summary>
-        /// UniqueId for the Bag used.
+        /// An Id issued at runtime to reference this bag between server and client.
         /// </summary>
-        public uint BagUniqueId;
+        public uint UniqueId;
         /// <summary>
-        /// Index of this bag within it's placement, such as an inventory.
+        /// UniqueId for the BagData used.
         /// </summary>
-        public int Index;
+        public uint BagDataUniqueId;
+        /// <summary>
+        /// Category or section of the game which this bag belongs to.
+        /// This value can be used however liked, such as an Id of 0 would be inventory, 1 could be bank.
+        /// </summary>
+        public ushort CategoryId;
+        /// <summary>
+        /// Index of this bag within the client's UI placement.
+        /// This value is only used by the client.
+        /// </summary>
+        public int LayoutIndex;
         /// <summary>
         /// All slots which have resources within them.
         /// </summary>
         public List<FilledSlot> FilledSlots;
 
-        public SerializableActiveBag(uint bagUniqueId, int index) : this()
+        public SerializableActiveBag(ActiveBag ab)
         {
-            BagUniqueId = bagUniqueId;
-            Index = index;
-            FilledSlots = new List<FilledSlot>();
+            UniqueId = ab.UniqueId;
+            BagDataUniqueId = ab.BagData.UniqueId;
+            CategoryId = ab.CategoryId;
+            LayoutIndex = ab.LayoutIndex;
+            FilledSlots = new();
+        }
+        public SerializableActiveBag(uint uniqueId, uint bagUniqueId, ushort categoryId, int layoutIndex) : this()
+        {
+            UniqueId = uniqueId;
+            BagDataUniqueId = bagUniqueId;
+            CategoryId = categoryId;
+            LayoutIndex = layoutIndex;
+            FilledSlots = new();
         }
 
     }
@@ -36,17 +55,27 @@ namespace GameKit.Core.Inventories.Bags
     {
         #region Public.
         /// <summary>
+        /// An Id issued at runtime to reference this bag between server and client.
+        /// </summary>
+        public uint UniqueId;
+        /// <summary>
         /// Information about the bag used.
         /// </summary>
-        public BagData Bag { get; private set; }
+        public BagData BagData { get; private set; }
         /// <summary>
-        /// Index of this bag within it's placement, such as an inventory.
+        /// Category or section of the game which this bag belongs to.
+        /// This value can be used however liked, such as an Id of 0 would be inventory, 1 could be bank.
         /// </summary>
-        public int Index { get; private set; }
+        public ushort CategoryId;
+        /// <summary>
+        /// Index of this bag within the client's UI placement.
+        /// This value is only used by the client.
+        /// </summary>
+        public int LayoutIndex = InventoryConsts.UNSET_LAYOUT_INDEX;
         /// <summary>
         /// Maximum space in this bag.
         /// </summary>
-        public int MaximumSlots => Bag.Space;
+        public int MaximumSlots => BagData.Space;
         /// <summary>
         /// Used space in this bag.
         /// </summary>
@@ -72,37 +101,38 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// All slots in this bag.
         /// </summary>
-        public ResourceQuantity[] Slots { get; private set; } = new ResourceQuantity[0];
+        public ResourceQuantity[] Slots = new ResourceQuantity[0];
         #endregion
 
         public ActiveBag(BagData b)
         {
-            Bag = b;
+            BagData = b;
             Slots = new ResourceQuantity[b.Space];
             for (int i = 0; i < b.Space; i++)
             {
                 Slots[i] = new ResourceQuantity(ResourceConsts.UNSET_RESOURCE_ID, 0);
                 Slots[i].MakeUnset();
             }
-            Index = -1;
         }
 
-        public ActiveBag(BagData b, int index, ResourceQuantity[] slots)
+        public ActiveBag(BagData b, int layoutIndex, ResourceQuantity[] slots)
         {
-            Bag = b;
-            Index = index;
+            BagData = b;
+            LayoutIndex = layoutIndex;
             Slots = slots;
         }
 
-        /// <summary>
-        /// Sets Index for this bag.
-        /// </summary>
-        public void SetIndex(int value) => Index = value;
-        /// <summary>
-        /// Sets resource quantities for each slot in this bag.
-        /// </summary>
-        /// <param name="rq"></param>
-        public void SetSlots(ResourceQuantity[] rq) => Slots = rq;
+        public ActiveBag(SerializableActiveBag sab, BagManager bagManager = null)
+        {
+            if (bagManager == null)
+            {
+                if (!InstanceFinder.TryGetInstance<BagManager>(out bagManager))
+                {
+                    NetworkManagerExtensions.LogError($"BagManager could not be found.");
+                    return;
+                }
+            }
+        }
     }
 
 
@@ -114,7 +144,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <returns></returns>
         public static SerializableActiveBag ToSerializable(this ActiveBag ab)
         {
-            SerializableActiveBag result = new SerializableActiveBag(ab.Bag.UniqueId, ab.Index);
+            SerializableActiveBag result = new SerializableActiveBag(ab);
             for (int i = 0; i < ab.Slots.Length; i++)
             {
                 ResourceQuantity rq = ab.Slots[i];
@@ -134,17 +164,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <param name="bagManager">BagManager to use. If left null InstanceFinder will be used.</param>
         public static ActiveBag ToNative(this SerializableActiveBag sab, BagManager bagManager = null)
         {
-            if (bagManager == null)
-            {
-                if (!InstanceFinder.TryGetInstance<BagManager>(out bagManager))
-                {
-                    NetworkManagerExtensions.LogError($"BagManager could not be found.");
-                    return default;
-                }
-            }
-
-            BagData bd = bagManager.GetBagData(sab.BagUniqueId);
-            ActiveBag result = new(bd, sab.Index, sab.FilledSlots.GetResourceQuantity(bd.Space));
+            ActiveBag result = new(sab, bagManager);
             return result;
         }
 
@@ -160,26 +180,6 @@ namespace GameKit.Core.Inventories.Bags
 
             return result;
         }
-
-        public static void WriteActiveBag(this Writer w, ActiveBag value)
-        {
-            w.WriteUInt32(value.Bag.UniqueId);
-            w.WriteInt32(value.Index);
-            w.WriteArray<ResourceQuantity>(value.Slots);
-        }
-        public static ActiveBag ReadActiveBag(this Reader r)
-        {
-            uint uniqueId = r.ReadUInt32();
-            int index = r.ReadInt32();
-            ResourceQuantity[] slots = r.ReadArrayAllocated<ResourceQuantity>();
-
-            BagManager manager = r.NetworkManager.GetInstance<BagManager>();
-            BagData bagData = manager.GetBagData(uniqueId);
-
-            ActiveBag ab = new ActiveBag(bagData, index, slots);
-            return ab;
-        }
-
     }
 
 }

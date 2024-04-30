@@ -6,6 +6,7 @@ using GameKit.Core.Inventories.Bags;
 using FishNet.Managing;
 using System.Collections.Generic;
 using System.IO;
+using GameKit.Dependencies.Utilities;
 
 namespace GameKit.Core.Inventories
 {
@@ -17,7 +18,7 @@ namespace GameKit.Core.Inventories
         /// Saves the clients inventory loadout.
         /// </summary>
         [Client]
-        private void SaveInventorySorted_Client(bool sendToServer)
+        private void SaveInventorySorted_Client(bool sendToServer = false)
         {
             //TODO: Use a database rather than json file.
             string s = ActiveBagsToJson();
@@ -30,7 +31,7 @@ namespace GameKit.Core.Inventories
 
             if (sendToServer && !base.IsServerInitialized)
             {
-                List<SerializableActiveBag> sabs = ActiveBags.ToSerializable();
+                List<SerializableActiveBag> sabs = ActiveBags.ValuesToList().ToSerializable();
                 ServerSaveInventorySorted(sabs);
             }
         }
@@ -39,11 +40,120 @@ namespace GameKit.Core.Inventories
         /// Sends the players inventory loadout in the order they last used.
         /// </summary>
         [TargetRpc(ExcludeServer = true)]
-        private void TgtApplyInventory(NetworkConnection c, SerializableUnsortedInventory unsortedInv, List<SerializableActiveBag> sortedInv)
+        private void TgtApplyInventory(NetworkConnection c, List<SerializableResourceQuantity> hiddenResources, List<SerializableActiveBag> activeBags)
         {
             //If local sorted save needed correcting then save again.
-            if (ApplyInventory(unsortedInv, sortedInv, false))
-                SaveInventorySorted_Client();
+            if (ApplyInventory_Client(hiddenResources, activeBags, false))
+                SaveInventorySorted_Client(false);
+        }
+
+        /// <summary>
+        /// Uses serializable data to set inventory.
+        /// </summary>
+        /// <returns>True if sorted inventory was changed due to errors.</returns>
+        private bool ApplyInventory_Client(List<SerializableResourceQuantity> hiddenResources, List<SerializableActiveBag> activeBags, bool sendToClient)
+        {
+            return true;
+            //TODO: For server save types in a database rather than JSON.
+            ActiveBags.Clear();
+            HiddenResources.Clear();
+
+            ///* ResourceQuantities which are handled inside the users saved inventory
+            //* are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
+            //* inventory are added to whichever slots are available in the users inventory.
+            //* 
+            //* If a user doesn't have the bag entirely which is in their saved inventory
+            //* then it's skipped over. This will result in any skipped entries filling slots
+            //* as described above. */
+
+            ////TODO: convert linq lookups to for loops for quicker iteration.
+
+            ////Make resources into dictionary for quicker lookups.
+            ////Resource UniqueIds and quantity of each.
+            //Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
+            //foreach (SerializableResourceQuantity item in hiddenResources)
+            //    rqsDict[item.UniqueId] = item.Quantity;
+
+            ///* First check if unsortedInv contains all the bags used
+            // * in sortedInv. If sortedInv says a bag is used that the client
+            // * does not have then the bag is unset from sorted which will
+            // * cause the resources to be placed wherever available. */
+            //for (int i = 0; i < activeBags.Count; i++)
+            //{
+            //    int bagIndex = hiddenResources.Bags.FindIndex(x => x.UniqueId == activeBags[i].BagDataUniqueId);
+            //    //Bag not found, remove bag from sortedInventory.
+            //    if (bagIndex == -1)
+            //    {
+            //        activeBags.RemoveAt(i);
+            //        i--;
+            //    }
+            //    //Bag found, remove from unsorted so its not used twice.
+            //    else
+            //    {
+            //        hiddenResources.Bags.RemoveAt(bagIndex);
+            //    }
+            //}
+
+            ///* Check if unsortedInv contains the same resources as
+            // * sortedinv. This uses the same approach as above where
+            // * inventory items which do not exist in unsorted are removed
+            // * from sorted. */
+            //for (int i = 0; i < activeBags.Count; i++)
+            //{
+            //    for (int z = 0; z < activeBags[i].FilledSlots.Count; z++)
+            //    {
+            //        FilledSlot fs = activeBags[i].FilledSlots[z];
+            //        rqsDict.TryGetValue(fs.ResourceQuantity.UniqueId, out int unsortedCount);
+            //        /* Subtract sortedCount from unsortedCount. If the value is negative
+            //         * then the result must be removed from unsortedCount. Additionally,
+            //         * remove the resourceId from rqsDict since it no longer has value. */
+            //        int quantityDifference = (unsortedCount - fs.ResourceQuantity.Quantity);
+            //        if (quantityDifference < 0)
+            //        {
+            //            fs.ResourceQuantity.Quantity += quantityDifference;
+            //            activeBags[i].FilledSlots[z] = fs;
+            //        }
+
+            //        //If there is no more quantity left then remove from unsorted.
+            //        if (quantityDifference <= 0)
+            //            rqsDict.Remove(fs.ResourceQuantity.UniqueId);
+            //        //Still some quantity left, update unsorted.
+            //        else
+            //            rqsDict[fs.ResourceQuantity.UniqueId] = quantityDifference;
+            //    }
+            //}
+
+            ////Add starting with sorted bags.
+            //foreach (SerializableActiveBag sab in activeBags)
+            //{
+            //    ActiveBag ab = sab.ToNative(_bagManager);
+            //    AddBag(ab);
+            //}
+
+            ////Add remaining bags from unsorted.
+            //foreach (SerializableBagData sb in hiddenResources.Bags)
+            //{
+            //    BagData b = _bagManager.GetBagData(sb.UniqueId);
+            //    AddBag(b);
+            //}
+
+            ///* This builds a cache of resources currently in the inventory.
+            // * Since ActiveBags were set without allowing rebuild to save perf
+            // * it's called here after all bags are added. */
+            //RebuildBaggedResources();
+            ////Add remaining resources to wherever they fit.
+            //foreach (KeyValuePair<uint, int> item in rqsDict)
+            //    ModifiyResourceQuantity(item.Key, item.Value, false);
+
+
+            //if (sendToClient)
+            //    TgtApplyInventory(base.Owner, hiddenResources, activeBags);
+
+            //int rqsDictCount = rqsDict.Count;
+            //CollectionCaches<uint, int>.Store(rqsDict);
+            ///* If there were unsorted added then save clients new
+            //* layout after everything was added. */
+            //return (hiddenResources.Bags.Count > 0 || rqsDictCount > 0);
         }
 
 
@@ -120,8 +230,8 @@ namespace GameKit.Core.Inventories
             }
 
             //Invoke changes.
-            OnBagSlotUpdated?.Invoke(from.BagIndex, from.SlotIndex, ActiveBags[from.BagIndex].Slots[from.SlotIndex]);
-            OnBagSlotUpdated?.Invoke(to.BagIndex, to.SlotIndex, ActiveBags[to.BagIndex].Slots[to.SlotIndex]);
+            OnBagSlotUpdated?.Invoke(from.BagUniqueId, from.SlotIndex, ActiveBags[from.BagUniqueId].Slots[from.SlotIndex]);
+            OnBagSlotUpdated?.Invoke(to.BagUniqueId, to.SlotIndex, ActiveBags[to.BagUniqueId].Slots[to.SlotIndex]);
             SaveInventorySorted_Client();
 
             return true;
@@ -129,8 +239,8 @@ namespace GameKit.Core.Inventories
             //Swaps the to and from entries.
             void SwapEntries()
             {
-                ActiveBags[from.BagIndex].Slots[from.SlotIndex] = toRq;
-                ActiveBags[to.BagIndex].Slots[to.SlotIndex] = fromRq;
+                ActiveBags[from.BagUniqueId].Slots[from.SlotIndex] = toRq;
+                ActiveBags[to.BagUniqueId].Slots[to.SlotIndex] = fromRq;
             }
 
             void MoveQuantity()
@@ -171,8 +281,8 @@ namespace GameKit.Core.Inventories
                         fromRq.MakeUnset();
 
                     //Apply changes.
-                    ActiveBags[to.BagIndex].Slots[to.SlotIndex] = toRq;
-                    ActiveBags[from.BagIndex].Slots[from.SlotIndex] = fromRq;
+                    ActiveBags[to.BagUniqueId].Slots[to.SlotIndex] = toRq;
+                    ActiveBags[from.BagUniqueId].Slots[from.SlotIndex] = fromRq;
                 }
             }
         }

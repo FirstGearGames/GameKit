@@ -97,7 +97,7 @@ namespace GameKit.Core.Inventories.Canvases
             _content.DestroyChildren<ResourceEntry>(false);
             _inventoryCanvas = inventoryCanvas;
             ActiveBag = activeBag;
-            _tooltipHover.InitializeOnce(activeBag.Bag, tooltipCanvas);
+            _tooltipHover.InitializeOnce(activeBag.BagData, tooltipCanvas);
 
 
             int slots = activeBag.Slots.Length;
@@ -106,7 +106,7 @@ namespace GameKit.Core.Inventories.Canvases
             {
                 ResourceEntry re = Instantiate(_resourceEntryPrefab, _content);
                 ResourceData ird = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetResourceData(activeBag.Slots[i].UniqueId);
-                BagSlot baggedResource = new BagSlot(ActiveBag.Index, i);
+                BagSlot baggedResource = new BagSlot(ActiveBag.InterfaceIndex, i);
                 if (ird != null)
                     re.Initialize(clientInstance, _inventoryCanvas, tooltipCanvas, activeBag.Slots[i], baggedResource);
                 else
@@ -137,7 +137,7 @@ namespace GameKit.Core.Inventories.Canvases
             int max = 0;
             if (ActiveBag != null)
             {
-                name = ActiveBag.Bag.name;
+                name = ActiveBag.BagData.name;
                 used = ActiveBag.UsedSlots;
                 max = ActiveBag.MaximumSlots;
             }

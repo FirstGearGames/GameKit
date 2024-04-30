@@ -7,24 +7,24 @@ namespace GameKit.Core.Inventories
     {
         #region Public.
         /// <summary>
-        /// Index of the bag which holds this item.
+        /// UniqueId of the bag which holds this item.
         /// </summary>
-        public int BagIndex;
+        public uint BagUniqueId;
         /// <summary>
         /// Slot in the bag where this item resides.
         /// </summary>
         public int SlotIndex;
 
-        public BagSlot(int bagIndex, int slotIndex)
+        public BagSlot(uint bagUniqueId, int slotIndex)
         {
-            BagIndex = bagIndex;
+            BagUniqueId = bagUniqueId;
             SlotIndex = slotIndex;
         }
 
         /// <summary>
         /// Returns if this object matches other.
         /// </summary>
-        public bool Equals(BagSlot other) => (BagIndex == other.BagIndex && SlotIndex == other.SlotIndex);
+        public bool Equals(BagSlot other) => (BagUniqueId == other.BagUniqueId && SlotIndex == other.SlotIndex);
         #endregion
     }
 

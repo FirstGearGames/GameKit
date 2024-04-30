@@ -251,12 +251,12 @@ namespace GameKit.Core.Inventories.Canvases
         /// Called when inventory space is updated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Inventory_OnBagSlotUpdated(int bagIndex, int slotIndex, ResourceQuantity rq)
+        private void Inventory_OnBagSlotUpdated(uint activeBagUniqueId, int slotIndex, ResourceQuantity rq)
         {
             if (UpdateOnShow())
                 return;
 
-            ResourceEntry re = _bagEntries[bagIndex].ResourceEntries[slotIndex];
+            ResourceEntry re = _bagEntries[activeBagUniqueId].ResourceEntries[slotIndex];
 
             /* If the new resource is not the same as existing then
              * try to hide the tooltip using existing reference. If the
@@ -268,9 +268,9 @@ namespace GameKit.Core.Inventories.Canvases
             if (re.ResourceData != null && re.ResourceData.UniqueId != rq.UniqueId)
                 _tooltipCanvas.Hide(re);
 
-            re.Initialize(ClientInstance.Instance, this, _tooltipCanvas, rq, new BagSlot(bagIndex, slotIndex));
+            re.Initialize(ClientInstance.Instance, this, _tooltipCanvas, rq, new BagSlot(activeBagUniqueId, slotIndex));
             SetUsedInventorySpaceText();
-            _bagEntries[bagIndex].SetUsedInventorySpaceText();
+            _bagEntries[activeBagUniqueId].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);
         }
 
@@ -381,7 +381,7 @@ namespace GameKit.Core.Inventories.Canvases
             _bagContent.DestroyChildren<BagEntry>(true);
             _bagEntries.Clear();
 
-            foreach (ActiveBag b in _inventory.ActiveBags)
+            foreach (ActiveBag b in _inventory.ActiveBags.Values)
             {
                 BagEntry be = Instantiate(_bagEntryPrefab, _bagContent);
                 be.Initialize(this, _clientInstance, _tooltipCanvas, b);
