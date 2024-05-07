@@ -104,9 +104,10 @@ namespace GameKit.Core.Inventories.Bags
         public ResourceQuantity[] Slots = new ResourceQuantity[0];
         #endregion
 
-        public ActiveBag(BagData b)
+        public ActiveBag(uint uniqueId, BagData b)
         {
-            BagData = b;
+            UniqueId = uniqueId;
+            BagData = b;           
             Slots = new ResourceQuantity[b.Space];
             for (int i = 0; i < b.Space; i++)
             {
@@ -115,8 +116,9 @@ namespace GameKit.Core.Inventories.Bags
             }
         }
 
-        public ActiveBag(BagData b, int layoutIndex, ResourceQuantity[] slots)
+        public ActiveBag(uint uniqueId, BagData b, int layoutIndex, ResourceQuantity[] slots)
         {
+            UniqueId = uniqueId;
             BagData = b;
             LayoutIndex = layoutIndex;
             Slots = slots;
@@ -132,6 +134,14 @@ namespace GameKit.Core.Inventories.Bags
                     return;
                 }
             }
+
+            UniqueId = sab.UniqueId;
+            BagData = bagManager.GetBagData(sab.BagDataUniqueId);
+            if (BagData == null)
+                return;
+
+            LayoutIndex = sab.LayoutIndex;
+            Slots = sab.FilledSlots.GetResourceQuantity(BagData.Space);
         }
     }
 
@@ -139,7 +149,7 @@ namespace GameKit.Core.Inventories.Bags
     public static class ActiveBagExtensions
     {
         /// <summary>
-        /// Returns a serializable type containing this active bags information.
+        /// Returns a serializable type.
         /// </summary>
         /// <returns></returns>
         public static SerializableActiveBag ToSerializable(this ActiveBag ab)
@@ -158,7 +168,7 @@ namespace GameKit.Core.Inventories.Bags
         }
 
         /// <summary>
-        /// Returns a serializable type containing this active bags information.
+        /// Returns a native type.
         /// </summary>
         /// <returns></returns>
         /// <param name="bagManager">BagManager to use. If left null InstanceFinder will be used.</param>
@@ -169,7 +179,7 @@ namespace GameKit.Core.Inventories.Bags
         }
 
         /// <summary>
-        /// Returns a serializable type containing this active bags collection information.
+        /// Returns a serializable type.
         /// </summary>
         /// <returns></returns>
         public static List<SerializableActiveBag> ToSerializable(this List<ActiveBag> activeBags)

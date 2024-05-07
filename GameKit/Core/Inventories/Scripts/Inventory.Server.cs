@@ -27,8 +27,9 @@ namespace GameKit.Core.Inventories
         }
 
         /// <summary>
-        /// Called when this spawns for a client.
+        /// Called on the server when this spawns for a client.
         /// </summary>
+        [Server]
         private void LoadInventoryFromDatabase(NetworkConnection c, bool sendToClient = true)
         {
             //TODO: this should be using a database, not locallly saved file.
@@ -39,7 +40,7 @@ namespace GameKit.Core.Inventories
                 foreach (BagData item in _defaultBags)
                 {
                     BagData b = _bagManager.GetBagData(item.UniqueId);
-                    AddBag(b, false);
+                    AddBag(b, InventoryConsts.UNSET_BAG_ID, false);
                 }
 
                 SaveInventoryUnsorted_Server();
@@ -64,18 +65,6 @@ namespace GameKit.Core.Inventories
                 Debug.LogError($"Failed to load json files for resources or loadout.");
             }
         }
-
-
-        /// <summary>
-        /// Saves changes to clients sorted inventory on the server.
-        /// </summary>
-        private void ServerSaveInventorySorted(List<SerializableActiveBag> sabs)
-        {
-            /* //TODO: realistically client should only call this occasionally and server
-             * should add checks to make sure client is not calling this excessively. */
-            SaveInventorySorted_Server(sabs);
-        }
-
 
         /// <summary>
         /// Saves the clients inventory loadout on the server.

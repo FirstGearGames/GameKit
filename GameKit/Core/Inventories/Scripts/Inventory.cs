@@ -66,7 +66,7 @@ namespace GameKit.Core.Inventories
         /// Called when inventory slots change with new, removed, or additionally stacked items.
         /// </summary>
         public event BagSlotUpdatedDel OnBagSlotUpdated;
-        public delegate void BagSlotUpdatedDel(uint bagUniqueId, int slotIndex, ResourceQuantity resource);
+        public delegate void BagSlotUpdatedDel(ActiveBag activeBag, int slotIndex, ResourceQuantity resource);
         /// <summary>
         /// Quantities of each resource.
         /// Key: the resource UniqueId.
@@ -205,10 +205,11 @@ namespace GameKit.Core.Inventories
         /// </summary>
         /// <param name="bag">Adds an ActiveBag for bag with no entries.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddBag(BagData bag, bool sendToClient = true)
+        public void AddBag(BagData bag, uint activeBagUniqueId = InventoryConsts.UNSET_BAG_ID, bool sendToClient = true)
         {
-            ActiveBag ab = new ActiveBag(bag);
-            ab.UniqueId = (uint)(ActiveBags.Count + 1);
+            if (activeBagUniqueId == InventoryConsts.UNSET_BAG_ID)
+                activeBagUniqueId = (uint)(ActiveBags.Count + 1);
+            ActiveBag ab = new ActiveBag(activeBagUniqueId, bag);
             AddBag(ab, sendToClient);
         }
 
@@ -319,7 +320,7 @@ namespace GameKit.Core.Inventories
                 for (int i = 0; i < baggedResources.Count; i++)
                 {
                     BagSlot bagSlot = baggedResources[i];
-                    ActiveBag bag = ActiveBags[bagSlot.BagUniqueId];
+                    ActiveBag bag = bagSlot.ActiveBag;
                     //Number currently in the slot.
                     int slotCount = bag.Slots[bagSlot.SlotIndex].Quantity;
                     //How many more can be added to this slot.
@@ -357,7 +358,7 @@ namespace GameKit.Core.Inventories
                             quantityRemaining -= addCount;
                             activeBag.Slots[slotIndex].Update(uniqueId, addCount);
                             //Since filling an empty slot add it to bagged resources.
-                            BagSlot bs = new BagSlot(activeBag.UniqueId, slotIndex);
+                            BagSlot bs = new BagSlot(activeBag, slotIndex);
                             baggedResources.Add(bs);
                             InvokeBagSlotUpdated(bs);
 
@@ -441,7 +442,7 @@ namespace GameKit.Core.Inventories
                 {
                     BagSlot bagSlot = baggedResources[bagResourceIndex];
 
-                    ActiveBag bag = ActiveBags[bagSlot.BagUniqueId];
+                    ActiveBag bag = bagSlot.ActiveBag;
                     int slotCount = bag.Slots[bagSlot.SlotIndex].Quantity;
                     int removeCount = Mathf.Min(quantityRemaining, slotCount);
                     //If quantity can be removed.
@@ -491,12 +492,9 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Invokes that a bag slot was updated for the supplied bagSlot.
         /// </summary>
-        private void InvokeBagSlotUpdated(BagSlot br)
+        private void InvokeBagSlotUpdated(BagSlot bs)
         {
-            uint bagUniqueId = br.BagUniqueId;
-            int slotIndex = br.SlotIndex;
-            ActiveBag brBag = ActiveBags[bagUniqueId];
-            OnBagSlotUpdated?.Invoke(bagUniqueId, slotIndex, brBag.Slots[slotIndex]);
+            OnBagSlotUpdated?.Invoke(bs.ActiveBag, bs.SlotIndex, bs.ActiveBag.Slots[bs.SlotIndex]);
         }
 
         /// <summary>
@@ -550,33 +548,31 @@ namespace GameKit.Core.Inventories
                         BaggedResources.Add(rq.UniqueId, resources);
                     }
 
-                    resources.Add(new BagSlot(activeBag.UniqueId, z));
+                    resources.Add(new BagSlot(activeBag, z));
                 }
             }
         }
 
         /// <summary>
-        /// Outputs resource quantities of an ActiveBagResource.
+        /// Outputs resource quantities of a BagSlot.
         /// </summary>
-        /// <param name="abr">ActiveBagResource to get quantities for.</param>
         /// <returns>True if the return was successful.</returns>
-        private bool GetResourceQuantity(BagSlot abr, out ResourceQuantity rq)
+        private bool GetResourceQuantity(BagSlot bs, out ResourceQuantity rq)
         {
-            return GetResourceQuantity(abr.BagUniqueId, abr.SlotIndex, out rq);
+            return GetResourceQuantity(bs.ActiveBag.UniqueId, bs.SlotIndex, out rq);
         }
-
   
         /// <summary>
         /// Returns if a slot exists.
         /// </summary>
-        /// <param name="bagUniqueId">Bag index to check.</param>
+        /// <param name="activeBagUniqueId">Bag index to check.</param>
         /// <param name="slotIndex">Slot index to check.</param>
         /// <returns></returns>
-        private bool IsValidBagSlot(uint bagUniqueId, int slotIndex)
+        private bool IsValidBagSlot(uint activeBagUniqueId, int slotIndex)
         {
-            if (!ActiveBags.TryGetValue(bagUniqueId, out ActiveBag ab))
+            if (!ActiveBags.TryGetValue(activeBagUniqueId, out ActiveBag ab))
                 return false;
-            if (slotIndex < 0 || slotIndex >= ActiveBags[bagUniqueId].Slots.Length)
+            if (slotIndex < 0 || slotIndex >= ab.Slots.Length)
                 return false;
 
             //All conditions pass.
@@ -584,11 +580,8 @@ namespace GameKit.Core.Inventories
         }
 
         /// <summary>
-        /// Gets a ResourceQuantity using a bag and slot index.
+        /// Gets a ResourceQuantity using an ActiveBag.UniqueId, and SlotIndex.
         /// </summary>
-        /// <param name="bagUniqueId">Bag index.</param>
-        /// <param name="slotIndex">Slot index.</param>
-        /// <param name="rq">ResourceQuantity found at indexes. This may be default if the slot is not occupied.</param>
         /// <returns>True if the bag and slot index was valid.</returns>
         public bool GetResourceQuantity(uint bagUniqueId, int slotIndex, out ResourceQuantity rq)
         {

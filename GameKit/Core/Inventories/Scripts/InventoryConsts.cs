@@ -8,6 +8,7 @@ namespace GameKit.Core.Inventories
     {
         /// <summary>
         /// Value to use when a bag Id is unset.
+        /// This is used for database Id as well runtime UniqueId.
         /// </summary>
         public const uint UNSET_BAG_ID = 0;
         /// <summary>

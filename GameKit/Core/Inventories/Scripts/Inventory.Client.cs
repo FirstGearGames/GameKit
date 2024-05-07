@@ -32,7 +32,7 @@ namespace GameKit.Core.Inventories
             if (sendToServer && !base.IsServerInitialized)
             {
                 List<SerializableActiveBag> sabs = ActiveBags.ValuesToList().ToSerializable();
-                ServerSaveInventorySorted(sabs);
+                SaveInventorySorted_Server(sabs);
             }
         }
 
@@ -229,9 +229,11 @@ namespace GameKit.Core.Inventories
                 MoveQuantity();
             }
 
+
+            //   public delegate void BagSlotUpdatedDel(ActiveBag activeBag, int slotIndex, ResourceQuantity resource);
             //Invoke changes.
-            OnBagSlotUpdated?.Invoke(from.BagUniqueId, from.SlotIndex, ActiveBags[from.BagUniqueId].Slots[from.SlotIndex]);
-            OnBagSlotUpdated?.Invoke(to.BagUniqueId, to.SlotIndex, ActiveBags[to.BagUniqueId].Slots[to.SlotIndex]);
+            OnBagSlotUpdated?.Invoke(from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
+            OnBagSlotUpdated?.Invoke(to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
             SaveInventorySorted_Client();
 
             return true;
@@ -239,8 +241,8 @@ namespace GameKit.Core.Inventories
             //Swaps the to and from entries.
             void SwapEntries()
             {
-                ActiveBags[from.BagUniqueId].Slots[from.SlotIndex] = toRq;
-                ActiveBags[to.BagUniqueId].Slots[to.SlotIndex] = fromRq;
+                from.ActiveBag.Slots[from.SlotIndex] = toRq;
+                to.ActiveBag.Slots[to.SlotIndex] = fromRq;
             }
 
             void MoveQuantity()
@@ -281,8 +283,8 @@ namespace GameKit.Core.Inventories
                         fromRq.MakeUnset();
 
                     //Apply changes.
-                    ActiveBags[to.BagUniqueId].Slots[to.SlotIndex] = toRq;
-                    ActiveBags[from.BagUniqueId].Slots[from.SlotIndex] = fromRq;
+                    to.ActiveBag.Slots[to.SlotIndex] = toRq;
+                    from.ActiveBag.Slots[from.SlotIndex] = fromRq;
                 }
             }
         }
