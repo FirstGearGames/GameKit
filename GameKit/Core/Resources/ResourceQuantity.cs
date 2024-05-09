@@ -130,6 +130,42 @@ namespace GameKit.Core.Resources
 
             return result;
         }
+
+        /// <summary>
+        /// Makes this object native to a supplied dictionary replacing any existing keys.
+        /// </summary>
+        public static void ToNativeReplace(this SerializableResourceQuantity srq, Dictionary<uint, int> dict)
+        {
+            dict[srq.UniqueId] = srq.Quantity;
+        }
+
+        /// <summary>
+        /// Makes this object native to a supplied dictionary using Add.
+        /// </summary>
+        public static void ToNativeAdd(this SerializableResourceQuantity srq, Dictionary<uint, int> dict)
+        {
+            dict.Add(srq.UniqueId, srq.Quantity);
+        }
+
+        /// <summary>
+        /// Makes this object native to a supplied dictionary replacing any existing keys.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ToNativeReplace(this List<SerializableResourceQuantity> srqs, Dictionary<uint, int> dict)
+        {
+            foreach (SerializableResourceQuantity item in srqs)
+                item.ToNativeReplace(dict);
+        }
+
+        /// <summary>
+        /// Makes this object native to a supplied dictionary replacing any existing keys.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ToNativeAdd(this List<SerializableResourceQuantity> srqs, Dictionary<uint, int> dict)
+        {
+            foreach (SerializableResourceQuantity item in srqs)
+                item.ToNativeAdd(dict);
+        }
     }
 
 
