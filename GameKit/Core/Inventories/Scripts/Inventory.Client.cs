@@ -51,105 +51,104 @@ namespace GameKit.Core.Inventories
         /// Uses serializable data to set inventory.
         /// </summary>
         /// <returns>True if sorted inventory was changed due to errors.</returns>
-        private bool ApplyInventory_Client(List<SerializableActiveBag> activeBags, List<SerializableResourceQuantity> allResources, List<SerializableActiveBag> sortedBags)
+        private bool ApplyInventory_Client(List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
         {
-            return true;
             //TODO: For server save types in a database rather than JSON.
             ActiveBags.Clear();
             HiddenResources.Clear();
 
-            ///* ResourceQuantities which are handled inside the users saved inventory
-            //* are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
-            //* inventory are added to whichever slots are available in the users inventory.
-            //* 
-            //* If a user doesn't have the bag entirely which is in their saved inventory
-            //* then it's skipped over. This will result in any skipped entries filling slots
-            //* as described above. */
+            /* ResourceQuantities which are handled inside the users saved inventory
+            * are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
+            * inventory are added to whichever slots are available in the users inventory.
+            * 
+            * If a user doesn't have the bag entirely which is in their saved inventory
+            * then it's skipped over. This will result in any skipped entries filling slots
+            * as described above. */
 
-            ////TODO: convert linq lookups to for loops for quicker iteration.
+            //TODO: convert linq lookups to for loops for quicker iteration.
 
-            ////Make resources into dictionary for quicker lookups.
-            ////Resource UniqueIds and quantity of each.
-            //Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
-            //foreach (SerializableResourceQuantity item in hiddenResources)
-            //    rqsDict[item.UniqueId] = item.Quantity;
+            //Make resources into dictionary for quicker lookups.
+            //Resource UniqueIds and quantity of each.
+            Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
+            foreach (SerializableResourceQuantity item in hiddenResources)
+                rqsDict[item.UniqueId] = item.Quantity;
 
-            ///* First check if unsortedInv contains all the bags used
-            // * in sortedInv. If sortedInv says a bag is used that the client
-            // * does not have then the bag is unset from sorted which will
-            // * cause the resources to be placed wherever available. */
-            //for (int i = 0; i < activeBags.Count; i++)
-            //{
-            //    int bagIndex = hiddenResources.Bags.FindIndex(x => x.UniqueId == activeBags[i].BagDataUniqueId);
-            //    //Bag not found, remove bag from sortedInventory.
-            //    if (bagIndex == -1)
-            //    {
-            //        activeBags.RemoveAt(i);
-            //        i--;
-            //    }
-            //    //Bag found, remove from unsorted so its not used twice.
-            //    else
-            //    {
-            //        hiddenResources.Bags.RemoveAt(bagIndex);
-            //    }
-            //}
+            /* First check if unsortedInv contains all the bags used
+             * in sortedInv. If sortedInv says a bag is used that the client
+             * does not have then the bag is unset from sorted which will
+             * cause the resources to be placed wherever available. */
+            for (int i = 0; i < activeBags.Count; i++)
+            {
+                int bagIndex = hiddenResources.Bags.FindIndex(x => x.UniqueId == activeBags[i].BagDataUniqueId);
+                //Bag not found, remove bag from sortedInventory.
+                if (bagIndex == -1)
+                {
+                    activeBags.RemoveAt(i);
+                    i--;
+                }
+                //Bag found, remove from unsorted so its not used twice.
+                else
+                {
+                    hiddenResources.Bags.RemoveAt(bagIndex);
+                }
+            }
 
-            ///* Check if unsortedInv contains the same resources as
-            // * sortedinv. This uses the same approach as above where
-            // * inventory items which do not exist in unsorted are removed
-            // * from sorted. */
-            //for (int i = 0; i < activeBags.Count; i++)
-            //{
-            //    for (int z = 0; z < activeBags[i].FilledSlots.Count; z++)
-            //    {
-            //        FilledSlot fs = activeBags[i].FilledSlots[z];
-            //        rqsDict.TryGetValue(fs.ResourceQuantity.UniqueId, out int unsortedCount);
-            //        /* Subtract sortedCount from unsortedCount. If the value is negative
-            //         * then the result must be removed from unsortedCount. Additionally,
-            //         * remove the resourceId from rqsDict since it no longer has value. */
-            //        int quantityDifference = (unsortedCount - fs.ResourceQuantity.Quantity);
-            //        if (quantityDifference < 0)
-            //        {
-            //            fs.ResourceQuantity.Quantity += quantityDifference;
-            //            activeBags[i].FilledSlots[z] = fs;
-            //        }
+            /* Check if unsortedInv contains the same resources as
+             * sortedinv. This uses the same approach as above where
+             * inventory items which do not exist in unsorted are removed
+             * from sorted. */
+            for (int i = 0; i < activeBags.Count; i++)
+            {
+                for (int z = 0; z < activeBags[i].FilledSlots.Count; z++)
+                {
+                    FilledSlot fs = activeBags[i].FilledSlots[z];
+                    rqsDict.TryGetValue(fs.ResourceQuantity.UniqueId, out int unsortedCount);
+                    /* Subtract sortedCount from unsortedCount. If the value is negative
+                     * then the result must be removed from unsortedCount. Additionally,
+                     * remove the resourceId from rqsDict since it no longer has value. */
+                    int quantityDifference = (unsortedCount - fs.ResourceQuantity.Quantity);
+                    if (quantityDifference < 0)
+                    {
+                        fs.ResourceQuantity.Quantity += quantityDifference;
+                        activeBags[i].FilledSlots[z] = fs;
+                    }
 
-            //        //If there is no more quantity left then remove from unsorted.
-            //        if (quantityDifference <= 0)
-            //            rqsDict.Remove(fs.ResourceQuantity.UniqueId);
-            //        //Still some quantity left, update unsorted.
-            //        else
-            //            rqsDict[fs.ResourceQuantity.UniqueId] = quantityDifference;
-            //    }
-            //}
+                    //If there is no more quantity left then remove from unsorted.
+                    if (quantityDifference <= 0)
+                        rqsDict.Remove(fs.ResourceQuantity.UniqueId);
+                    //Still some quantity left, update unsorted.
+                    else
+                        rqsDict[fs.ResourceQuantity.UniqueId] = quantityDifference;
+                }
+            }
 
-            ////Add starting with sorted bags.
-            //foreach (SerializableActiveBag sab in activeBags)
-            //{
-            //    ActiveBag ab = sab.ToNative(_bagManager);
-            //    AddBag(ab);
-            //}
+            //Add starting with sorted bags.
+            foreach (SerializableActiveBag sab in activeBags)
+            {
+                ActiveBag ab = sab.ToNative(_bagManager);
+                AddBag(ab);
+            }
 
-            ////Add remaining bags from unsorted.
-            //foreach (SerializableBagData sb in hiddenResources.Bags)
-            //{
-            //    BagData b = _bagManager.GetBagData(sb.UniqueId);
-            //    AddBag(b);
-            //}
+            //Add remaining bags from unsorted.
+            foreach (SerializableBagData sb in hiddenResources.Bags)
+            {
+                BagData b = _bagManager.GetBagData(sb.UniqueId);
+                AddBag(b);
+            }
 
-            ///* This builds a cache of resources currently in the inventory.
-            // * Since ActiveBags were set without allowing rebuild to save perf
-            // * it's called here after all bags are added. */
-            //RebuildBaggedResources();
-            ////Add remaining resources to wherever they fit.
-            //foreach (KeyValuePair<uint, int> item in rqsDict)
-            //    ModifiyResourceQuantity(item.Key, item.Value, false);
+            /* This builds a cache of resources currently in the inventory.
+             * Since ActiveBags were set without allowing rebuild to save perf
+             * it's called here after all bags are added. */
+            RebuildBaggedResources();
+            //Add remaining resources to wherever they fit.
+            foreach (KeyValuePair<uint, int> item in rqsDict)
+                ModifiyResourceQuantity(item.Key, item.Value, false);
 
-            //int rqsDictCount = rqsDict.Count;
-            //CollectionCaches<uint, int>.Store(rqsDict);
-            ///* If there were unsorted added then save clients new
-            //* layout after everything was added. */
-            //return (hiddenResources.Bags.Count > 0 || rqsDictCount > 0);
+            int rqsDictCount = rqsDict.Count;
+            CollectionCaches<uint, int>.Store(rqsDict);
+            /* If there were unsorted added then save clients new
+            * layout after everything was added. */
+            return (hiddenResources.Bags.Count > 0 || rqsDictCount > 0);
         }
 
 
