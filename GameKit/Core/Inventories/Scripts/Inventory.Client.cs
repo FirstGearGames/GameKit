@@ -15,14 +15,14 @@ namespace GameKit.Core.Inventories
     {
 
         /// <summary>
-        /// Saves the clients inventory loadout.
+        /// Saves the clients sorted bagged inventory.
         /// </summary>
         [Client]
-        private void SaveInventorySorted_Client(bool sendToServer = false)
+        private void SaveBaggedSorted_Client(bool sendToServer = false)
         {
-            //TODO: Use a database rather than json file.
+            //todo: client can save locally, server cannot. but still use a better way to store.
             string s = ActiveBagsToJson();
-            string path = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
+            string path = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);
             try
             {
                 File.WriteAllText(path, s);
@@ -32,7 +32,7 @@ namespace GameKit.Core.Inventories
             if (sendToServer && !base.IsServerInitialized)
             {
                 List<SerializableActiveBag> sabs = ActiveBags.ValuesToList().ToSerializable();
-                SaveInventorySorted_Server(sabs);
+                SvrSaveBaggedSorted(sabs);
             }
         }
 
@@ -40,18 +40,18 @@ namespace GameKit.Core.Inventories
         /// Sends the players inventory loadout in the order they last used.
         /// </summary>
         [TargetRpc(ExcludeServer = true)]
-        private void TgtApplyInventory(NetworkConnection c, List<SerializableResourceQuantity> hiddenResources, List<SerializableActiveBag> activeBags)
+        private void TgtApplyInventory(NetworkConnection c, List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
         {
             //If local sorted save needed correcting then save again.
-            if (ApplyInventory_Client(hiddenResources, activeBags, false))
-                SaveInventorySorted_Client(false);
+            if (ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, baggedSorted))
+                SaveBaggedSorted_Client(false);
         }
 
         /// <summary>
         /// Uses serializable data to set inventory.
         /// </summary>
         /// <returns>True if sorted inventory was changed due to errors.</returns>
-        private bool ApplyInventory_Client(List<SerializableResourceQuantity> hiddenResources, List<SerializableActiveBag> activeBags, bool sendToClient)
+        private bool ApplyInventory_Client(List<SerializableActiveBag> activeBags, List<SerializableResourceQuantity> allResources, List<SerializableActiveBag> sortedBags)
         {
             return true;
             //TODO: For server save types in a database rather than JSON.
@@ -145,10 +145,6 @@ namespace GameKit.Core.Inventories
             //foreach (KeyValuePair<uint, int> item in rqsDict)
             //    ModifiyResourceQuantity(item.Key, item.Value, false);
 
-
-            //if (sendToClient)
-            //    TgtApplyInventory(base.Owner, hiddenResources, activeBags);
-
             //int rqsDictCount = rqsDict.Count;
             //CollectionCaches<uint, int>.Store(rqsDict);
             ///* If there were unsorted added then save clients new
@@ -234,7 +230,7 @@ namespace GameKit.Core.Inventories
             //Invoke changes.
             OnBagSlotUpdated?.Invoke(from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
             OnBagSlotUpdated?.Invoke(to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
-            SaveInventorySorted_Client();
+            SaveBaggedSorted_Client();
 
             return true;
 

@@ -155,11 +155,9 @@ namespace GameKit.Core.Inventories
         #endregion
 
 
-
-        private const string BAGGED_INVENTORY_FILENAME = "inventory_bagged.json";
-        private const string HIDDEN_INVENTORY_FILENAME = "inventory_bagged.json";
-        private const string SORTED_INVENTORY_FILENAME = "inventory_sorted.json";
-
+        private const string INVENTORY_HIDDEN_UNSORTED_FILENAME = "inventory_hidden_unsorted.json";
+        private const string INVENTORY_BAGGED_SORTED_FILENAME = "inventory_bagged__sorted.json";
+        private const string INVENTORY_BAGGED_UNSORTED_FILENAME = "inventory_bagged_unsorted.json";
 
         public override void OnStartNetwork()
         {
@@ -259,7 +257,7 @@ namespace GameKit.Core.Inventories
 
             //If something was added or removed then save unsorted.
             if (result != Mathf.Abs(quantity) && base.IsServerInitialized)
-                SaveInventoryUnsorted_Server();
+                SaveAllInventory_Server();
 
             return result;
         }
@@ -390,7 +388,7 @@ namespace GameKit.Core.Inventories
 
         }
 
-                /// <summary>
+        /// <summary>
         /// Removes a resource from the first available stacks regardless of the stack quantity.
         /// </summary>
         /// <param name="uniqueId">Resource to remove.</param>
@@ -530,9 +528,9 @@ namespace GameKit.Core.Inventories
         private void RebuildBaggedResources()
         {
             BaggedResources.Clear();
-            
+
             foreach (ActiveBag activeBag in ActiveBags.Values)
-            { 
+            {
                 for (int z = 0; z < activeBag.Slots.Length; z++)
                 {
                     ResourceQuantity rq = activeBag.Slots[z];
@@ -561,7 +559,7 @@ namespace GameKit.Core.Inventories
         {
             return GetResourceQuantity(bs.ActiveBag.UniqueId, bs.SlotIndex, out rq);
         }
-  
+
         /// <summary>
         /// Returns if a slot exists.
         /// </summary>

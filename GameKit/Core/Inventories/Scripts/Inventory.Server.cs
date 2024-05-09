@@ -33,9 +33,9 @@ namespace GameKit.Core.Inventories
         private void LoadInventoryFromDatabase(NetworkConnection c, bool sendToClient = true)
         {
             //TODO: this should be using a database, not locallly saved file.
-            string resourcesPath = Path.Combine(Application.dataPath, BAGGED_INVENTORY_FILENAME);
-            string loadoutPath = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
-            if (!File.Exists(resourcesPath) || !File.Exists(loadoutPath))
+            string baggedUnsortedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_UNSORTED_FILENAME);
+            string hiddenUnsortedPath = Path.Combine(Application.dataPath, INVENTORY_HIDDEN_UNSORTED_FILENAME);
+            if (!File.Exists(baggedUnsortedPath) || !File.Exists(hiddenUnsortedPath))
             {
                 foreach (BagData item in _defaultBags)
                 {
@@ -43,7 +43,7 @@ namespace GameKit.Core.Inventories
                     AddBag(b, InventoryConsts.UNSET_BAG_ID, false);
                 }
 
-                SaveInventoryUnsorted_Server();
+                SaveAllInventory_Server();
                 Debug.Log($"Inventory json files did not exist. They were created with default bags.");
             }
 
@@ -51,14 +51,31 @@ namespace GameKit.Core.Inventories
             try
             {
                 //Load as text and let client deserialize.
-                string unsortedResources = File.ReadAllText(resourcesPath);
-                string sortedResources = File.ReadAllText(loadoutPath);
+                string baggedUnsortedTxt = File.ReadAllText(baggedUnsortedPath);
+                string hiddenUnsortedTxt = File.ReadAllText(hiddenUnsortedPath);
 
-                SerializableUnsortedInventory ui = JsonConvert.DeserializeObject<SerializableUnsortedInventory>(unsortedResources);
-                List<SerializableActiveBag> sabs = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(sortedResources);
+                List<SerializableActiveBag> baggedUnsorted = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(baggedUnsortedTxt);
+                List<SerializableResourceQuantity> hiddenUnsorted = JsonConvert.DeserializeObject<List<SerializableResourceQuantity>>(hiddenUnsortedTxt);
 
                 //Add bags and slots on server.                    
-                ApplyInventory(ui, sabs, sendToClient);
+                ApplyInventory_Server(baggedUnsorted, hiddenUnsorted);
+
+                if (sendToClient)
+                {
+                    string baggedSortedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);
+                    List<SerializableActiveBag> baggedSorted;
+                    if (File.Exists(baggedSortedPath))
+                    {
+                        string baggedSortedTxt = File.ReadAllText(baggedSortedPath);
+                        baggedSorted = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(baggedSortedTxt);
+                    }
+                    else
+                    {
+                        baggedSorted = new();
+                    }
+
+                    TgtApplyInventory(base.Owner, baggedUnsorted, hiddenUnsorted, baggedSorted);
+                }
             }
             catch
             {
@@ -70,11 +87,11 @@ namespace GameKit.Core.Inventories
         /// Saves the clients inventory loadout on the server.
         /// </summary>
         [Server]
-        private void SaveInventorySorted_Server(List<SerializableActiveBag> sabs)
+        private void SaveBaggedInventorySorted_Server(List<SerializableActiveBag> sabs)
         {
-            //TODO: use a database instead.
+            //todo: save to a database. throttle save frequency. optimize by only sending changed bags.
             string s = JsonConvert.SerializeObject(sabs);
-            string path = Path.Combine(Application.dataPath, SORTED_INVENTORY_FILENAME);
+            string path = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);
             try
             {
                 File.WriteAllText(path, s);
@@ -82,58 +99,51 @@ namespace GameKit.Core.Inventories
             catch { }
         }
 
+        /// <summary>
+        /// Requests that the server saves sorted bags for the client.
+        /// </summary>
+        /// <param name="sabs"></param>
+        [ServerRpc]
+        private void SvrSaveBaggedSorted(List<SerializableActiveBag> sabs)
+        {
+            SaveBaggedInventorySorted_Server(sabs);
+        }
 
         /// <summary>
         /// Saves current inventory resource quantities to the server database.
         /// </summary>
         [Server]
-        private void SaveInventoryUnsorted_Server()
+        private void SaveAllInventory_Server()
         {
-            List<SerializableBagData> bags = CollectionCaches<SerializableBagData>.RetrieveList();
-            //Resource UNiqueIds and quantity of each.
-            Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
+            List<SerializableActiveBag> baggedUnsorted = ActiveBags.ValuesToList().ToSerializable();
+            List<SerializableResourceQuantity> hiddenUnsorted = CollectionCaches<SerializableResourceQuantity>.RetrieveList();
+            foreach (KeyValuePair<uint, int> item in HiddenResources)
+                hiddenUnsorted.Add(new SerializableResourceQuantity(item.Key, item.Value));
 
-            //Add all current resources to res.
-            foreach (ActiveBag item in ActiveBags.Values)
-            {
-                bags.Add(item.BagData.ToSerializable());
-                foreach (ResourceQuantity rq in item.Slots)
-                {
-                    if (!rq.IsUnset)
-                    {
-                        rqsDict.TryGetValue(rq.UniqueId, out int count);
-                        count += rq.Quantity;
-                        rqsDict[rq.UniqueId] = count;
-                    }
-                }
-            }
+            //TODO: Use a database rather than json file. save only diff when resources are added.
+            string baggedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_UNSORTED_FILENAME);
+            string hiddenPath = Path.Combine(Application.dataPath, INVENTORY_HIDDEN_UNSORTED_FILENAME);
 
-            List<SerializableResourceQuantity> rqsLst = CollectionCaches<SerializableResourceQuantity>.RetrieveList();
-            //Convert dictionary to ResourceQuantity list.
-            foreach (KeyValuePair<uint, int> item in rqsDict)
-                rqsLst.Add(new SerializableResourceQuantity(item.Key, item.Value));
-            //Recycle dictionary.
-            CollectionCaches<uint, int>.Store(rqsDict);
-
-            //TODO: Use a database rather than json file.
-            string path = Path.Combine(Application.dataPath, BAGGED_INVENTORY_FILENAME);
-            SerializableUnsortedInventory unsortedInv = new SerializableUnsortedInventory(bags, rqsLst);
-            string result = JsonConvert.SerializeObject(unsortedInv, Formatting.Indented);
             try
             {
-                File.WriteAllText(path, result);
+                string result;
+
+                result = JsonConvert.SerializeObject(baggedUnsorted, Formatting.Indented);
+                File.WriteAllText(baggedPath, result);
+
+                result = JsonConvert.SerializeObject(hiddenUnsorted, Formatting.Indented);
+                File.WriteAllText(hiddenPath, result);
             }
             catch { }
 
-            CollectionCaches<SerializableBagData>.Store(bags);
-            CollectionCaches<SerializableResourceQuantity>.Store(rqsLst);
+            CollectionCaches<SerializableResourceQuantity>.Store(hiddenUnsorted);
         }
 
 
         /// <summary>
         /// Uses serializable data to set inventory.
         /// </summary>
-        private void ApplyInventory_Server(SerializableUnsortedInventory hiddenResources, List<SerializableActiveBag> activeBags)
+        private void ApplyInventory_Server(List<SerializableActiveBag> sabs, List<SerializableResourceQuantity> allResources)
         {
             //ActiveBags.Clear();
             //HiddenResources.Clear();
