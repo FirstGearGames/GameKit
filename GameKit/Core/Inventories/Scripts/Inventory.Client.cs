@@ -7,6 +7,7 @@ using FishNet.Managing;
 using System.Collections.Generic;
 using System.IO;
 using GameKit.Dependencies.Utilities;
+using System.Linq;
 
 namespace GameKit.Core.Inventories
 {
@@ -53,9 +54,11 @@ namespace GameKit.Core.Inventories
         /// <returns>True if sorted inventory was changed due to errors.</returns>
         private bool ApplyInventory_Client(List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
         {
-            //TODO: For server save types in a database rather than JSON.
             ActiveBags.Clear();
             HiddenResources.Clear();
+
+            //HiddenUnsorted can simply be set because no sorting is needed.
+            hiddenUnsorted.ToNativeReplace(HiddenResources);
 
             /* ResourceQuantities which are handled inside the users saved inventory
             * are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
