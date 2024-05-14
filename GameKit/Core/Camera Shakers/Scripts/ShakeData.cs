@@ -502,11 +502,11 @@ namespace GameKit.CameraShakers
         /// <param name="axes">Axes to invert.</param>
         public void InvertPositionalAxes(InvertibleAxes axes)
         {
-            if (axes.Contains(InvertibleAxes.X))
+            if (axes.ContainsAllocated(InvertibleAxes.X))
                 _positionalInfluence.x *= -1f;
-            if (axes.Contains(InvertibleAxes.Y))
+            if (axes.ContainsAllocated(InvertibleAxes.Y))
                 _positionalInfluence.y *= -1f;
-            if (axes.Contains(InvertibleAxes.Z))
+            if (axes.ContainsAllocated(InvertibleAxes.Z))
                 _positionalInfluence.z *= -1f;
         }
         /// <summary>
@@ -515,11 +515,11 @@ namespace GameKit.CameraShakers
         /// <param name="axes">Axes to invert.</param>
         public void InvertRotationalAxes(InvertibleAxes axes)
         {
-            if (axes.Contains(InvertibleAxes.X))
+            if (axes.ContainsAllocated(InvertibleAxes.X))
                 _rotationalInfluence.x *= -1f;
-            if (axes.Contains(InvertibleAxes.Y))
+            if (axes.ContainsAllocated(InvertibleAxes.Y))
                 _rotationalInfluence.y *= -1f;
-            if (axes.Contains(InvertibleAxes.Z))
+            if (axes.ContainsAllocated(InvertibleAxes.Z))
                 _rotationalInfluence.z *= -1f;
         }
         /// <summary>
@@ -532,19 +532,19 @@ namespace GameKit.CameraShakers
             if ((int)axes != 0)
             {
                 //X
-                if (axes.Contains(InvertibleAxes.X))
+                if (axes.ContainsAllocated(InvertibleAxes.X))
                 {
                     float multiplier = Floats.RandomlyFlip(1f);
                     _positionalInfluence.x *= multiplier;
                 }
                 //Y
-                if (axes.Contains(InvertibleAxes.Y))
+                if (axes.ContainsAllocated(InvertibleAxes.Y))
                 {
                     float multiplier = Floats.RandomlyFlip(1f);
                     _positionalInfluence.y *= multiplier;
                 }
                 //Z
-                if (axes.Contains(InvertibleAxes.Z))
+                if (axes.ContainsAllocated(InvertibleAxes.Z))
                 {
                     float multiplier = Floats.RandomlyFlip(1f);
                     _positionalInfluence.z *= multiplier;
@@ -561,19 +561,19 @@ namespace GameKit.CameraShakers
             if ((int)axes != 0)
             {
                 //X
-                if (axes.Contains(InvertibleAxes.X))
+                if (axes.ContainsAllocated(InvertibleAxes.X))
                 {
                     float multiplier = Floats.RandomlyFlip(1f);
                     _rotationalInfluence.x *= multiplier;
                 }
                 //Y
-                if (axes.Contains(InvertibleAxes.Y))
+                if (axes.ContainsAllocated(InvertibleAxes.Y))
                 {
                     float multiplier = Floats.RandomlyFlip(1f);
                     _rotationalInfluence.y *= multiplier;
                 }
                 //Z
-                if (axes.Contains(InvertibleAxes.Z))
+                if (axes.ContainsAllocated(InvertibleAxes.Z))
                 {
                     float multiplier = Floats.RandomlyFlip(1f);
                     _rotationalInfluence.z *= multiplier;

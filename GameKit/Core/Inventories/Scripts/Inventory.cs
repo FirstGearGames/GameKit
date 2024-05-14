@@ -11,6 +11,9 @@ using Newtonsoft.Json;
 namespace GameKit.Core.Inventories
 {
 
+    /// <summary>
+    /// Handles inventories of all categories for the client.
+    /// </summary>
     public partial class Inventory : NetworkBehaviour
     {
         #region Types.
@@ -131,6 +134,10 @@ namespace GameKit.Core.Inventories
         /// These resources are not shown in the players bags but can be used to add hidden tokens or currencies.
         /// </summary>
         public Dictionary<uint, int> HiddenResources { get; private set; } = new();
+        /// <summary>
+        /// 
+        /// </summary>
+        public CharacterInventory CharacterInventory { get; private set; }
         #endregion
 
         #region Serialized.
@@ -163,6 +170,7 @@ namespace GameKit.Core.Inventories
         {
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
             _bagManager = base.NetworkManager.GetInstance<BagManager>();
+            CharacterInventory = GetComponent<CharacterInventory>();
         }
 
         /// <summary>
