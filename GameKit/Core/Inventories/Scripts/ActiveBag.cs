@@ -1,6 +1,7 @@
 using FishNet;
 using FishNet.Managing;
 using GameKit.Core.Resources;
+using GameKit.Dependencies.Utilities;
 using System.Collections.Generic;
 
 namespace GameKit.Core.Inventories.Bags
@@ -51,13 +52,13 @@ namespace GameKit.Core.Inventories.Bags
     /// <summary>
     /// A bag which exist. This can be in the world, inventory, etc.
     /// </summary>
-    public class ActiveBag
+    public class ActiveBag : IResettable
     {
         #region Public.
         /// <summary>
         /// An Id issued at runtime to reference this bag between server and client.
         /// </summary>
-        public uint UniqueId;
+        public uint UniqueId = InventoryConsts.UNSET_BAG_ID;
         /// <summary>
         /// Information about the bag used.
         /// </summary>
@@ -66,7 +67,7 @@ namespace GameKit.Core.Inventories.Bags
         /// Category or section of the game which this bag belongs to.
         /// This value can be used however liked, such as an Id of 0 would be inventory, 1 could be bank.
         /// </summary>
-        public ushort CategoryId;
+        public ushort CategoryId = InventoryConsts.UNSET_CATEGORY_ID;
         /// <summary>
         /// Index of this bag within the client's UI placement.
         /// This value is only used by the client.
@@ -107,7 +108,7 @@ namespace GameKit.Core.Inventories.Bags
         public ActiveBag(uint uniqueId, BagData b)
         {
             UniqueId = uniqueId;
-            BagData = b;           
+            BagData = b;
             Slots = new ResourceQuantity[b.Space];
             for (int i = 0; i < b.Space; i++)
             {
@@ -142,6 +143,16 @@ namespace GameKit.Core.Inventories.Bags
 
             LayoutIndex = sab.LayoutIndex;
             Slots = sab.FilledSlots.GetResourceQuantity(BagData.Space);
+        }
+
+        public void InitializeState() { }
+        public void ResetState()
+        {
+            UniqueId = InventoryConsts.UNSET_BAG_ID;
+            CategoryId = InventoryConsts.UNSET_CATEGORY_ID;
+            LayoutIndex = InventoryConsts.UNSET_LAYOUT_INDEX;
+
+            CollectionCaches<ResourceQuantity>.StoreAndDefault(ref Slots, Slots.Length);
         }
     }
 

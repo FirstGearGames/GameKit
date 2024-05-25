@@ -34,19 +34,18 @@ namespace GameKit.Dependencies.Utilities
         public static List<TValue> ValuesToList<TKey, TValue>(this IDictionary<TKey, TValue> dict)
         {
             List<TValue> result = new List<TValue>(dict.Count);
-            return dict.ValuesToList(ref result);
+            dict.ValuesToList(ref result);
+            return result;
         }
 
         /// <summary>
         /// Returns values as a list using the supplied collection as-is.
         /// </summary>
         /// <returns></returns>
-        public static List<TValue> ValuesToList<TKey, TValue>(this IDictionary<TKey, TValue> dict, ref List<TValue> result)
+        public static void ValuesToList<TKey, TValue>(this IDictionary<TKey, TValue> dict, ref List<TValue> result)
         {
             foreach (KeyValuePair<TKey, TValue> item in dict)
                 result.Add(item.Value);
-
-            return result;
         }
 
         /// <summary>
