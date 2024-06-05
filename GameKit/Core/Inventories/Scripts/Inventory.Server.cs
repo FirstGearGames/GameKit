@@ -100,6 +100,7 @@ namespace GameKit.Core.Inventories
         [Server]
         private void SaveBaggedInventorySorted_Server(List<SerializableActiveBag> sabs)
         {
+            return;
             //todo: save to a database. throttle save frequency. optimize by only sending changed bags.
             string s = JsonConvert.SerializeObject(sabs);
             string path = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);

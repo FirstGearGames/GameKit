@@ -27,6 +27,7 @@ namespace GameKit.Dependencies.Utilities
 #endif
         }
 
+
         /// <summary>
         /// Returns values as an allocated list.
         /// </summary>

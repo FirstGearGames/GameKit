@@ -21,6 +21,7 @@ namespace GameKit.Core.Inventories
         [Client]
         private void SaveBaggedSorted_Client(bool sendToServer = false)
         {
+            return;
             string s = ActiveBagsToJson();
             string path = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);
             try
@@ -45,30 +46,32 @@ namespace GameKit.Core.Inventories
         [TargetRpc(ExcludeServer = true)]
         private void TgtApplyInventory(NetworkConnection c, List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> characterSorted)
         {
-            //bool changed;
-            //List<SerializableActiveBag> categoryBaggedUnsorted = CollectionCaches<SerializableActiveBag>.RetrieveList();
-            //RebuildBaggedResourcesDel rebuildDel;
-            ///* Get only baggedUnsorted for each category type. */
+            bool changed;
+            List<SerializableActiveBag> categoryBaggedUnsorted = CollectionCaches<SerializableActiveBag>.RetrieveList();
+            RebuildBaggedResourcesDel rebuildDel;
+            /* Get only baggedUnsorted for each category type. */
 
-            ///* This block would need to be re-run for each inventory type. */
-            //FillCategoryBaggedUnsorted(InventoryCategory.Character);
+            /* This block would need to be re-run for each inventory type. */
+            FillCategoryBaggedUnsorted(InventoryCategory.Character);
             //rebuildDel = new RebuildBaggedResourcesDel(CharacterInventory.RebuildBaggedResources);
             //changed = ApplyInventory(CharacterInventory.ActiveBags, categoryBaggedUnsorted, characterSorted, rebuildDel);
-            ///* End block. */
+            rebuildDel = new RebuildBaggedResourcesDel(RebuildBaggedResources);
+            changed = ApplyInventory(ActiveBags, categoryBaggedUnsorted, characterSorted, rebuildDel);
+            /* End block. */
 
-            ////Clears and rebuilds the category unsorted list
-            //void FillCategoryBaggedUnsorted(InventoryCategory category)
-            //{
-            //    categoryBaggedUnsorted.Clear();
-            //    foreach (SerializableActiveBag item in baggedUnsorted)
-            //    {
-            //        if (item.CategoryId == (byte)InventoryCategory.Character)
-            //            categoryBaggedUnsorted.Add(item);
-            //    }
-            //}
+            //Clears and rebuilds the category unsorted list
+            void FillCategoryBaggedUnsorted(InventoryCategory category)
+            {
+                categoryBaggedUnsorted.Clear();
+                foreach (SerializableActiveBag item in baggedUnsorted)
+                {
+                    if (item.CategoryId == (byte)InventoryCategory.Character)
+                        categoryBaggedUnsorted.Add(item);
+                }
+            }
 
-            //if (changed)
-            //    SaveBaggedSorted_Client(false);
+            if (changed)
+                SaveBaggedSorted_Client(false);
         }
 
         /// <summary>
