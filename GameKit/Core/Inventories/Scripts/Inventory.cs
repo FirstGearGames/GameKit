@@ -157,10 +157,9 @@ namespace GameKit.Core.Inventories
         private BagManager _bagManager;
         #endregion
 
-
-        private const string INVENTORY_HIDDEN_UNSORTED_FILENAME = "inventory_hidden_unsorted.json";
+        #region Consts.
         private const string INVENTORY_BAGGED_SORTED_FILENAME = "inventory_bagged__sorted.json";
-        private const string INVENTORY_BAGGED_UNSORTED_FILENAME = "inventory_bagged_unsorted.json";
+        #endregion
 
         public override void OnStartNetwork()
         {

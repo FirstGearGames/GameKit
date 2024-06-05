@@ -9,10 +9,11 @@ namespace GameKit.Core.Inventories
     /// <summary>
     /// Constants related to Inventory.
     /// </summary>
+    [System.Serializable]
     public struct InventoryDb
     {
-        public List<SerializableActiveBag> ActiveBags;
-        public List<SerializableResourceQuantity> HiddenResources;
+        public List<SerializableActiveBag> ActiveBags { get; set; }
+        public List<SerializableResourceQuantity> HiddenResources { get; set; }
 
         public InventoryDb(List<SerializableActiveBag> activeBags, List<SerializableResourceQuantity> hiddenResources)
         {
@@ -22,8 +23,11 @@ namespace GameKit.Core.Inventories
 
         public void ResetState()
         {
-            CollectionCaches<SerializableActiveBag>.StoreAndDefault(ref ActiveBags);
-            CollectionCaches<SerializableResourceQuantity>.StoreAndDefault(ref HiddenResources);
+            CollectionCaches<SerializableActiveBag>.Store(ActiveBags);
+            CollectionCaches<SerializableResourceQuantity>.Store(HiddenResources);
+
+            ActiveBags = null;
+            HiddenResources = null;
         }
     }
 

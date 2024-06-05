@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace GameKit.Core.Inventories.Bags
 {
+    [System.Serializable]
     public struct SerializableActiveBag
     {
         /// <summary>
