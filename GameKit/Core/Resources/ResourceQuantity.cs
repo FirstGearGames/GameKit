@@ -15,6 +15,8 @@ namespace GameKit.Core.Resources
         /// Quantity of resource.
         /// </summary>
         public int Quantity { get; set; }
+        public void SetQuantity(int value) => Quantity = value;
+        public void ModifyQuantity(int value) => Quantity += value;
 
         public SerializableResourceQuantity(uint uniqueId, int quantity)
         {
@@ -42,8 +44,8 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Quantity of resource.
         /// </summary>
-        [Range(0, ushort.MaxValue)]
         public int Quantity;
+        public void SetQuantity(int value) => Quantity = value;
 
         public ResourceQuantity(uint uniqueId, int quantity)
         {

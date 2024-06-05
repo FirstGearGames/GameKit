@@ -1,4 +1,5 @@
 using FishNet.Object;
+using GameKit.Core.Resources;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -48,7 +49,7 @@ namespace GameKit.Core.Crafting
             if (!data.Enabled)
                 return;
             if (applyUniqueId)
-                data.UniqueId = (uint)(RecipeDatas.Count + 1);
+                data.UniqueId = (uint)(RecipeDatas.Count + ResourceConsts.UNSET_RESOURCE_ID + 1);
 
             RecipeDatas.Add(data);
             _recipeDatasCached[data.UniqueId] = data;

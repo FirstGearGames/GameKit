@@ -3,10 +3,8 @@ using GameKit.Core.Resources;
 using GameKit.Core.Resources.Droppables;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
-using GameKit.Dependencies.Utilities.Types.Editing;
 using GameKit.Core.Crafting;
 using GameKit.Dependencies.Utilities;
-using System.Linq;
 using GameKit.Core.Inventories.Bags;
 #if UNITY_EDITOR
 using UnityEditor;

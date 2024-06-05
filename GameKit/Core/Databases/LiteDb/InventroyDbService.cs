@@ -46,23 +46,23 @@ namespace GameKit.Core.Databases.LiteDb
             return true;
         }
 
-        public InventoryDb GetInventory(uint clientUniqueId)
+        public SerializableInventoryDb GetInventory(uint clientUniqueId)
         {
             if (!DatabaseExist(true))
                 return default;
 
-            ILiteCollection<InventoryDb> collection = _database.GetCollection<InventoryDb>();
-            InventoryDb result = collection.FindById((ulong)clientUniqueId);
+            ILiteCollection<SerializableInventoryDb> collection = _database.GetCollection<SerializableInventoryDb>();
+            SerializableInventoryDb result = collection.FindById((ulong)clientUniqueId);
             //It's okay if inventory is default.
             return result;
         }
 
-        public void SetInventory(uint clientUniqueId, InventoryDb inventory)
+        public void SetInventory(uint clientUniqueId, SerializableInventoryDb inventory)
         {
             if (!DatabaseExist(true))
                 return;
 
-            ILiteCollection<InventoryDb> collection = _database.GetCollection<InventoryDb>();
+            ILiteCollection<SerializableInventoryDb> collection = _database.GetCollection<SerializableInventoryDb>();
             collection.Upsert((ulong)clientUniqueId, inventory);
         }
     }

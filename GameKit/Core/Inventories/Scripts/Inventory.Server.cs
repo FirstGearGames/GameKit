@@ -33,7 +33,7 @@ namespace GameKit.Core.Inventories
         [Server]
         private void LoadInventoryFromDatabase(NetworkConnection c, bool sendToClient = true)
         {
-            InventoryDb inventoryDb = InventoryDbService.Instance.GetInventory((uint)c.ClientId);
+            SerializableInventoryDb inventoryDb = InventoryDbService.Instance.GetInventory((uint)c.ClientId);
             if (inventoryDb.IsDefault())
             {
                 for (int i = 0; i < _defaultBags.Length; i++)
@@ -121,7 +121,7 @@ namespace GameKit.Core.Inventories
         /// Saves current inventory resource quantities to the database, returning the InventoryDb created.
         /// </summary>
         [Server]
-        private InventoryDb SaveAllInventory_Server()
+        private SerializableInventoryDb SaveAllInventory_Server()
         {
             //TODO: there needs to be a diff save option.
             List<ActiveBag> activeBags = ResettableCollectionCaches<ActiveBag>.RetrieveList();
@@ -131,7 +131,7 @@ namespace GameKit.Core.Inventories
             foreach (KeyValuePair<uint, int> item in HiddenResources)
                 hiddenUnsorted.Add(new SerializableResourceQuantity(item.Key, item.Value));
 
-            InventoryDb result = new InventoryDb(baggedUnsorted, hiddenUnsorted);           
+            SerializableInventoryDb result = new SerializableInventoryDb(baggedUnsorted, hiddenUnsorted);           
             InventoryDbService.Instance.SetInventory((uint)base.Owner.ClientId, result);
             ////TODO: Use a database rather than json file. save only diff when resources are added.
             //string baggedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_UNSORTED_FILENAME);

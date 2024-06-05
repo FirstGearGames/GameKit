@@ -10,12 +10,12 @@ namespace GameKit.Core.Inventories
     /// Constants related to Inventory.
     /// </summary>
     [System.Serializable]
-    public struct InventoryDb
+    public struct SerializableInventoryDb
     {
         public List<SerializableActiveBag> ActiveBags { get; set; }
         public List<SerializableResourceQuantity> HiddenResources { get; set; }
 
-        public InventoryDb(List<SerializableActiveBag> activeBags, List<SerializableResourceQuantity> hiddenResources)
+        public SerializableInventoryDb(List<SerializableActiveBag> activeBags, List<SerializableResourceQuantity> hiddenResources)
         {
             ActiveBags = activeBags;
             HiddenResources = hiddenResources;
@@ -33,7 +33,7 @@ namespace GameKit.Core.Inventories
 
     public static class InventoryDbExtensions
     {
-        public static bool IsDefault(this InventoryDb inventoryDb)
+        public static bool IsDefault(this SerializableInventoryDb inventoryDb)
         {
             return (inventoryDb.ActiveBags == null && inventoryDb.HiddenResources == null);
         }

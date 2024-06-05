@@ -3675,7 +3675,8 @@ MonoBehaviour:
   _recipeDatas:
   - {fileID: 11400000, guid: 4238442ce1af438429d3d375996fac72, type: 2}
   - {fileID: 11400000, guid: e0797d1aef7d52c409517228890df3bc, type: 2}
-  _droppableDatas: []
+  _droppableDatas:
+  - {fileID: 11400000, guid: f2310ece004081849a732fa22681850b, type: 2}
   _bagDatas:
   - {fileID: 11400000, guid: b590bda2580265d478d6a1ca07a80b25, type: 2}
   - {fileID: 11400000, guid: 0c636be3748d8c44dafe22fa447b4f19, type: 2}
@@ -4028,7 +4029,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2611784263164773301, guid: df25ab723113e9e4c97f80de6b50bd07, type: 3}
       propertyPath: m_Name
-      value: RequiredResourceEntry
+      value: RequiredResourceEntry2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df25ab723113e9e4c97f80de6b50bd07, type: 3}
@@ -6830,7 +6831,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2611784263164773301, guid: df25ab723113e9e4c97f80de6b50bd07, type: 3}
       propertyPath: m_Name
-      value: Entry
+      value: Entry1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2611784263164773301, guid: df25ab723113e9e4c97f80de6b50bd07, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df25ab723113e9e4c97f80de6b50bd07, type: 3}

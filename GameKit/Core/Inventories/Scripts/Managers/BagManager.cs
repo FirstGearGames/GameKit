@@ -1,5 +1,6 @@
 using FishNet.Managing;
 using FishNet.Object;
+using GameKit.Core.Resources;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -58,7 +59,7 @@ namespace GameKit.Core.Inventories.Bags
             }
 
             if (applyUniqueId)
-                data.UniqueId = ((uint)BagDatas.Count + 1);
+                data.UniqueId = ((uint)BagDatas.Count + InventoryConsts.UNSET_BAG_ID + 1);
 
             BagDatas.Add(data);
             _bagDatasCache.Add(data.UniqueId, data);

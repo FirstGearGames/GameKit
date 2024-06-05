@@ -60,7 +60,7 @@ namespace GameKit.Core.Resources
                 return;
 
             if (applyUniqueId)
-                data.UniqueId = ((uint)ResourceDatas.Count + 1);
+                data.UniqueId = ((uint)ResourceDatas.Count + ResourceConsts.UNSET_RESOURCE_ID + 1);
             ResourceDatas.Add(data);
             _resourceDatasCache.Add(data.UniqueId, data);
         }

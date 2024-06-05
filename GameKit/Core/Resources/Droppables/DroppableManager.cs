@@ -48,7 +48,7 @@ namespace GameKit.Core.Resources.Droppables
         public void AddDroppableData(DroppableData data, bool applyUniqueId)
         {
             if (applyUniqueId)
-                data.UniqueId = ((uint)DroppableDatas.Count + 1);
+                data.UniqueId = ((uint)DroppableDatas.Count + ResourceConsts.UNSET_RESOURCE_ID + 1);
             //Set minimum quantity to 1.
             if (data.Quantity.Minimum < 1)
             {

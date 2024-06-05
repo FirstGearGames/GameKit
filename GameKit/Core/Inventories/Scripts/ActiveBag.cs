@@ -30,7 +30,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// All slots which have resources within them.
         /// </summary>
-        public List<FilledSlot> FilledSlots { get; set; }
+        public List<SerializableFilledSlot> FilledSlots { get; set; }
 
         public SerializableActiveBag(ActiveBag ab)
         {
@@ -174,7 +174,7 @@ namespace GameKit.Core.Inventories.Bags
                 if (rq.IsUnset)
                     continue;
 
-                result.FilledSlots.Add(new FilledSlot(i, rq.ToSerializable()));
+                result.FilledSlots.Add(new SerializableFilledSlot(i, rq.ToSerializable()));
             }
 
             return result;

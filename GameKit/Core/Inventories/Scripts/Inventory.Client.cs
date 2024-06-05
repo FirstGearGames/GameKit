@@ -96,7 +96,7 @@ namespace GameKit.Core.Inventories
             Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
             foreach (SerializableActiveBag item in unsorted)
             {
-                foreach (FilledSlot fs in item.FilledSlots)
+                foreach (SerializableFilledSlot fs in item.FilledSlots)
                 {
                     uint id = fs.ResourceQuantity.UniqueId;
                     rqsDict.TryGetValue(id, out int currentQuantity);
@@ -145,7 +145,7 @@ namespace GameKit.Core.Inventories
             {
                 for (int z = 0; z < sorted[i].FilledSlots.Count; z++)
                 {
-                    FilledSlot fs = sorted[i].FilledSlots[z];
+                    SerializableFilledSlot fs = sorted[i].FilledSlots[z];
                     rqsDict.TryGetValue(fs.ResourceQuantity.UniqueId, out int unsortedCount);
                     /* Subtract sortedCount from unsortedCount. If the value is negative
                      * then the result must be removed from unsortedCount. Additionally,
@@ -153,7 +153,7 @@ namespace GameKit.Core.Inventories
                     int quantityDifference = (unsortedCount - fs.ResourceQuantity.Quantity);
                     if (quantityDifference < 0)
                     {
-                        fs.ResourceQuantity.Quantity += quantityDifference;
+                        fs.ResourceQuantity.ModifyQuantity(quantityDifference);
                         sorted[i].FilledSlots[z] = fs;
                     }
 
@@ -174,7 +174,7 @@ namespace GameKit.Core.Inventories
                 BagData bagData = bagManager.GetBagData(sab.BagDataUniqueId);
                 //Fill slots.
                 ResourceQuantity[] rqs = new ResourceQuantity[bagData.Space];
-                foreach (FilledSlot item in sab.FilledSlots)
+                foreach (SerializableFilledSlot item in sab.FilledSlots)
                 {
                     if (item.ResourceQuantity.Quantity > 0)
                         rqs[item.Slot] = new ResourceQuantity(item.ResourceQuantity.UniqueId, item.ResourceQuantity.Quantity);
