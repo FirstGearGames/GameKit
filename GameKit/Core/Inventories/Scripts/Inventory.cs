@@ -208,9 +208,10 @@ namespace GameKit.Core.Inventories
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddBag(BagData bag, uint activeBagUniqueId = InventoryConsts.UNSET_BAG_ID, bool sendToClient = true)
         {
+            int currentActiveBagsCount = ActiveBags.Count;
             if (activeBagUniqueId == InventoryConsts.UNSET_BAG_ID)
-                activeBagUniqueId = (uint)(ActiveBags.Count + 1);
-            ActiveBag ab = new ActiveBag(activeBagUniqueId, bag);
+                activeBagUniqueId = ((uint)currentActiveBagsCount + 1);
+            ActiveBag ab = new ActiveBag(activeBagUniqueId, bag, currentActiveBagsCount);
             AddBag(ab, sendToClient);
         }
 

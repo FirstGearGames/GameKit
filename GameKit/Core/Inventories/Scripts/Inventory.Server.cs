@@ -34,18 +34,14 @@ namespace GameKit.Core.Inventories
         private void LoadInventoryFromDatabase(NetworkConnection c, bool sendToClient = true)
         {
             InventoryDb inventoryDb = InventoryDbService.Instance.GetInventory((uint)c.ClientId);
-
-            //TODO: this should be using a database, not locallly saved file.
-            //string baggedUnsortedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_UNSORTED_FILENAME);
-            //string hiddenUnsortedPath = Path.Combine(Application.dataPath, INVENTORY_HIDDEN_UNSORTED_FILENAME);
-            //if (!File.Exists(baggedUnsortedPath) || !File.Exists(hiddenUnsortedPath))
             if (inventoryDb.IsDefault())
             {
                 for (int i = 0; i < _defaultBags.Length; i++)
                 {
                     BagData item = _defaultBags[i];
                     BagData b = _bagManager.GetBagData(item.UniqueId);
-                    AddBag(b, (uint)i, false);
+                    uint baseIndex = InventoryConsts.UNSET_BAG_ID + 1;
+                    AddBag(b, baseIndex + (uint)i, false);
                 }
 
                 inventoryDb = SaveAllInventory_Server();

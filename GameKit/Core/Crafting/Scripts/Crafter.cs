@@ -207,10 +207,10 @@ namespace GameKit.Core.Crafting
         private void ProgressCrafting()
         {
             //Server only needs to progress if this frame will tick.
-            if (base.IsServer && base.TimeManager.FrameTicked)
+            if (base.IsServerInitialized && base.TimeManager.FrameTicked)
                 Progress(true);
             //Client always progresses to show real-time updates.
-            if (base.IsClient)
+            if (base.IsClientInitialized)
                 Progress(false);
 
             //Progresses crafting.

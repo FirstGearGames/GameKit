@@ -105,10 +105,11 @@ namespace GameKit.Core.Inventories.Bags
         public ResourceQuantity[] Slots = new ResourceQuantity[0];
         #endregion
 
-        public ActiveBag(uint uniqueId, BagData b)
+        public ActiveBag(uint uniqueId, BagData b, int layoutIndex)
         {
             UniqueId = uniqueId;
             BagData = b;
+            LayoutIndex = layoutIndex;
             Slots = new ResourceQuantity[b.Space];
             for (int i = 0; i < b.Space; i++)
             {
