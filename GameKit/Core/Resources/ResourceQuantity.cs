@@ -10,11 +10,11 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Type of resource.
         /// </summary>
-        public uint UniqueId;
+        public uint UniqueId { get; set; }
         /// <summary>
         /// Quantity of resource.
         /// </summary>
-        public int Quantity;
+        public int Quantity { get; set; }
 
         public SerializableResourceQuantity(uint uniqueId, int quantity)
         {

@@ -25,15 +25,15 @@ namespace GameKit.Core.Inventories
             /// <summary>
             /// Bags the client has.
             /// </summary>
-            public List<SerializableBagData> Bags;
+            public List<SerializableBagData> Bags { get; set; }
             /// <summary>
             /// Resources across all bags the client has.
             /// </summary>
-            public List<SerializableResourceQuantity> BaggedResourceQuantities;
+            public List<SerializableResourceQuantity> BaggedResourceQuantities { get; set; }
             /// <summary>
             /// Resources the client has which are hidden.
             /// </summary>
-            public List<SerializableResourceQuantity> HiddenResourceQuantities;
+            public List<SerializableResourceQuantity> HiddenResourceQuantities { get; set; }
 
             public SerializableUnsortedInventory(List<SerializableBagData> bags, List<SerializableResourceQuantity> resourceQuantities, List<SerializableResourceQuantity> hiddenResourceQuantities)
             {

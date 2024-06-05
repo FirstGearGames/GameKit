@@ -22,6 +22,7 @@ namespace GameKit.Core.Databases.LiteDb
         {
             _database = null;
             Instance = null;
+            _database.Dispose();
         }
 
         private void Initialize()

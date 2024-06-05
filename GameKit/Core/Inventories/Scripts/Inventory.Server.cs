@@ -127,12 +127,11 @@ namespace GameKit.Core.Inventories
             List<ActiveBag> activeBags = ResettableCollectionCaches<ActiveBag>.RetrieveList();
             ActiveBags.ValuesToList(ref activeBags);
             List<SerializableActiveBag> baggedUnsorted = activeBags.ToSerializable();
-
             List<SerializableResourceQuantity> hiddenUnsorted = CollectionCaches<SerializableResourceQuantity>.RetrieveList();
             foreach (KeyValuePair<uint, int> item in HiddenResources)
                 hiddenUnsorted.Add(new SerializableResourceQuantity(item.Key, item.Value));
 
-            InventoryDb result = new InventoryDb(baggedUnsorted, hiddenUnsorted);
+            InventoryDb result = new InventoryDb(baggedUnsorted, hiddenUnsorted);           
             InventoryDbService.Instance.SetInventory((uint)base.Owner.ClientId, result);
             ////TODO: Use a database rather than json file. save only diff when resources are added.
             //string baggedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_UNSORTED_FILENAME);

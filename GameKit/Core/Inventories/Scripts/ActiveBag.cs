@@ -12,25 +12,25 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// An Id issued at runtime to reference this bag between server and client.
         /// </summary>
-        public uint UniqueId;
+        public uint UniqueId { get; set; }
         /// <summary>
         /// UniqueId for the BagData used.
         /// </summary>
-        public uint BagDataUniqueId;
+        public uint BagDataUniqueId { get; set; }
         /// <summary>
         /// Category or section of the game which this bag belongs to.
         /// This value can be used however liked, such as an Id of 0 would be inventory, 1 could be bank.
         /// </summary>
-        public ushort CategoryId;
+        public ushort CategoryId { get; set; }
         /// <summary>
         /// Index of this bag within the client's UI placement.
         /// This value is only used by the client.
         /// </summary>
-        public int LayoutIndex;
+        public int LayoutIndex { get; set; }
         /// <summary>
         /// All slots which have resources within them.
         /// </summary>
-        public List<FilledSlot> FilledSlots;
+        public List<FilledSlot> FilledSlots { get; set; }
 
         public SerializableActiveBag(ActiveBag ab)
         {
