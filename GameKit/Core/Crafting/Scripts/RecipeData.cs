@@ -51,17 +51,17 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// Cached for required resources.
         /// </summary>
-        private List<ResourceQuantity> _requiredResourcesCache = new List<ResourceQuantity>();
+        private List<SerializableResourceQuantity> _requiredResourcesCache = new List<SerializableResourceQuantity>();
         #endregion
 
-        public ResourceQuantity GetResult() => new ResourceQuantity(Result.ResourceData.UniqueId, Result.Quantity);
-        public List<ResourceQuantity> GetRequiredResources()
+        public SerializableResourceQuantity GetResult() => new SerializableResourceQuantity(Result.ResourceData.UniqueId, Result.Quantity);
+        public List<SerializableResourceQuantity> GetRequiredResources()
         {
             //If needs to be cached.
             if (RequiredResources.Count > 0 && _requiredResourcesCache.Count == 0)
             {
                 foreach (TypedResourceQuantity trq in RequiredResources)
-                    _requiredResourcesCache.Add(new ResourceQuantity(trq.ResourceData.UniqueId, trq.Quantity));
+                    _requiredResourcesCache.Add(new SerializableResourceQuantity(trq.ResourceData.UniqueId, trq.Quantity));
             }
 
             return _requiredResourcesCache;

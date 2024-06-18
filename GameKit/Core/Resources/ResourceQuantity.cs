@@ -4,34 +4,8 @@ using UnityEngine;
 
 namespace GameKit.Core.Resources
 {
-    [System.Serializable]
+
     public struct SerializableResourceQuantity
-    {
-        /// <summary>
-        /// Type of resource.
-        /// </summary>
-        public uint UniqueId { get; set; }
-        /// <summary>
-        /// Quantity of resource.
-        /// </summary>
-        public int Quantity { get; set; }
-        public void SetQuantity(int value) => Quantity = value;
-        public void ModifyQuantity(int value) => Quantity += value;
-
-        public SerializableResourceQuantity(uint uniqueId, int quantity)
-        {
-            UniqueId = uniqueId;
-            Quantity = quantity;
-        }
-
-        public ResourceQuantity ToNative()
-        {
-            return new ResourceQuantity(UniqueId, Quantity);
-        }
-    }
-
-    [System.Serializable]
-    public struct ResourceQuantity
     {
         /// <summary>
         /// Returns if this entry is considered unset.
@@ -44,10 +18,10 @@ namespace GameKit.Core.Resources
         /// <summary>
         /// Quantity of resource.
         /// </summary>
+        [Range(0, ushort.MaxValue)]
         public int Quantity;
-        public void SetQuantity(int value) => Quantity = value;
 
-        public ResourceQuantity(uint uniqueId, int quantity)
+        public SerializableResourceQuantity(uint uniqueId, int quantity)
         {
             UniqueId = uniqueId;
             Quantity = quantity;
@@ -70,20 +44,6 @@ namespace GameKit.Core.Resources
             UniqueId = uniqueId;
             Quantity = quantity;
         }
-        /// <summary>
-        /// Updates the ResourceId.
-        /// </summary>
-        public void UpdateResourceId(uint uniqueId)
-        {
-            UniqueId = uniqueId;
-        }
-        /// <summary>
-        /// Updates the Quantity.
-        /// </summary>
-        public void UpdateQuantity(int quantity)
-        {
-            Quantity = quantity;
-        }
     }
 
     public static class ResourceQuantityExtensions
@@ -92,7 +52,7 @@ namespace GameKit.Core.Resources
         /// Makes this object network serializable.
         /// </summary>
         /// <returns></returns>
-        public static SerializableResourceQuantity ToSerializable(this ResourceQuantity rq)
+        public static SerializableResourceQuantity ToSerializable(this SerializableResourceQuantity rq)
         {
             return new SerializableResourceQuantity(rq.UniqueId, rq.Quantity);
         }
@@ -101,10 +61,10 @@ namespace GameKit.Core.Resources
         /// Makes this object network serializable.
         /// </summary>
         /// <returns></returns>
-        public static List<SerializableResourceQuantity> ToSerializable(this List<ResourceQuantity> rqs)
+        public static List<SerializableResourceQuantity> ToSerializable(this List<SerializableResourceQuantity> rqs)
         {
             List<SerializableResourceQuantity> result = new();
-            foreach (ResourceQuantity rq in rqs)
+            foreach (SerializableResourceQuantity rq in rqs)
                 result.Add(rq.ToSerializable());
 
             return result;
@@ -115,9 +75,9 @@ namespace GameKit.Core.Resources
         /// Makes this object native.
         /// </summary>
         /// <returns></returns>
-        public static ResourceQuantity ToNative(this SerializableResourceQuantity srq)
+        public static SerializableResourceQuantity ToNative(this SerializableResourceQuantity srq)
         {
-            return new ResourceQuantity(srq.UniqueId, srq.Quantity);
+            return new SerializableResourceQuantity(srq.UniqueId, srq.Quantity);
         }
 
         /// <summary>
@@ -125,9 +85,9 @@ namespace GameKit.Core.Resources
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<ResourceQuantity> ToNative(this List<SerializableResourceQuantity> srqs)
+        public static List<SerializableResourceQuantity> ToNative(this List<SerializableResourceQuantity> srqs)
         {
-            List<ResourceQuantity> result = new();
+            List<SerializableResourceQuantity> result = new();
             foreach (SerializableResourceQuantity srq in srqs)
                 result.Add(srq.ToNative());
 

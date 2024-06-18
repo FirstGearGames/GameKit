@@ -45,11 +45,11 @@ namespace GameKit.Core.Resources.Droppables
         /// <summary>
         /// Converts droppable results to a ResourceQuantity collection.
         /// </summary>
-        public static void ToResourceQuantities(this Dictionary<DroppableData, byte> drops, ref List<ResourceQuantity> results)
+        public static void ToResourceQuantities(this Dictionary<DroppableData, byte> drops, ref List<SerializableResourceQuantity> results)
         {
             foreach (KeyValuePair<DroppableData, byte> item in drops)
             {
-                ResourceQuantity rq = new ResourceQuantity(item.Key.ResourceData.UniqueId, item.Value);
+                SerializableResourceQuantity rq = new SerializableResourceQuantity(item.Key.ResourceData.UniqueId, item.Value);
                 results.Add(rq);
             }
         }

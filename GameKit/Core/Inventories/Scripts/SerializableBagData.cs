@@ -5,7 +5,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// Unique Id for this bag. This is generally a database Id for the bag.
         /// </summary>
-        public uint UniqueId { get; set; }
+        public uint UniqueId;
 
         public SerializableBagData(uint uniqueId)
         {

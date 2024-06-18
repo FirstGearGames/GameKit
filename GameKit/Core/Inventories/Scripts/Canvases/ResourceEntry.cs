@@ -93,7 +93,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(ClientInstance clientInstance, InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, ResourceQuantity rq, BagSlot bagSlot)
+        public void Initialize(ClientInstance clientInstance, InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, SerializableResourceQuantity rq, BagSlot bagSlot)
         {
             //If no data then initialize empty.
             if (rq.IsUnset)

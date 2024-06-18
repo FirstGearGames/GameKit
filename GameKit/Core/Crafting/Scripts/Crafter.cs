@@ -176,7 +176,7 @@ namespace GameKit.Core.Crafting
         /// <returns></returns>
         private bool HasCraftingResources(RecipeData r, int totalCrafts = 1)
         {
-            foreach (ResourceQuantity rq in r.GetRequiredResources())
+            foreach (SerializableResourceQuantity rq in r.GetRequiredResources())
             {
                 int count = _inventory.GetResourceQuantity(rq.UniqueId);
                 //Resource count not met.
@@ -309,7 +309,7 @@ namespace GameKit.Core.Crafting
         /// </summary>
         private bool HasInventorySpace(RecipeData recipe)
         {
-            ResourceQuantity receivedResourceQuantity = recipe.GetResult();
+            SerializableResourceQuantity receivedResourceQuantity = recipe.GetResult();
             ResourceData resourceData = _resourceManager.GetResourceData(receivedResourceQuantity.UniqueId);
             int stackLimit = resourceData.StackLimit;
             /* Quantiy remaining to be placed in bags.
@@ -331,7 +331,7 @@ namespace GameKit.Core.Crafting
             {
                 foreach (ActiveBag b in _inventory.ActiveBags.Values)
                 {
-                    foreach (ResourceQuantity rq in b.Slots)
+                    foreach (SerializableResourceQuantity rq in b.Slots)
                     {
                         //Not the same resource to add.
                         if (rq.UniqueId != receivedResourceQuantity.UniqueId)

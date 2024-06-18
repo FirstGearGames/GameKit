@@ -146,20 +146,20 @@ namespace GameKit.Core.Inventories
                 for (int z = 0; z < sorted[i].FilledSlots.Count; z++)
                 {
                     SerializableFilledSlot fs = sorted[i].FilledSlots[z];
-                    rqsDict.TryGetValue(fs.ResourceQuantity.UniqueId, out int unsortedCount);
+                    rqsDict.TryGetValue((uint)fs.ResourceQuantity.UniqueId, out int unsortedCount);
                     /* Subtract sortedCount from unsortedCount. If the value is negative
                      * then the result must be removed from unsortedCount. Additionally,
                      * remove the resourceId from rqsDict since it no longer has value. */
                     int quantityDifference = (unsortedCount - fs.ResourceQuantity.Quantity);
                     if (quantityDifference < 0)
                     {
-                        fs.ResourceQuantity.ModifyQuantity(quantityDifference);
+                        fs.ResourceQuantity.Quantity += quantityDifference;
                         sorted[i].FilledSlots[z] = fs;
                     }
 
                     //If there is no more quantity left then remove from unsorted.
                     if (quantityDifference <= 0)
-                        rqsDict.Remove(fs.ResourceQuantity.UniqueId);
+                        rqsDict.Remove((uint)fs.ResourceQuantity.UniqueId);
                     //Still some quantity left, update unsorted.
                     else
                         rqsDict[fs.ResourceQuantity.UniqueId] = quantityDifference;
@@ -173,11 +173,11 @@ namespace GameKit.Core.Inventories
             {
                 BagData bagData = bagManager.GetBagData(sab.BagDataUniqueId);
                 //Fill slots.
-                ResourceQuantity[] rqs = new ResourceQuantity[bagData.Space];
+                SerializableResourceQuantity[] rqs = new SerializableResourceQuantity[bagData.Space];
                 foreach (SerializableFilledSlot item in sab.FilledSlots)
                 {
                     if (item.ResourceQuantity.Quantity > 0)
-                        rqs[item.Slot] = new ResourceQuantity(item.ResourceQuantity.UniqueId, item.ResourceQuantity.Quantity);
+                        rqs[item.Slot] = new SerializableResourceQuantity(item.ResourceQuantity.UniqueId, item.ResourceQuantity.Quantity);
                 }
                 //Create active bag and add.
                 ActiveBag ab = new ActiveBag(sab.UniqueId, bagData, sab.LayoutIndex, rqs);
@@ -240,9 +240,9 @@ namespace GameKit.Core.Inventories
         [Client]
         public bool MoveResource(BagSlot from, BagSlot to, int quantity = -1)
         {
-            if (!GetResourceQuantity(from, out ResourceQuantity fromRq))
+            if (!GetResourceQuantity(from, out SerializableResourceQuantity fromRq))
                 return false;
-            if (!GetResourceQuantity(to, out ResourceQuantity toRq))
+            if (!GetResourceQuantity(to, out SerializableResourceQuantity toRq))
                 return false;
             if (from.Equals(to))
                 return false;
@@ -328,8 +328,8 @@ namespace GameKit.Core.Inventories
                      * or specified quantity. */
                     moveAmount = Mathf.Min((stackLimit - toRq.Quantity), quantity);
                     //Update to quantities.
-                    toRq.UpdateQuantity(toRq.Quantity + moveAmount);
-                    fromRq.UpdateQuantity(fromRq.Quantity - moveAmount);
+                    toRq.Quantity += moveAmount;
+                    fromRq.Quantity -= moveAmount;
                     //If from is empty then unset.
                     if (fromRq.Quantity <= 0)
                         fromRq.MakeUnset();

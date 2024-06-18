@@ -25,15 +25,15 @@ namespace GameKit.Core.Inventories
             /// <summary>
             /// Bags the client has.
             /// </summary>
-            public List<SerializableBagData> Bags { get; set; }
+            public List<SerializableBagData> Bags;
             /// <summary>
             /// Resources across all bags the client has.
             /// </summary>
-            public List<SerializableResourceQuantity> BaggedResourceQuantities { get; set; }
+            public List<SerializableResourceQuantity> BaggedResourceQuantities;
             /// <summary>
             /// Resources the client has which are hidden.
             /// </summary>
-            public List<SerializableResourceQuantity> HiddenResourceQuantities { get; set; }
+            public List<SerializableResourceQuantity> HiddenResourceQuantities;
 
             public SerializableUnsortedInventory(List<SerializableBagData> bags, List<SerializableResourceQuantity> resourceQuantities, List<SerializableResourceQuantity> hiddenResourceQuantities)
             {
@@ -64,12 +64,12 @@ namespace GameKit.Core.Inventories
         /// Called when a single resource is updated.
         /// </summary>
         public event ResourceUpdatedDel OnResourceUpdated;
-        public delegate void ResourceUpdatedDel(ResourceQuantity resourceQuantity);
+        public delegate void ResourceUpdatedDel(SerializableResourceQuantity resourceQuantity);
         /// <summary>
         /// Called when inventory slots change with new, removed, or additionally stacked items.
         /// </summary>
         public event BagSlotUpdatedDel OnBagSlotUpdated;
-        public delegate void BagSlotUpdatedDel(ActiveBag activeBag, int slotIndex, ResourceQuantity resource);
+        public delegate void BagSlotUpdatedDel(ActiveBag activeBag, int slotIndex, SerializableResourceQuantity resource);
         /// <summary>
         /// Quantities of each resource.
         /// Key: the resource UniqueId.
@@ -505,7 +505,7 @@ namespace GameKit.Core.Inventories
         /// <param name="currentQuantity">Current quantity of the resource after the change.</param>
         private void CompleteResourceQuantityChange(uint uniqueId, int currentQuantity)
         {
-            ResourceQuantity rq = new ResourceQuantity(uniqueId, (int)currentQuantity);
+            SerializableResourceQuantity rq = new SerializableResourceQuantity(uniqueId, (int)currentQuantity);
             OnResourceUpdated?.Invoke(rq);
         }
 
@@ -516,10 +516,10 @@ namespace GameKit.Core.Inventories
         private void UpdateResourcesFromRecipe(RecipeData r, bool sendToClient = true)
         {
             //Remove needed resources first so space used is removed.
-            foreach (ResourceQuantity rq in r.GetRequiredResources())
+            foreach (SerializableResourceQuantity rq in r.GetRequiredResources())
                 ModifiyResourceQuantity(rq.UniqueId, -rq.Quantity);
 
-            ResourceQuantity recipeResult = r.GetResult();
+            SerializableResourceQuantity recipeResult = r.GetResult();
             ModifiyResourceQuantity(recipeResult.UniqueId, recipeResult.Quantity, sendToClient);
             OnBulkResourcesUpdated?.Invoke();
         }
@@ -536,7 +536,7 @@ namespace GameKit.Core.Inventories
             {
                 for (int z = 0; z < activeBag.Slots.Length; z++)
                 {
-                    ResourceQuantity rq = activeBag.Slots[z];
+                    SerializableResourceQuantity rq = activeBag.Slots[z];
                     //Do not need to add if unset.
                     if (rq.IsUnset)
                         continue;
@@ -558,7 +558,7 @@ namespace GameKit.Core.Inventories
         /// Outputs resource quantities of a BagSlot.
         /// </summary>
         /// <returns>True if the return was successful.</returns>
-        private bool GetResourceQuantity(BagSlot bs, out ResourceQuantity rq)
+        private bool GetResourceQuantity(BagSlot bs, out SerializableResourceQuantity rq)
         {
             return GetResourceQuantity(bs.ActiveBag.UniqueId, bs.SlotIndex, out rq);
         }
@@ -584,7 +584,7 @@ namespace GameKit.Core.Inventories
         /// Gets a ResourceQuantity using an ActiveBag.UniqueId, and SlotIndex.
         /// </summary>
         /// <returns>True if the bag and slot index was valid.</returns>
-        public bool GetResourceQuantity(uint bagUniqueId, int slotIndex, out ResourceQuantity rq)
+        public bool GetResourceQuantity(uint bagUniqueId, int slotIndex, out SerializableResourceQuantity rq)
         {
             //Invalid information.
             if (!IsValidBagSlot(bagUniqueId, slotIndex))

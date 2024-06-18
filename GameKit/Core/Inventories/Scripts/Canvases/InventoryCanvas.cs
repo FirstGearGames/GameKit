@@ -251,7 +251,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// Called when inventory space is updated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Inventory_OnBagSlotUpdated(ActiveBag activeBag, int slotIndex, ResourceQuantity rq)
+        private void Inventory_OnBagSlotUpdated(ActiveBag activeBag, int slotIndex, SerializableResourceQuantity rq)
         {
             if (UpdateOnShow())
                 return;

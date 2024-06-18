@@ -1,6 +1,4 @@
 using GameKit.Core.Resources;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace GameKit.Core.Quests
 {

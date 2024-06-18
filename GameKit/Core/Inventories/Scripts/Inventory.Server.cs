@@ -40,7 +40,7 @@ namespace GameKit.Core.Inventories
                 {
                     BagData item = _defaultBags[i];
                     BagData b = _bagManager.GetBagData(item.UniqueId);
-                    uint baseIndex = InventoryConsts.UNSET_BAG_ID + 1;
+                    uint baseIndex = (InventoryConsts.UNSET_BAG_ID + 1);
                     AddBag(b, baseIndex + (uint)i, false);
                 }
 

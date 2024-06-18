@@ -30,7 +30,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// <summary>
         /// Quantity of resource required.
         /// </summary>
-        private ResourceQuantity _resourceQuantity;
+        private SerializableResourceQuantity _resourceQuantity;
         /// <summary>
         /// Inventory to pull information from.
         /// </summary>
@@ -41,7 +41,7 @@ namespace GameKit.Core.Crafting.Canvases
         /// </summary>
         /// <param name="rm">ResourceManager reference.</param>
         /// <param name="rq">Resource information to display.</param>
-        public void Initialize(ResourceManager rm, ResourceQuantity rq, Inventory inventory)
+        public void Initialize(ResourceManager rm, SerializableResourceQuantity rq, Inventory inventory)
         {
             _resourceQuantity = rq;
             _inventory = inventory;

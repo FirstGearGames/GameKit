@@ -12,8 +12,8 @@ namespace GameKit.Core.Inventories
     [System.Serializable]
     public struct SerializableInventoryDb
     {
-        public List<SerializableActiveBag> ActiveBags { get; set; }
-        public List<SerializableResourceQuantity> HiddenResources { get; set; }
+        public List<SerializableActiveBag> ActiveBags;
+        public List<SerializableResourceQuantity> HiddenResources;
 
         public SerializableInventoryDb(List<SerializableActiveBag> activeBags, List<SerializableResourceQuantity> hiddenResources)
         {

@@ -54,11 +54,11 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// UniqueId of the bag which holds this item.
         /// </summary>
-        public uint ActiveBagUniqueId { get; set; }
+        public uint ActiveBagUniqueId;
         /// <summary>
         /// Slot in the bag where this item resides.
         /// </summary>
-        public int SlotIndex { get; set; }
+        public int SlotIndex;
 
         public SerializableBagSlot(uint activeBagUniqueId, int slotIndex)
         {

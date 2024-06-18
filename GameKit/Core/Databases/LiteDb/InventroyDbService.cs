@@ -30,8 +30,8 @@ namespace GameKit.Core.Databases.LiteDb
             if (DatabaseExist(false))
                 return;
 
-            string path = Application.persistentDataPath;
-            _database = new LiteDatabase($"{Path.Combine(path, "GameKit.db")}");
+            string path = $"{Path.Combine(Application.persistentDataPath, "GameKit.db")}";
+            _database = new LiteDatabase(path);            
         }
 
         private bool DatabaseExist(bool error)

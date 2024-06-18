@@ -12,25 +12,25 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// An Id issued at runtime to reference this bag between server and client.
         /// </summary>
-        public uint UniqueId { get; set; }
+        public uint UniqueId;
         /// <summary>
         /// UniqueId for the BagData used.
         /// </summary>
-        public uint BagDataUniqueId { get; set; }
+        public uint BagDataUniqueId;
         /// <summary>
         /// Category or section of the game which this bag belongs to.
         /// This value can be used however liked, such as an Id of 0 would be inventory, 1 could be bank.
         /// </summary>
-        public ushort CategoryId { get; set; }
+        public ushort CategoryId;
         /// <summary>
         /// Index of this bag within the client's UI placement.
         /// This value is only used by the client.
         /// </summary>
-        public int LayoutIndex { get; set; }
+        public int LayoutIndex;
         /// <summary>
         /// All slots which have resources within them.
         /// </summary>
-        public List<SerializableFilledSlot> FilledSlots { get; set; }
+        public List<SerializableFilledSlot> FilledSlots;
 
         public SerializableActiveBag(ActiveBag ab)
         {
@@ -103,7 +103,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// All slots in this bag.
         /// </summary>
-        public ResourceQuantity[] Slots = new ResourceQuantity[0];
+        public SerializableResourceQuantity[] Slots = new SerializableResourceQuantity[0];
         #endregion
 
         public ActiveBag(uint uniqueId, BagData b, int layoutIndex)
@@ -111,15 +111,15 @@ namespace GameKit.Core.Inventories.Bags
             UniqueId = uniqueId;
             BagData = b;
             LayoutIndex = layoutIndex;
-            Slots = new ResourceQuantity[b.Space];
+            Slots = new SerializableResourceQuantity[b.Space];
             for (int i = 0; i < b.Space; i++)
             {
-                Slots[i] = new ResourceQuantity(ResourceConsts.UNSET_RESOURCE_ID, 0);
+                Slots[i] = new SerializableResourceQuantity(ResourceConsts.UNSET_RESOURCE_ID, 0);
                 Slots[i].MakeUnset();
             }
         }
 
-        public ActiveBag(uint uniqueId, BagData b, int layoutIndex, ResourceQuantity[] slots)
+        public ActiveBag(uint uniqueId, BagData b, int layoutIndex, SerializableResourceQuantity[] slots)
         {
             UniqueId = uniqueId;
             BagData = b;
@@ -154,7 +154,7 @@ namespace GameKit.Core.Inventories.Bags
             CategoryId = InventoryConsts.UNSET_CATEGORY_ID;
             LayoutIndex = InventoryConsts.UNSET_LAYOUT_INDEX;
 
-            CollectionCaches<ResourceQuantity>.StoreAndDefault(ref Slots, Slots.Length);
+            CollectionCaches<SerializableResourceQuantity>.StoreAndDefault(ref Slots, Slots.Length);
         }
     }
 
@@ -170,7 +170,7 @@ namespace GameKit.Core.Inventories.Bags
             SerializableActiveBag result = new SerializableActiveBag(ab);
             for (int i = 0; i < ab.Slots.Length; i++)
             {
-                ResourceQuantity rq = ab.Slots[i];
+                SerializableResourceQuantity rq = ab.Slots[i];
                 if (rq.IsUnset)
                     continue;
 

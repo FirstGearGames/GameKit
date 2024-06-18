@@ -106,7 +106,7 @@ namespace GameKit.Core.Crafting
         {
             //Lowest amount of quantity which can be made.
             int lowestQuantity = int.MaxValue;
-            foreach (ResourceQuantity rq in recipe.GetRequiredResources())
+            foreach (SerializableResourceQuantity rq in recipe.GetRequiredResources())
             {
                 int availableCount = _inventory.GetResourceQuantity(rq.UniqueId);
                 //No resources of required type are available. This recipe cannot be completed.
@@ -151,7 +151,7 @@ namespace GameKit.Core.Crafting
             {
                 //Lowest amount of quantity which can be made.
                 int lowestQuantity = int.MaxValue;
-                foreach (ResourceQuantity rq in r.GetRequiredResources())
+                foreach (SerializableResourceQuantity rq in r.GetRequiredResources())
                 {
                     int availableCount = _inventory.GetResourceQuantity(rq.UniqueId);
                     //No resources of required type are available. This recipe cannot be completed.

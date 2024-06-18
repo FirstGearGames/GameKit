@@ -11,11 +11,11 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// Slot containing resources.
         /// </summary>
-        public int Slot { get; set; }
+        public int Slot;
         /// <summary>
         /// Resources within slot.
         /// </summary>
-        public SerializableResourceQuantity ResourceQuantity { get; set; }
+        public SerializableResourceQuantity ResourceQuantity;
 
         public SerializableFilledSlot(int slot, SerializableResourceQuantity resourceQuantity)
         {
@@ -27,9 +27,9 @@ namespace GameKit.Core.Inventories.Bags
 
     public static class FilledSlotsExtensions
     {
-        public static ResourceQuantity[] GetResourceQuantity(this List<SerializableFilledSlot> filledSlots, int slots)
+        public static SerializableResourceQuantity[] GetResourceQuantity(this List<SerializableFilledSlot> filledSlots, int slots)
         {
-            ResourceQuantity[] rq = new ResourceQuantity[slots];
+            SerializableResourceQuantity[] rq = new SerializableResourceQuantity[slots];
             filledSlots.GetResourceQuantity(ref rq);
             return rq;
         }
@@ -39,7 +39,7 @@ namespace GameKit.Core.Inventories.Bags
         /// </summary>
         /// <param name="result">Collection to put data into. The collection is expected to be the correct size.</param>
         /// <returns></returns>
-        public static void GetResourceQuantity(this List<SerializableFilledSlot> filledSlots, ref ResourceQuantity[] result)
+        public static void GetResourceQuantity(this List<SerializableFilledSlot> filledSlots, ref SerializableResourceQuantity[] result)
         {
             foreach (SerializableFilledSlot item in filledSlots)
                 result[item.Slot] = item.ResourceQuantity.ToNative();

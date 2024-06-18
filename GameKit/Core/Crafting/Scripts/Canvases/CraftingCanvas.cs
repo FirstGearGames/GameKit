@@ -257,7 +257,7 @@ namespace GameKit.Core.Crafting.Canvases
             _previewRecipeContent.DestroyChildren<RequiredResourceEntry>();
             _requiredResourceEntries.Clear();
 
-            foreach (ResourceQuantity rq in r.GetRequiredResources())
+            foreach (SerializableResourceQuantity rq in r.GetRequiredResources())
             {
                 RequiredResourceEntry rre = Instantiate(_requiredResourceEntryPrefab, _previewRecipeContent);
                 rre.Initialize(_resourceManager, rq, _inventory);
