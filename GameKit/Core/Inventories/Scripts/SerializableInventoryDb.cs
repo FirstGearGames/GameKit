@@ -1,4 +1,3 @@
-
 using GameKit.Core.Inventories.Bags;
 using GameKit.Core.Resources;
 using GameKit.Dependencies.Utilities;

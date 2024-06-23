@@ -12,7 +12,7 @@ namespace GameKit.Core.Databases.LiteDb
     {
         public static InventoryDbService Instance { get; private set; } = new InventoryDbService();
         private LiteDatabase _database;
-        
+
         public InventoryDbService()
         {
             Initialize();
@@ -30,8 +30,13 @@ namespace GameKit.Core.Databases.LiteDb
             if (DatabaseExist(false))
                 return;
 
+            BsonMapper mapper = BsonMapper.Global;
+            mapper.IncludeFields = true;
+            mapper.TrimWhitespace = false;
+            mapper.EmptyStringToNull = false;
+
             string path = $"{Path.Combine(Application.persistentDataPath, "GameKit.db")}";
-            _database = new LiteDatabase(path);            
+            _database = new LiteDatabase(path);
         }
 
         private bool DatabaseExist(bool error)
@@ -63,7 +68,10 @@ namespace GameKit.Core.Databases.LiteDb
                 return;
 
             ILiteCollection<SerializableInventoryDb> collection = _database.GetCollection<SerializableInventoryDb>();
-            collection.Upsert((ulong)clientUniqueId, inventory);
+            if (collection == null)
+                NetworkManagerExtensions.LogError($"{nameof(SerializableInventoryDb)} collection could not be found.");
+            else
+                collection.Upsert((ulong)clientUniqueId, inventory);
         }
     }
 

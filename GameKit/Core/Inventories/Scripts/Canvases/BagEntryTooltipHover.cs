@@ -36,7 +36,8 @@ namespace GameKit.Core.Inventories.Canvases
             if (show)
             {
                 Vector2 position = new Vector2(transform.position.x, transform.position.y);
-                _tooltipCanvas.Show(this, position, _bag.Description,  _tooltipPivot);
+                string text = $"{_bag.Name}:\r\n{_bag.Description}";
+                _tooltipCanvas.Show(this, position, text,  _tooltipPivot, FloatingTooltipCanvas.TextAlignmentStyle.TopLeft);
             }
             else
             {

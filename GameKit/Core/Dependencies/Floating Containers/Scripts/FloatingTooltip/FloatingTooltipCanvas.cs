@@ -1,16 +1,31 @@
 using UnityEngine;
 using TMPro;
-
 using GameKit.Dependencies.Utilities.Types;
 using GameKit.Dependencies.Utilities.Types.CanvasContainers;
 using GameKit.Core.Dependencies;
 using Sirenix.OdinInspector;
+using FishNet.Managing;
 
 namespace GameKit.Core.FloatingContainers.Tooltips
 {
 
     public class FloatingTooltipCanvas : MonoBehaviour
     {
+        #region Types.
+        public enum TextAlignmentStyle
+        {
+            TopLeft,
+            TopMiddle,
+            TopRight,
+            MiddleLeft,
+            Middle,
+            MiddleRight,
+            BottomLeft,
+            BottomMiddle,
+            BottomRight,
+        }
+        #endregion
+
         #region Serialized.
         /// <summary>
         /// Container to show the tooltip.
@@ -65,14 +80,78 @@ namespace GameKit.Core.FloatingContainers.Tooltips
         /// Shows this canvas.
         /// </summary>
         /// <param name="text">Text to use.</param>
-        public void Show(object caller, Vector2 position, string text, Vector2 pivot)
+        public void Show(object caller, Vector2 position, string text, Vector2 pivot, TextAlignmentStyle textAlignmentStyle)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
+            Vector2 textAnchorMin = Vector2.zero;
+            Vector2 textAnchorMax = Vector2.zero;
+            Vector2 textPivot = Vector2.zero;
+            TMPro.TextAlignmentOptions textAlignment = TextAlignmentOptions.Center;
+
+            if (textAlignmentStyle == TextAlignmentStyle.TopLeft)
+            {
+                textAnchorMin = new Vector2(0f, 1f);
+                textAnchorMax = new Vector2(0f, 1f);
+                textPivot = new Vector2(0f, 1f);
+                textAlignment = TextAlignmentOptions.TopLeft;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.TopMiddle)
+            {
+                textAnchorMin = new Vector2(0.5f, 1f);
+                textAnchorMax = new Vector2(0.5f, 1f);
+                textAlignment = TextAlignmentOptions.Top;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.TopRight)
+            {
+                textAnchorMin = new Vector2(1f, 1f);
+                textAnchorMax = new Vector2(1f, 1f);
+                textAlignment = TextAlignmentOptions.TopRight;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.MiddleLeft)
+            {
+                textAnchorMin = new Vector2(0f, 0.5f);
+                textAnchorMax = new Vector2(0f, 0.5f);
+                textAlignment = TextAlignmentOptions.Left;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.Middle)
+            {
+                textAnchorMin = new Vector2(0.5f, 0.5f);
+                textAnchorMax = new Vector2(0.5f, 0.5f);
+                textAlignment = TextAlignmentOptions.Center;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.MiddleRight)
+            {
+                textAnchorMin = new Vector2(1f, 0.5f);
+                textAnchorMax = new Vector2(1f, 0.5f);
+                textAlignment = TextAlignmentOptions.Right;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.BottomLeft)
+            {
+                textAnchorMin = new Vector2(0f, 0f);
+                textAnchorMax = new Vector2(0f, 0f);
+                textAlignment = TextAlignmentOptions.BottomLeft;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.BottomMiddle)
+            {
+                textAnchorMin = new Vector2(0.5f, 0f);
+                textAnchorMax = new Vector2(0.5f, 0f);
+                textAlignment = TextAlignmentOptions.Bottom;
+            }
+            else if (textAlignmentStyle == TextAlignmentStyle.BottomRight)
+            {
+                textAnchorMin = new Vector2(1f, 0f);
+                textAnchorMax = new Vector2(1f, 0f);
+                textAlignment = TextAlignmentOptions.BottomRight;
+            }
+            else
+            {
+                NetworkManagerExtensions.LogError($"Unhandled {nameof(TextAlignmentStyle)} of {textAlignmentStyle}.");
+            }
+
             _caller = caller;
             _text.text = text;
-
 
             _container.UpdatePosition(position, true);
             _container.UpdatePivot(pivot, false);
@@ -83,11 +162,20 @@ namespace GameKit.Core.FloatingContainers.Tooltips
              * Text.GetPreferredValues() returns differently depending on the last size of the Text
              * component, even if the containing string value is the same. This is surely a Unity bug
              * but I've found no other way around it then what is being done below. */
-            Vector2 anchorOverride = new Vector2(0.5f, 0.5f);
-            _text.rectTransform.anchorMin = anchorOverride;
-            _text.rectTransform.anchorMax = anchorOverride;
-            _text.rectTransform.sizeDelta = new Vector2(sizeLimits.X.Maximum, sizeLimits.Y.Maximum);
+            //Vector2 anchorOverride = new Vector2(0.5f, 0.5f);
+            //_text.rectTransform.anchorMin = anchorOverride;
+            //_text.rectTransform.anchorMax = anchorOverride;
+            //_text.rectTransform.sizeDelta = new Vector2(sizeLimits.X.Maximum, sizeLimits.Y.Maximum);
             //Always use word wrap otherwise text will overflow.
+
+            _text.rectTransform.pivot = textPivot;
+            _text.rectTransform.anchorMin = textAnchorMin;
+            _text.rectTransform.anchorMax = textAnchorMax;
+            _text.rectTransform.sizeDelta = new Vector2(sizeLimits.X.Maximum, sizeLimits.Y.Maximum);
+            _text.rectTransform.localPosition = new Vector3(0f, 0f, 0f);
+            _text.alignment = textAlignment;
+
+
             _text.enableWordWrapping = true;
 
             _container.SetSizeAndShow(_text.GetPreferredValues());

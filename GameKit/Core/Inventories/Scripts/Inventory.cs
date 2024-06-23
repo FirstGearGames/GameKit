@@ -260,8 +260,10 @@ namespace GameKit.Core.Inventories
 
             //If something was added or removed then save unsorted.
             if (result != Mathf.Abs(quantity) && base.IsServerInitialized)
-                SaveAllInventory_Server();
-
+            {
+                SerializableInventoryDb db = SaveAllInventory_Server();
+                db.ResetState();
+            }
             return result;
         }
 

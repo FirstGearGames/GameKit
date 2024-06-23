@@ -212,8 +212,8 @@ namespace GameKit.Core.Inventories.Canvases
             if (show)
             {
                 Vector2 position = new Vector2(transform.position.x, transform.position.y);
-                string description = ResourceData.Description;
-                _tooltipCanvas.Show(this, position - _tooltipOffset, description, _tooltipPivot);
+                string text = $"{ResourceData.DisplayName}:\r\n{ResourceData.Description}";
+                _tooltipCanvas.Show(this, position - _tooltipOffset, text, _tooltipPivot, FloatingTooltipCanvas.TextAlignmentStyle.TopLeft);
             }
             else
             {

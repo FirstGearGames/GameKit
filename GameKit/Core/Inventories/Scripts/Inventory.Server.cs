@@ -48,16 +48,6 @@ namespace GameKit.Core.Inventories
                 Debug.Log($"Inventory did not exist for {c.ToString()}. They were created with default bags.");
             }
 
-            //Send loaded to client.
-            //try
-            //{
-            //Load as text and let client deserialize.
-            //string baggedUnsortedTxt = File.ReadAllText(baggedUnsortedPath);
-            //string hiddenUnsortedTxt = File.ReadAllText(hiddenUnsortedPath);
-
-            //List<SerializableActiveBag> baggedUnsorted = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(baggedUnsortedTxt);
-            //List<SerializableResourceQuantity> hiddenUnsorted = JsonConvert.DeserializeObject<List<SerializableResourceQuantity>>(hiddenUnsortedTxt);
-
             List<SerializableActiveBag> baggedUnsorted = inventoryDb.ActiveBags;
             List<SerializableResourceQuantity> hiddenUnsorted = inventoryDb.HiddenResources;
 
@@ -81,13 +71,7 @@ namespace GameKit.Core.Inventories
                 TgtApplyInventory(base.Owner, baggedUnsorted, hiddenUnsorted, baggedSorted);
             }
 
-            //For GC management.
             inventoryDb.ResetState();
-            //}
-            //catch
-            //{
-            //    Debug.LogError($"Failed to load json files for resources or loadout.");
-            //}
         }
 
         /// <summary>
@@ -133,23 +117,7 @@ namespace GameKit.Core.Inventories
 
             SerializableInventoryDb result = new SerializableInventoryDb(baggedUnsorted, hiddenUnsorted);           
             InventoryDbService.Instance.SetInventory((uint)base.Owner.ClientId, result);
-            ////TODO: Use a database rather than json file. save only diff when resources are added.
-            //string baggedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_UNSORTED_FILENAME);
-            //string hiddenPath = Path.Combine(Application.dataPath, INVENTORY_HIDDEN_UNSORTED_FILENAME);
 
-            //try
-            //{
-            //    string result;
-
-            //    result = JsonConvert.SerializeObject(baggedUnsorted, Formatting.Indented);
-            //    File.WriteAllText(baggedPath, result);
-
-            //    result = JsonConvert.SerializeObject(hiddenUnsorted, Formatting.Indented);
-            //    File.WriteAllText(hiddenPath, result);
-            //}
-            //catch { }
-
-            //CollectionCaches<SerializableResourceQuantity>.Store(hiddenUnsorted);
             return result;
         }
 
