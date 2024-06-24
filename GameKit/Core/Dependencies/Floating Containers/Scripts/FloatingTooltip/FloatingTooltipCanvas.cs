@@ -85,64 +85,53 @@ namespace GameKit.Core.FloatingContainers.Tooltips
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
-            Vector2 textAnchorMin = Vector2.zero;
-            Vector2 textAnchorMax = Vector2.zero;
-            Vector2 textPivot = Vector2.zero;
+            //Min/Max for anchor, and pivot.
+            Vector2 textAnchorMinMax_Pivot = Vector2.zero;
             TMPro.TextAlignmentOptions textAlignment = TextAlignmentOptions.Center;
 
             if (textAlignmentStyle == TextAlignmentStyle.TopLeft)
             {
-                textAnchorMin = new Vector2(0f, 1f);
-                textAnchorMax = new Vector2(0f, 1f);
-                textPivot = new Vector2(0f, 1f);
+                textAnchorMinMax_Pivot = new Vector2(0f, 1f);
                 textAlignment = TextAlignmentOptions.TopLeft;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.TopMiddle)
             {
-                textAnchorMin = new Vector2(0.5f, 1f);
-                textAnchorMax = new Vector2(0.5f, 1f);
+                textAnchorMinMax_Pivot = new Vector2(0.5f, 1f);
                 textAlignment = TextAlignmentOptions.Top;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.TopRight)
             {
-                textAnchorMin = new Vector2(1f, 1f);
-                textAnchorMax = new Vector2(1f, 1f);
+                textAnchorMinMax_Pivot = new Vector2(1f, 1f);
                 textAlignment = TextAlignmentOptions.TopRight;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.MiddleLeft)
             {
-                textAnchorMin = new Vector2(0f, 0.5f);
-                textAnchorMax = new Vector2(0f, 0.5f);
+                textAnchorMinMax_Pivot = new Vector2(0f, 0.5f);
                 textAlignment = TextAlignmentOptions.Left;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.Middle)
             {
-                textAnchorMin = new Vector2(0.5f, 0.5f);
-                textAnchorMax = new Vector2(0.5f, 0.5f);
+                textAnchorMinMax_Pivot = new Vector2(0.5f, 0.5f);
                 textAlignment = TextAlignmentOptions.Center;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.MiddleRight)
             {
-                textAnchorMin = new Vector2(1f, 0.5f);
-                textAnchorMax = new Vector2(1f, 0.5f);
+                textAnchorMinMax_Pivot = new Vector2(1f, 0.5f);
                 textAlignment = TextAlignmentOptions.Right;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.BottomLeft)
             {
-                textAnchorMin = new Vector2(0f, 0f);
-                textAnchorMax = new Vector2(0f, 0f);
+                textAnchorMinMax_Pivot = new Vector2(0f, 0f);
                 textAlignment = TextAlignmentOptions.BottomLeft;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.BottomMiddle)
             {
-                textAnchorMin = new Vector2(0.5f, 0f);
-                textAnchorMax = new Vector2(0.5f, 0f);
+                textAnchorMinMax_Pivot = new Vector2(0.5f, 0f);
                 textAlignment = TextAlignmentOptions.Bottom;
             }
             else if (textAlignmentStyle == TextAlignmentStyle.BottomRight)
             {
-                textAnchorMin = new Vector2(1f, 0f);
-                textAnchorMax = new Vector2(1f, 0f);
+                textAnchorMinMax_Pivot = new Vector2(1f, 0f);
                 textAlignment = TextAlignmentOptions.BottomRight;
             }
             else
@@ -157,27 +146,22 @@ namespace GameKit.Core.FloatingContainers.Tooltips
             _container.UpdatePivot(pivot, false);
 
             FloatRange2D sizeLimits = _container.SizeLimits;
+            RectTransform textRt = _text.rectTransform;
             /* Set the rect of the text to maximum size and change anchoring. This will ensure it will
              * always be one size regardless of parent transforms. This is required because
              * Text.GetPreferredValues() returns differently depending on the last size of the Text
              * component, even if the containing string value is the same. This is surely a Unity bug
              * but I've found no other way around it then what is being done below. */
-            //Vector2 anchorOverride = new Vector2(0.5f, 0.5f);
-            //_text.rectTransform.anchorMin = anchorOverride;
-            //_text.rectTransform.anchorMax = anchorOverride;
-            //_text.rectTransform.sizeDelta = new Vector2(sizeLimits.X.Maximum, sizeLimits.Y.Maximum);
-            //Always use word wrap otherwise text will overflow.
-
-            _text.rectTransform.pivot = textPivot;
-            _text.rectTransform.anchorMin = textAnchorMin;
-            _text.rectTransform.anchorMax = textAnchorMax;
-            _text.rectTransform.sizeDelta = new Vector2(sizeLimits.X.Maximum, sizeLimits.Y.Maximum);
-            _text.rectTransform.localPosition = new Vector3(0f, 0f, 0f);
+            textRt.sizeDelta = new Vector2(sizeLimits.X.Maximum, sizeLimits.Y.Maximum);
             _text.alignment = textAlignment;
-
-
             _text.enableWordWrapping = true;
 
+            //Update anchor and position.
+            textRt.anchorMin = textAnchorMinMax_Pivot;
+            textRt.anchorMax = textAnchorMinMax_Pivot;
+            textRt.pivot = textAnchorMinMax_Pivot;
+            textRt.anchoredPosition3D = Vector3.zero;
+            
             _container.SetSizeAndShow(_text.GetPreferredValues());
         }
 
