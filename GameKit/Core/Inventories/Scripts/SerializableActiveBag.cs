@@ -47,8 +47,7 @@ namespace GameKit.Core.Inventories.Bags
             CategoryId = categoryId;
             LayoutIndex = layoutIndex;
             FilledSlots = new();
-        }
-
+        }        
     }
     /// <summary>
     /// A bag which exist. This can be in the world, inventory, etc.
@@ -198,10 +197,18 @@ namespace GameKit.Core.Inventories.Bags
         public static List<SerializableActiveBag> ToSerializable(this List<ActiveBag> activeBags)
         {
             List<SerializableActiveBag> result = new List<SerializableActiveBag>();
+            activeBags.ToSerializable(ref result);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a serializable type.
+        /// </summary>
+        /// <returns></returns>
+        public static void ToSerializable(this List<ActiveBag> activeBags, ref List<SerializableActiveBag> result)
+        {
             foreach (ActiveBag item in activeBags)
                 result.Add(item.ToSerializable());
-
-            return result;
         }
     }
 

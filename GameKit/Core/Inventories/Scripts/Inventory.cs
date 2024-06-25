@@ -184,10 +184,17 @@ namespace GameKit.Core.Inventories
         /// Converts this inventories ActiveBags to Json.
         /// </summary>
         /// <returns></returns>
-        private string ActiveBagsToJson()
+        private List<SerializableActiveBag> ActiveBagsToSerializable()
         {
-            string result = JsonConvert.SerializeObject(ActiveBags.ValuesToList().ToSerializable(), Formatting.Indented);
-            return result;
+            List<SerializableActiveBag> sab = CollectionCaches<SerializableActiveBag>.RetrieveList();
+
+            List<ActiveBag> ab = CollectionCaches<ActiveBag>.RetrieveList();
+            ActiveBags.ValuesToList(ref ab);
+
+            ab.ToSerializable(ref sab);
+            CollectionCaches<ActiveBag>.Store(ab);
+
+            return sab;
         }
 
         /// <summary>

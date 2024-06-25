@@ -7,6 +7,7 @@ using FishNet.Managing;
 using System.Collections.Generic;
 using System.IO;
 using GameKit.Dependencies.Utilities;
+using GameKit.Core.Databases.LiteDb;
 
 namespace GameKit.Core.Inventories
 {
@@ -19,22 +20,16 @@ namespace GameKit.Core.Inventories
         /// Saves the clients sorted bagged inventory.
         /// </summary>
         [Client]
-        private void SaveBaggedSorted_Client(bool sendToServer = false)
+        private void SaveBaggedSorted_Client(bool sendToServer)
         {
-            return;
-            string s = ActiveBagsToJson();
-            string path = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);
-            try
-            {
-                File.WriteAllText(path, s);
-            }
-            catch { }
+            List<SerializableActiveBag> sabs = ActiveBagsToSerializable();
+            //Save locally.
+            InventoryDbService.Instance.SetSortedInventory(sabs);
 
-            if (sendToServer && !base.IsServerInitialized)
-            {
-                List<SerializableActiveBag> sabs = ActiveBags.ValuesToList().ToSerializable();
+            if (sendToServer)
                 SvrSaveBaggedSorted(sabs);
-            }
+
+            CollectionCaches<SerializableActiveBag>.Store(sabs);
         }
 
         /// <summary>
@@ -188,7 +183,7 @@ namespace GameKit.Core.Inventories
             foreach (SerializableActiveBag sab in unsorted)
             {
                 BagData b = bagManager.GetBagData(sab.BagDataUniqueId);
-                AddBag(b,sab.UniqueId, false);
+                AddBag(b, sab.UniqueId, false);
             }
 
             /* This builds a cache of resources currently in the inventory.
@@ -286,7 +281,7 @@ namespace GameKit.Core.Inventories
             //Invoke changes.
             OnBagSlotUpdated?.Invoke(from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
             OnBagSlotUpdated?.Invoke(to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
-            SaveBaggedSorted_Client();
+            SaveBaggedSorted_Client(true);
 
             return true;
 

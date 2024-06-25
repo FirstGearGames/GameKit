@@ -24,14 +24,14 @@ namespace GameKit.Core.Inventories
 
         public override void OnSpawnServer(NetworkConnection connection)
         {
-            LoadInventoryFromDatabase(connection);
+            LoadInventoryFromDatabase_Server(connection);
         }
 
         /// <summary>
         /// Called on the server when this spawns for a client.
         /// </summary>
         [Server]
-        private void LoadInventoryFromDatabase(NetworkConnection c, bool sendToClient = true)
+        private void LoadInventoryFromDatabase_Server(NetworkConnection c, bool sendToClient = true)
         {
             SerializableInventoryDb inventoryDb = InventoryDbService.Instance.GetInventory((uint)c.ClientId);
             if (inventoryDb.IsDefault())
@@ -80,15 +80,7 @@ namespace GameKit.Core.Inventories
         [Server]
         private void SaveBaggedInventorySorted_Server(List<SerializableActiveBag> sabs)
         {
-            return;
-            //todo: save to a database. throttle save frequency. optimize by only sending changed bags.
-            string s = JsonConvert.SerializeObject(sabs);
-            string path = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);
-            try
-            {
-                File.WriteAllText(path, s);
-            }
-            catch { }
+//            InventoryDbService.Instance.SetSortedInventory((uint)base.Owner.ClientId, sabs);
         }
 
         /// <summary>

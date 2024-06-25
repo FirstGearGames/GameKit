@@ -41,6 +41,9 @@ namespace GameKit.Core.Inventories.Bags
         /// <returns></returns>
         public static void GetResourceQuantity(this List<SerializableFilledSlot> filledSlots, ref SerializableResourceQuantity[] result)
         {
+            if (filledSlots == null)
+                return;
+
             foreach (SerializableFilledSlot item in filledSlots)
                 result[item.Slot] = item.ResourceQuantity.ToNative();
         }

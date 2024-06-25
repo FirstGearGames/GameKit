@@ -73,11 +73,11 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Where to anchor tooltips.
         /// </summary>
-        private readonly Vector2 _tooltipPivot = new Vector2(0.5f, 1f);
+        private readonly Vector2 _tooltipPivot = new Vector2(0f, 1f);
         /// <summary>
         /// Offset to apply for tooltip position.
         /// </summary>
-        private readonly Vector2 _tooltipOffset = new Vector2(0f, 64f);
+        private readonly Vector2 _tooltipOffset = new Vector2(0f, -64f);
         #endregion
 
         private void Awake()
@@ -213,7 +213,7 @@ namespace GameKit.Core.Inventories.Canvases
             {
                 Vector2 position = new Vector2(transform.position.x, transform.position.y);
                 string text = $"{ResourceData.DisplayName}:\r\n{ResourceData.Description}";
-                _tooltipCanvas.Show(this, position - _tooltipOffset, text, _tooltipPivot, FloatingTooltipCanvas.TextAlignmentStyle.TopLeft);
+                _tooltipCanvas.Show(this, position + _tooltipOffset, text, _tooltipPivot, FloatingTooltipCanvas.TextAlignmentStyle.TopLeft);
             }
             else
             {
