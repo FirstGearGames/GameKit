@@ -1,7 +1,5 @@
 using FishNet.Managing;
-using FishNet;
 using GameKit.Core.Inventories.Bags;
-using GameKit.Core.Resources;
 
 namespace GameKit.Core.Inventories
 {
