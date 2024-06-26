@@ -63,7 +63,7 @@ namespace GameKit.Core.Databases.LiteDb
             if (!GetCollection<SerializableActiveBagContainer>(_databaseServer, true, out ILiteCollection<SerializableActiveBagContainer> collection))
                 return;
 
-            collection.Insert((ulong)clientUniqueId, container);
+            collection.Upsert((ulong)clientUniqueId, container);
         }
     }
 
