@@ -537,8 +537,10 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Iterates all bags and rebuilds bagged resources.
         /// </summary>
-        private void RebuildBaggedResources()
+        private void RebuildBaggedResources(ushort categoryId)
         {
+            Debug.LogError($"This should be using bagged resources for the categoriId. Need to complete this. Also, fix moving inventory items not saving when its done without modifying inventory after.");
+
             BaggedResources.Clear();
 
             foreach (ActiveBag activeBag in ActiveBags.Values)

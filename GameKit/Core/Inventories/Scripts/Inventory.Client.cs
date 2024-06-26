@@ -11,7 +11,7 @@ using GameKit.Core.Databases.LiteDb;
 
 namespace GameKit.Core.Inventories
 {
-    public delegate void RebuildBaggedResourcesDel();
+    public delegate void RebuildBaggedResourcesDel(ushort categoryId);
 
     public partial class Inventory : NetworkBehaviour
     {
@@ -35,35 +35,17 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Sends the players inventory loadout in the order they last used.
         /// </summary>
-        /// <param name="sortedCharacter">Bagged resources for all categories without any sorted.</param>
+        /// <param name="baggedUnsorted">Bagged resources.</param>        
         /// <param name="hiddenUnsorted">Hidden resources.</param>
         /// <param name="baggedUnsorted">User sorted bags for the Character.</param>
         [TargetRpc(ExcludeServer = true)]
-        private void TgtApplyInventory(NetworkConnection c, List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> characterSorted)
+        private void TgtApplyInventory(NetworkConnection c, List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
         {
             bool changed;
-            List<SerializableActiveBag> categoryBaggedUnsorted = CollectionCaches<SerializableActiveBag>.RetrieveList();
             RebuildBaggedResourcesDel rebuildDel;
-            /* Get only baggedUnsorted for each category type. */
 
-            /* This block would need to be re-run for each inventory type. */
-            FillCategoryBaggedUnsorted(InventoryCategory.Character);
-            //rebuildDel = new RebuildBaggedResourcesDel(CharacterInventory.RebuildBaggedResources);
-            //changed = ApplyInventory(CharacterInventory.ActiveBags, categoryBaggedUnsorted, characterSorted, rebuildDel);
             rebuildDel = new RebuildBaggedResourcesDel(RebuildBaggedResources);
-            changed = ApplyInventory(ActiveBags, categoryBaggedUnsorted, characterSorted, rebuildDel);
-            /* End block. */
-
-            //Clears and rebuilds the category unsorted list
-            void FillCategoryBaggedUnsorted(InventoryCategory category)
-            {
-                categoryBaggedUnsorted.Clear();
-                foreach (SerializableActiveBag item in baggedUnsorted)
-                {
-                    if (item.CategoryId == (byte)InventoryCategory.Character)
-                        categoryBaggedUnsorted.Add(item);
-                }
-            }
+            changed = ApplyInventory(baggedUnsorted, baggedSorted, rebuildDel);
 
             if (changed)
                 SaveBaggedSorted_Client(false);
@@ -74,131 +56,172 @@ namespace GameKit.Core.Inventories
         /// Include data for the proper 
         /// </summary>
         /// <param name="activeBags">ActiveBags reference for the inventory.</param>
-        /// <param name="unsorted">Unsorted ActiveBags received from the server.</param>
-        /// <param name="sorted">Sorted ActiveBags received from the server.</param>
-        private bool ApplyInventory(Dictionary<uint, ActiveBag> activeBags, List<SerializableActiveBag> unsorted, List<SerializableActiveBag> sorted, RebuildBaggedResourcesDel rebuildBaggedResourcesDel)
+        /// <param name="baggedUnsorted">Unsorted ActiveBags received from the server.</param>
+        /// <param name="baggedSorted">Sorted ActiveBags received from the server.</param>
+        private bool ApplyInventory(List<SerializableActiveBag> allBaggedUnsorted, List<SerializableActiveBag> allBaggedSorted, RebuildBaggedResourcesDel rebuildBaggedResourcesDel)
         {
-            activeBags.Clear();
-            /* ResourceQuantities which are handled inside the users saved inventory
-             * are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
-             * inventory are added to whichever slots are available in the users inventory.
-             * 
-             * If a user doesn't have the bag entirely which is in their saved inventory
-             * then it's skipped over. This will result in any skipped entries filling slots
-             * as described above. */
-            //Make resources into dictionary for quicker lookups.
-            //Resource UniqueIds and quantity of each.
-            Dictionary<uint, int> rqsDict = CollectionCaches<uint, int>.RetrieveDictionary();
-            foreach (SerializableActiveBag item in unsorted)
+            ActiveBags.Clear();
+            //Becomes true if any categoryId had sorted change.
+            bool sortedChanged = false;
+
+            /* Build a hashset of each categoryId for baggedUnsorted.
+             * We do not care about sorted because if there's a chance
+             * a baggedSorted has a categoryId the unsorted does not, nothing
+             * can be done with it anyway because nothing will be applied for the
+             * categoryId from unsorted. */
+
+            /* It could be quicker by sending values as a dictionary but this code
+             * runs only on the client, alleviating work from the server, and only
+             * runs upon login. */
+            HashSet<ushort> categoryIds = CollectionCaches<ushort>.RetrieveHashSet();
+            foreach (SerializableActiveBag item in allBaggedUnsorted)
+                categoryIds.Add(item.CategoryId);
+
+            /* For each categoryId build a list of serializableActiveBags for unsorted
+             * and sorted. Once build apply inventories for those categoryIds. This
+             * is less technical debt and easier to read by allowing us to assume
+             * assuming the unsorted and sorted list are for the same category. */
+            foreach (ushort cId in categoryIds)
             {
-                foreach (SerializableFilledSlot fs in item.FilledSlots)
-                {
-                    uint id = fs.ResourceQuantity.UniqueId;
-                    rqsDict.TryGetValue(id, out int currentQuantity);
-                    currentQuantity += fs.ResourceQuantity.Quantity;
-                    rqsDict[id] = currentQuantity;
-                }
+                List<SerializableActiveBag> unsorted = CollectionCaches<SerializableActiveBag>.RetrieveList();
+                List<SerializableActiveBag> sorted = CollectionCaches<SerializableActiveBag>.RetrieveList();
+
+                //Build lists for current categoryId.
+                foreach (SerializableActiveBag sab in allBaggedUnsorted)
+                    if (sab.CategoryId == cId) unsorted.Add(sab);
+                foreach (SerializableActiveBag sab in allBaggedSorted)
+                    if (sab.CategoryId == cId) sorted.Add(sab);
+
+                ProcessSerializableActiveBags(cId, unsorted, sorted);
+
+                CollectionCaches<SerializableActiveBag>.Store(unsorted);
+                CollectionCaches<SerializableActiveBag>.Store(sorted);
             }
 
-            /* First check if unsorted contains all the bags used
-           * in sortedInv. If sortedI says a bag is used that the client
-           * does not have then the bag is unset from sorted which will
-           * cause the resources to be placed wherever available. */
-            for (int i = 0; i < sorted.Count; i++)
+            CollectionCaches<ushort>.Store(categoryIds);
+
+            void ProcessSerializableActiveBags(ushort cId, List<SerializableActiveBag> baggedUnsorted, List<SerializableActiveBag> baggedSorted)
             {
-                int bagIndex = GetUnsortedIndex(sorted[i].UniqueId);
-                //Bag not found, remove bag from sortedInventory.
-                if (bagIndex == -1)
+                /* ResourceQuantities which are handled inside the users saved inventory
+                 * are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
+                 * inventory are added to whichever slots are available in the users inventory.
+                 * 
+                 * If a user doesn't have the bag entirely which is in their saved inventory
+                 * then it's skipped over. This will result in any skipped entries filling slots
+                 * as described above. */
+                //Make resources into dictionary for quicker lookups.
+                //Resource UniqueIds and quantity of each.
+                Dictionary<uint, int> resourceQuantitiesLookup = CollectionCaches<uint, int>.RetrieveDictionary();
+                foreach (SerializableActiveBag item in baggedUnsorted)
                 {
-                    sorted.RemoveAt(i);
-                    i--;
-                }
-                //Bag found, remove from unsorted so its not used twice.
-                else
-                {
-                    unsorted.RemoveAt(bagIndex);
-                }
-
-                int GetUnsortedIndex(uint unsortedBagUniqueId)
-                {
-                    for (int i = 0; i < unsorted.Count; i++)
+                    foreach (SerializableFilledSlot fs in item.FilledSlots)
                     {
-                        if (unsorted[i].UniqueId == unsortedBagUniqueId)
-                            return i;
+                        uint id = fs.ResourceQuantity.UniqueId;
+                        resourceQuantitiesLookup.TryGetValue(id, out int currentQuantity);
+                        currentQuantity += fs.ResourceQuantity.Quantity;
+                        resourceQuantitiesLookup[id] = currentQuantity;
                     }
-
-                    //Not found.
-                    return -1;
                 }
-            }
 
-            /* Check if unsorted contains the same resources as
-             * sorted. This uses the same approach as above where
-             * inventory items which do not exist in unsorted are removed
-             * from sorted. */
-            for (int i = 0; i < sorted.Count; i++)
-            {
-                for (int z = 0; z < sorted[i].FilledSlots.Count; z++)
+                /* First check if unsorted contains all the bags used
+               * in sortedInv. If sortedI says a bag is used that the client
+               * does not have then the bag is unset from sorted which will
+               * cause the resources to be placed wherever available. */
+                for (int i = 0; i < baggedSorted.Count; i++)
                 {
-                    SerializableFilledSlot fs = sorted[i].FilledSlots[z];
-                    rqsDict.TryGetValue((uint)fs.ResourceQuantity.UniqueId, out int unsortedCount);
-                    /* Subtract sortedCount from unsortedCount. If the value is negative
-                     * then the result must be removed from unsortedCount. Additionally,
-                     * remove the resourceId from rqsDict since it no longer has value. */
-                    int quantityDifference = (unsortedCount - fs.ResourceQuantity.Quantity);
-                    if (quantityDifference < 0)
+                    int bagIndex = GetUnsortedIndex(baggedSorted[i].UniqueId);
+                    //Bag not found, remove bag from sortedInventory.
+                    if (bagIndex == -1)
                     {
-                        fs.ResourceQuantity.Quantity += quantityDifference;
-                        sorted[i].FilledSlots[z] = fs;
+                        baggedSorted.RemoveAt(i);
+                        i--;
                     }
-
-                    //If there is no more quantity left then remove from unsorted.
-                    if (quantityDifference <= 0)
-                        rqsDict.Remove((uint)fs.ResourceQuantity.UniqueId);
-                    //Still some quantity left, update unsorted.
+                    //Bag found, remove from unsorted so its not used twice.
                     else
-                        rqsDict[fs.ResourceQuantity.UniqueId] = quantityDifference;
+                    {
+                        baggedUnsorted.RemoveAt(bagIndex);
+                    }
+
+                    int GetUnsortedIndex(uint unsortedBagUniqueId)
+                    {
+                        for (int i = 0; i < baggedUnsorted.Count; i++)
+                        {
+                            if (baggedUnsorted[i].UniqueId == unsortedBagUniqueId)
+                                return i;
+                        }
+
+                        //Not found.
+                        return -1;
+                    }
                 }
-            }
 
-
-            BagManager bagManager = base.NetworkManager.GetInstance<BagManager>();
-            //Add starting with sorted bags.
-            foreach (SerializableActiveBag sab in sorted)
-            {
-                BagData bagData = bagManager.GetBagData(sab.BagDataUniqueId);
-                //Fill slots.
-                SerializableResourceQuantity[] rqs = new SerializableResourceQuantity[bagData.Space];
-                foreach (SerializableFilledSlot item in sab.FilledSlots)
+                /* Check if unsorted contains the same resources as
+                 * sorted. This uses the same approach as above where
+                 * inventory items which do not exist in unsorted are removed
+                 * from sorted. */
+                for (int i = 0; i < baggedSorted.Count; i++)
                 {
-                    if (item.ResourceQuantity.Quantity > 0)
-                        rqs[item.Slot] = new SerializableResourceQuantity(item.ResourceQuantity.UniqueId, item.ResourceQuantity.Quantity);
+                    for (int z = 0; z < baggedSorted[i].FilledSlots.Count; z++)
+                    {
+                        SerializableFilledSlot fs = baggedSorted[i].FilledSlots[z];
+                        resourceQuantitiesLookup.TryGetValue((uint)fs.ResourceQuantity.UniqueId, out int unsortedCount);
+                        /* Subtract sortedCount from unsortedCount. If the value is negative
+                         * then the result must be removed from unsortedCount. Additionally,
+                         * remove the resourceId from rqsDict since it no longer has value. */
+                        int quantityDifference = (unsortedCount - fs.ResourceQuantity.Quantity);
+                        if (quantityDifference < 0)
+                        {
+                            fs.ResourceQuantity.Quantity += quantityDifference;
+                            baggedSorted[i].FilledSlots[z] = fs;
+                        }
+
+                        //If there is no more quantity left then remove from unsorted.
+                        if (quantityDifference <= 0)
+                            resourceQuantitiesLookup.Remove((uint)fs.ResourceQuantity.UniqueId);
+                        //Still some quantity left, update unsorted.
+                        else
+                            resourceQuantitiesLookup[fs.ResourceQuantity.UniqueId] = quantityDifference;
+                    }
                 }
-                //Create active bag and add.
-                ActiveBag ab = new ActiveBag(sab.UniqueId, bagData, sab.LayoutIndex, rqs);
-                AddBag(ab, false);
+
+                BagManager bagManager = base.NetworkManager.GetInstance<BagManager>();
+                //Add starting with sorted bags.
+                foreach (SerializableActiveBag sab in baggedSorted)
+                {
+                    BagData bagData = bagManager.GetBagData(sab.BagDataUniqueId);
+                    //Fill slots.
+                    SerializableResourceQuantity[] rqs = new SerializableResourceQuantity[bagData.Space];
+                    foreach (SerializableFilledSlot item in sab.FilledSlots)
+                    {
+                        if (item.ResourceQuantity.Quantity > 0)
+                            rqs[item.Slot] = new SerializableResourceQuantity(item.ResourceQuantity.UniqueId, item.ResourceQuantity.Quantity);
+                    }
+                    //Create active bag and add.
+                    ActiveBag ab = new ActiveBag(sab.UniqueId, bagData, sab.LayoutIndex, rqs);
+                    AddBag(ab, false);
+                }
+
+                //Add remaining bags from unsorted.
+                foreach (SerializableActiveBag sab in baggedUnsorted)
+                {
+                    BagData b = bagManager.GetBagData(sab.BagDataUniqueId);
+                    AddBag(b, sab.UniqueId, false);
+                }
+
+                /* This builds a cache of resources currently in the inventory.
+                 * Since ActiveBags were set without allowing rebuild to save perf
+                 * it's called here after all bags are added. */
+                rebuildBaggedResourcesDel?.Invoke(cId);
+
+                //Add remaining resources to wherever they fit.
+                foreach (KeyValuePair<uint, int> item in resourceQuantitiesLookup)
+                    ModifiyResourceQuantity(item.Key, item.Value, false);
+
+                /* If there were unsorted added then save clients new
+                 * layout after everything was added. */
+                sortedChanged = (baggedUnsorted.Count > 0 || resourceQuantitiesLookup.Count > 0);
+                CollectionCaches<uint, int>.Store(resourceQuantitiesLookup);
             }
-
-            //Add remaining bags from unsorted.
-            foreach (SerializableActiveBag sab in unsorted)
-            {
-                BagData b = bagManager.GetBagData(sab.BagDataUniqueId);
-                AddBag(b, sab.UniqueId, false);
-            }
-
-            /* This builds a cache of resources currently in the inventory.
-             * Since ActiveBags were set without allowing rebuild to save perf
-             * it's called here after all bags are added. */
-            rebuildBaggedResourcesDel?.Invoke();
-
-            //Add remaining resources to wherever they fit.
-            foreach (KeyValuePair<uint, int> item in rqsDict)
-                ModifiyResourceQuantity(item.Key, item.Value, false);
-
-            /* If there were unsorted added then save clients new
-             * layout after everything was added. */
-            bool sortedChanged = (unsorted.Count > 0 || rqsDict.Count > 0);
-            CollectionCaches<uint, int>.Store(rqsDict);
 
             return sortedChanged;
         }

@@ -56,18 +56,7 @@ namespace GameKit.Core.Inventories
 
             if (sendToClient)
             {
-                string baggedSortedPath = Path.Combine(Application.dataPath, INVENTORY_BAGGED_SORTED_FILENAME);
-                List<SerializableActiveBag> baggedSorted;
-                if (File.Exists(baggedSortedPath))
-                {
-                    string baggedSortedTxt = File.ReadAllText(baggedSortedPath);
-                    baggedSorted = JsonConvert.DeserializeObject<List<SerializableActiveBag>>(baggedSortedTxt);
-                }
-                else
-                {
-                    baggedSorted = new();
-                }
-
+                List<SerializableActiveBag> baggedSorted = InventoryDbService.Instance.GetSortedInventory((uint)c.ClientId);
                 TgtApplyInventory(base.Owner, baggedUnsorted, hiddenUnsorted, baggedSorted);
             }
 
@@ -80,7 +69,7 @@ namespace GameKit.Core.Inventories
         [Server]
         private void SaveBaggedInventorySorted_Server(List<SerializableActiveBag> sabs)
         {
-//            InventoryDbService.Instance.SetSortedInventory((uint)base.Owner.ClientId, sabs);
+            InventoryDbService.Instance.SetSortedInventory((uint)base.Owner.ClientId, sabs);
         }
 
         /// <summary>
@@ -134,7 +123,7 @@ namespace GameKit.Core.Inventories
             /* This builds a cache of resources currently in the inventory.
              * Since ActiveBags were set without allowing rebuild to save perf
              * it's called here after all bags are added. */
-            RebuildBaggedResources();
+            RebuildBaggedResources(0);
         }
     }
 
