@@ -28,7 +28,7 @@ namespace GameKit.Core.Databases.LiteDb
         }
 
         [Server(Logging = LoggingType.Off)]
-        public SerializableInventoryDb GetInventory(uint clientUniqueId)
+        public SerializableInventoryDb GetInventory(uint clientUniqueId, uint categoryId)
         {
             if (!GetCollection<SerializableInventoryDb>(_databaseServer, true, out ILiteCollection<SerializableInventoryDb> collection))
                 return default;
@@ -38,7 +38,7 @@ namespace GameKit.Core.Databases.LiteDb
         }
 
         [Server(Logging = LoggingType.Off)]
-        public void SetInventory(uint clientUniqueId, SerializableInventoryDb inventory)
+        public void SetInventory(uint clientUniqueId, InventoryBase inventoryBase, SerializableInventoryDb inventory)
         {
             if (!GetCollection<SerializableInventoryDb>(_databaseServer, true, out ILiteCollection<SerializableInventoryDb> collection))
                 return;
@@ -47,7 +47,7 @@ namespace GameKit.Core.Databases.LiteDb
         }
 
         [Server(Logging = LoggingType.Off)]
-        public List<SerializableActiveBag> GetSortedInventory(uint clientUniqueId)
+        public List<SerializableActiveBag> GetSortedInventory(uint clientUniqueId, uint categoryId)
         {
             if (!GetCollection<SerializableActiveBagContainer>(_databaseServer, true, out ILiteCollection<SerializableActiveBagContainer> collection))
                 return default;
@@ -57,7 +57,7 @@ namespace GameKit.Core.Databases.LiteDb
         }
 
         [Server(Logging = LoggingType.Off)]
-        public void SetSortedInventory(uint clientUniqueId, List<SerializableActiveBag> sortedInventory)
+        public void SetSortedInventory(uint clientUniqueId, InventoryBase inventoryBase, List<SerializableActiveBag> sortedInventory)
         {
             SerializableActiveBagContainer container = new SerializableActiveBagContainer(sortedInventory);
             if (!GetCollection<SerializableActiveBagContainer>(_databaseServer, true, out ILiteCollection<SerializableActiveBagContainer> collection))

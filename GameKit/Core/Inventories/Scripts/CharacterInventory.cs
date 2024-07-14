@@ -1,9 +1,10 @@
-//namespace GameKit.Core.Inventories
-//{
 
-//    public partial class CharacterInventory : InventoryBase
-//    {
-     
-//    }
+namespace GameKit.Core.Inventories
+{
 
-//}
+    public partial class CharacterInventory : InventoryBase
+    {
+
+    }
+
+}

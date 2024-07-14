@@ -36,7 +36,7 @@ namespace GameKit.Core.Inventories.Bags
         {
             UniqueId = ab.UniqueId;
             BagDataUniqueId = ab.BagData.UniqueId;
-            CategoryId = ab.CategoryId;
+            CategoryId = ab.InventoryBase.CategoryId;
             LayoutIndex = ab.LayoutIndex;
             FilledSlots = new();
         }
@@ -58,7 +58,7 @@ namespace GameKit.Core.Inventories.Bags
         /// <summary>
         /// An Id issued at runtime to reference this bag between server and client.
         /// </summary>
-        public uint UniqueId = InventoryConsts.UNSET_BAG_ID;
+        public uint UniqueId { get; private set; } = InventoryConsts.UNSET_BAG_ID;
         /// <summary>
         /// Information about the bag used.
         /// </summary>
@@ -67,7 +67,7 @@ namespace GameKit.Core.Inventories.Bags
         /// Category or section of the game which this bag belongs to.
         /// This value can be used however liked, such as an Id of 0 would be inventory, 1 could be bank.
         /// </summary>
-        public ushort CategoryId = InventoryConsts.UNSET_CATEGORY_ID;
+        public InventoryBase InventoryBase { get; private set; }
         /// <summary>
         /// Index of this bag within the client's UI placement.
         /// This value is only used by the client.
@@ -150,7 +150,7 @@ namespace GameKit.Core.Inventories.Bags
         public void ResetState()
         {
             UniqueId = InventoryConsts.UNSET_BAG_ID;
-            CategoryId = InventoryConsts.UNSET_CATEGORY_ID;
+            InventoryBase = null;
             LayoutIndex = InventoryConsts.UNSET_LAYOUT_INDEX;
 
             CollectionCaches<SerializableResourceQuantity>.StoreAndDefault(ref Slots, Slots.Length);

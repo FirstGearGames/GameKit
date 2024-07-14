@@ -1,5 +1,6 @@
 using FishNet.Managing.Logging;
 using FishNet.Object;
+using GameKit.Core.Inventories;
 using GameKit.Core.Inventories.Bags;
 using LiteDB;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace GameKit.Core.Databases.LiteDb
 
 
         [Client(Logging = LoggingType.Off)]
-        public List<SerializableActiveBag> GetSortedInventory()
+        public List<SerializableActiveBag> GetSortedInventory(uint categoryId)
         {
             if (!GetCollection<SerializableActiveBagContainer>(_databaseClient, true, out ILiteCollection<SerializableActiveBagContainer> collection))
                 return default;
@@ -44,7 +45,7 @@ namespace GameKit.Core.Databases.LiteDb
         }
 
         [Client(Logging = LoggingType.Off)]
-        public void SetSortedInventory(List<SerializableActiveBag> sortedInventory)
+        public void SetSortedInventory(InventoryBase inventoryBase, List<SerializableActiveBag> sortedInventory)
         {
             SerializableActiveBagContainer container = new SerializableActiveBagContainer(sortedInventory);
             if (!GetCollection<SerializableActiveBagContainer>(_databaseClient, true, out ILiteCollection<SerializableActiveBagContainer> collection))
