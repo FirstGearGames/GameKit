@@ -196,18 +196,6 @@ namespace GameKit.Core.Inventories
         }
 
         /// <summary>
-        /// Returns the held quantity of a resource.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public int GetResourceQuantity(uint uniqueId)
-        {
-            int result;
-            ResourceQuantities.TryGetValue(uniqueId, out result);
-            return result;
-        }
-
-        /// <summary>
         /// Adds or removes a resource quantity. Values can be negative to subtract quantity.
         /// </summary>
         /// <param name="uniqueId">Resource being modified.</param>
@@ -215,7 +203,7 @@ namespace GameKit.Core.Inventories
         /// <param name="sendToClient">True to send the changes to the client.</param>
         /// <returns>Quantity which could not be added or removed due to space limitations or missing resources.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int ModifiyResourceQuantity(uint uniqueId, int quantity, bool sendToClient = true)
+        public int ModifyResourceQuantity(uint uniqueId, int quantity, bool sendToClient = true)
         {
             if (quantity == 0)
                 return 0;
@@ -241,7 +229,7 @@ namespace GameKit.Core.Inventories
         /// <param name="uniqueId">Resource to add.</param>
         /// <param name="qPositive">Quantity of resources to add.</param>
         /// <returns>Quantity which could not be added due to no available space.</returns>
-        private int AddResourceQuantity(uint uniqueId, uint qPositive, bool sendToClient)
+        public int AddResourceQuantity(uint uniqueId, uint qPositive, bool sendToClient)
         {
             ResourceData rd = _resourceManager.GetResourceData(uniqueId);
             //Amount which was allowed to be added.
@@ -487,10 +475,10 @@ namespace GameKit.Core.Inventories
         {
             //Remove needed resources first so space used is removed.
             foreach (SerializableResourceQuantity rq in r.GetRequiredResources())
-                ModifiyResourceQuantity(rq.UniqueId, -rq.Quantity);
+                ModifyResourceQuantity(rq.UniqueId, -rq.Quantity);
 
             SerializableResourceQuantity recipeResult = r.GetResult();
-            ModifiyResourceQuantity(recipeResult.UniqueId, recipeResult.Quantity, sendToClient);
+            ModifyResourceQuantity(recipeResult.UniqueId, recipeResult.Quantity, sendToClient);
             OnBulkResourcesUpdated?.Invoke();
         }
 
@@ -528,26 +516,9 @@ namespace GameKit.Core.Inventories
         /// Outputs resource quantities of a BagSlot.
         /// </summary>
         /// <returns>True if the return was successful.</returns>
-        private bool GetResourceQuantity(BagSlot bs, out SerializableResourceQuantity rq)
+        public bool GetResourceQuantity(BagSlot bs, out SerializableResourceQuantity rq)
         {
             return GetResourceQuantity(bs.ActiveBag.UniqueId, bs.SlotIndex, out rq);
-        }
-
-        /// <summary>
-        /// Returns if a slot exists.
-        /// </summary>
-        /// <param name="activeBagUniqueId">Bag index to check.</param>
-        /// <param name="slotIndex">Slot index to check.</param>
-        /// <returns></returns>
-        private bool IsValidBagSlot(uint activeBagUniqueId, int slotIndex)
-        {
-            if (!ActiveBags.TryGetValue(activeBagUniqueId, out ActiveBag ab))
-                return false;
-            if (slotIndex < 0 || slotIndex >= ab.Slots.Length)
-                return false;
-
-            //All conditions pass.
-            return true;
         }
 
         /// <summary>
@@ -568,6 +539,35 @@ namespace GameKit.Core.Inventories
                 rq = ActiveBags[bagUniqueId].Slots[slotIndex];
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Returns the held quantity of a resource.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public int GetResourceQuantity(uint uniqueId)
+        {
+            int result;
+            ResourceQuantities.TryGetValue(uniqueId, out result);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns if a slot exists.
+        /// </summary>
+        /// <param name="activeBagUniqueId">Bag index to check.</param>
+        /// <param name="slotIndex">Slot index to check.</param>
+        /// <returns></returns>
+        private bool IsValidBagSlot(uint activeBagUniqueId, int slotIndex)
+        {
+            if (!ActiveBags.TryGetValue(activeBagUniqueId, out ActiveBag ab))
+                return false;
+            if (slotIndex < 0 || slotIndex >= ab.Slots.Length)
+                return false;
+
+            //All conditions pass.
+            return true;
         }
     }
 

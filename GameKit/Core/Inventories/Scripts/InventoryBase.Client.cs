@@ -172,7 +172,7 @@ namespace GameKit.Core.Inventories
 
             //Add remaining resources to wherever they fit.
             foreach (KeyValuePair<uint, int> item in resourceQuantitiesLookup)
-                ModifiyResourceQuantity(item.Key, item.Value, false);
+                ModifyResourceQuantity(item.Key, item.Value, false);
 
             /* If there were unsorted added then save clients new
              * layout after everything was added. */
@@ -201,7 +201,7 @@ namespace GameKit.Core.Inventories
         [TargetRpc(ExcludeServer = true)]
         private void TargetModifyResourceQuantity(NetworkConnection c, uint uniqueId, int quantity)
         {
-            ModifiyResourceQuantity(uniqueId, quantity);
+            ModifyResourceQuantity(uniqueId, quantity);
         }
 
         /// <summary>
