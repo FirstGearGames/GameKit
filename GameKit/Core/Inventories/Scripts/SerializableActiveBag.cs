@@ -19,7 +19,7 @@ namespace GameKit.Core.Inventories.Bags
         public uint BagDataUniqueId;
         /// <summary>
         /// Category or section of the game which this bag belongs to.
-        /// This value can be used however liked, such as an Id of 0 would be inventory, 1 could be bank.
+        /// This value can be used however liked, such as an Id of 0 would be character bags, 1 could be bank.
         /// </summary>
         public ushort CategoryId;
         /// <summary>
