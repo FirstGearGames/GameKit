@@ -10,7 +10,7 @@ using GameKit.Core.Databases.LiteDb;
 
 namespace GameKit.Core.Inventories
 {
-    public partial class CharacterInventory : InventoryBase
+    public partial class InventoryBase : NetworkBehaviour
     {
 
         /// <summary>
