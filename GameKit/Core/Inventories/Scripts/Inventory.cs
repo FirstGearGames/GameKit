@@ -6,6 +6,7 @@ using GameKit.Core.Crafting;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
 using System.Runtime.CompilerServices;
+using FishNet.Managing;
 
 namespace GameKit.Core.Inventories
 {
@@ -48,11 +49,56 @@ namespace GameKit.Core.Inventories
         /// ResourceManager to use.
         /// </summary>
         private ResourceManager _resourceManager;
+        /// <summary>
+        /// Registered InventoryBase(s).
+        /// </summary>
+        private Dictionary<ushort, InventoryBase> _inventoryBases = new();
         #endregion
 
         public override void OnStartNetwork()
         {
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
+        }
+
+        /// <summary>
+        /// Registers an InventoryBase returning if successful.
+        /// </summary>
+        public bool RegisterInventoryBase(InventoryBase inventoryBase)
+        {
+            if (inventoryBase.CategoryId == InventoryConsts.UNSET_CATEGORY_ID)
+            {
+                base.NetworkManager.LogError($"InventoryBase type {inventoryBase.GetType().FullName} has an unset CategoryId.");
+                return false;
+            }
+
+            if (_inventoryBases.TryGetValue(inventoryBase.CategoryId, out InventoryBase result))
+            {
+                base.NetworkManager.LogError($"InventoryBase already registered for Id {inventoryBase.CategoryId}. Current Id type is {result.GetType().FullName}, duplicate Id is {inventoryBase.GetType().FullName}.");
+                return false;
+            }
+
+            _inventoryBases[inventoryBase.CategoryId] = inventoryBase;
+            return true;
+        }
+
+        /// <summary>
+        /// Unregisters an InventoryBase returning if successful.
+        /// </summary>
+        public bool UnregisterInventoryBase(InventoryBase inventoryBase)
+        {
+            return _inventoryBases.Remove(inventoryBase.CategoryId);
+        }
+
+        /// <summary>
+        /// Returns a registered InventoryBase.
+        /// </summary>
+        public InventoryBase GetInventoryBase(ushort categoryId, bool error = true)
+        {
+            InventoryBase result;
+            if (!_inventoryBases.TryGetValue(categoryId, out result) && error)
+                base.NetworkManager.LogError($"InventoryBase could not be found for Id {categoryId}.");
+
+            return result;
         }
 
         /// <summary>
@@ -68,7 +114,7 @@ namespace GameKit.Core.Inventories
         /// </summary>
         /// <param name="activeBag">ActiveBag information to add.</param>
         public void AddBag(InventoryBase inventoryBase, ActiveBag activeBag, bool sendToClient = true)
-            =>  inventoryBase.AddBag(activeBag, sendToClient);
+            => inventoryBase.AddBag(activeBag, sendToClient);
 
         /// <summary>
         /// Adds or removes a resource quantity. Values can be negative to subtract quantity.
