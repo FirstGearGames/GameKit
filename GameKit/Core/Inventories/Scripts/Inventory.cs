@@ -126,11 +126,9 @@ namespace GameKit.Core.Inventories
         /// </summary>
         public Dictionary<uint, ActiveBag> ActiveBags { get; private set; } = new();
         /// <summary>
-        /// All bagged resources.
-        /// Key: CategoryId for the bag the resources are within.
-        /// Value: Dictionary containing UniqueId of the bagged resource, and BagSlots containing the resource.
+        /// Resource UniqueIds and bag slots they occupy.
         /// </summary>
-        public Dictionary<uint, Dictionary<uint, List<BagSlot>>> BaggedResources { get; private set; } = new();
+        public Dictionary<uint, List<BagSlot>> BaggedResources { get; private set; } = new();
         /// <summary>
         /// Resource UniqueIds and the number of the resource.
         /// These resources are not shown in the players bags but can be used to add hidden tokens or currencies.
@@ -256,16 +254,16 @@ namespace GameKit.Core.Inventories
         /// <param name="sendToClient">True to send the changes to the client.</param>
         /// <returns>Quantity which could not be added or removed due to space limitations or missing resources.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int ModifiyResourceQuantity(uint uniqueId, int quantity, uint categoryId, bool sendToClient = true)
+        public int ModifiyResourceQuantity(uint uniqueId, int quantity, bool sendToClient = true)
         {
             if (quantity == 0)
                 return 0;
 
             int result;
             if (quantity > 0)
-                result = AddResourceQuantity(uniqueId, (uint)quantity, categoryId, sendToClient);
+                result = AddResourceQuantity(uniqueId, (uint)quantity, sendToClient);
             else
-                result = RemoveResourceQuantity(uniqueId, (uint)(quantity * -1), categoryId, sendToClient);
+                result = RemoveResourceQuantity(uniqueId, (uint)(quantity * -1), sendToClient);
 
             //If something was added or removed then save unsorted.
             if (result != Mathf.Abs(quantity) && base.IsServerInitialized)
@@ -282,7 +280,7 @@ namespace GameKit.Core.Inventories
         /// <param name="uniqueId">Resource to add.</param>
         /// <param name="qPositive">Quantity of resources to add.</param>
         /// <returns>Quantity which could not be added due to no available space.</returns>
-        private int AddResourceQuantity(uint uniqueId, uint qPositive, uint categoryId, bool sendToClient)
+        private int AddResourceQuantity(uint uniqueId, uint qPositive, bool sendToClient)
         {
             ResourceData rd = _resourceManager.GetResourceData(uniqueId);
             //Amount which was allowed to be added.
@@ -314,16 +312,8 @@ namespace GameKit.Core.Inventories
                 int thisAdded = 0;
                 int quantityRemaining = (int)qPositive;
                 List<BagSlot> baggedResources;
-                Dictionary<uint, List<BagSlot>> dictResult;
-                //Quick check to see if categoryId exists. If it does not, then add it.
-                if (!BaggedResources.TryGetValue(categoryId, out dictResult))
-                {
-                    dictResult = new Dictionary<uint, List<BagSlot>>();
-                    BaggedResources[categoryId] = dictResult;
-                }
-
-                //UniqueId doesn't exist for bagged resources on categoryId.
-                if (!dictResult.TryGetValue(rd.UniqueId, out baggedResources))
+                //If none are bagged yet.
+                if (!BaggedResources.TryGetValue(rd.UniqueId, out baggedResources))
                 {
                     /* If there's no available slots then
                      * none can be bagged. Return full quantity
@@ -333,7 +323,7 @@ namespace GameKit.Core.Inventories
 
                     //Otherwise add new bagged resources because at least one will be added.
                     baggedResources = new List<BagSlot>();
-                    dictResult[rd.UniqueId] = baggedResources;
+                    BaggedResources.Add(rd.UniqueId, baggedResources);
                 }
 
                 //Check if can be added to existing stacks.
@@ -415,7 +405,7 @@ namespace GameKit.Core.Inventories
         /// </summary>
         /// <param name="uniqueId">Resource to remove.</param>
         /// <returns>Quantity which could not be removed due to missing resources.</returns>
-        private int RemoveResourceQuantity(uint uniqueId, uint qPositive, uint categoryId, bool sendToClient)
+        private int RemoveResourceQuantity(uint uniqueId, uint qPositive, bool sendToClient)
         {
             int currentlyAdded;
             //None exist, return none removed.

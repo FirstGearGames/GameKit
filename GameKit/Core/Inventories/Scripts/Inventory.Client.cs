@@ -5,7 +5,6 @@ using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
 using FishNet.Managing;
 using System.Collections.Generic;
-using System.IO;
 using GameKit.Dependencies.Utilities;
 using GameKit.Core.Databases.LiteDb;
 
@@ -256,7 +255,7 @@ namespace GameKit.Core.Inventories
         /// <param name="quantity">Quantity to move. If -1 the entire stack will move, if greater than 0 up to specified amount will move if target can accept.</param>
         /// <returns>True if the move was successful.</returns>
         [Client]
-        public bool MoveResource(BagSlot from, BagSlot to, int quantity = -1)
+        public virtual bool MoveResource(BagSlot from, BagSlot to, int quantity = -1)
         {
             if (!GetResourceQuantity(from, out SerializableResourceQuantity fromRq))
                 return false;
