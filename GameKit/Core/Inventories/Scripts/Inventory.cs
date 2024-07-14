@@ -15,34 +15,6 @@ namespace GameKit.Core.Inventories
     /// </summary>
     public partial class Inventory : NetworkBehaviour
     {
-        #region Types.
-        /// <summary>
-        /// Inventory without any sorting.
-        /// </summary>
-        private struct SerializableUnsortedInventory
-        {
-            /// <summary>
-            /// Bags the client has.
-            /// </summary>
-            public List<SerializableBagData> Bags;
-            /// <summary>
-            /// Resources across all bags the client has.
-            /// </summary>
-            public List<SerializableResourceQuantity> BaggedResourceQuantities;
-            /// <summary>
-            /// Resources the client has which are hidden.
-            /// </summary>
-            public List<SerializableResourceQuantity> HiddenResourceQuantities;
-
-            public SerializableUnsortedInventory(List<SerializableBagData> bags, List<SerializableResourceQuantity> resourceQuantities, List<SerializableResourceQuantity> hiddenResourceQuantities)
-            {
-                Bags = bags;
-                BaggedResourceQuantities = resourceQuantities;
-                HiddenResourceQuantities = hiddenResourceQuantities;
-            }
-        }
-        #endregion
-
         #region Public.
         /// <summary>
         /// Called after bags are added or removed.
@@ -76,56 +48,11 @@ namespace GameKit.Core.Inventories
         /// ResourceManager to use.
         /// </summary>
         private ResourceManager _resourceManager;
-        /// <summary>
-        /// BagManager to use.
-        /// </summary>
-        private BagManager _bagManager;
         #endregion
 
         public override void OnStartNetwork()
         {
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
-            _bagManager = base.NetworkManager.GetInstance<BagManager>();
-        }
-
-        /// <summary>
-        /// Called after receiving a crafting result.
-        /// </summary>
-        /// <param name="r">Recipe the result is for.</param>
-        /// <param name="result">The crafting result.</param>
-        /// <param name="asServer">True if callback is for server.</param>
-        private void Crafter_OnCraftingResult(RecipeData r, CraftingResult result, bool asServer)
-        {
-            if (result == CraftingResult.Completed)
-                UpdateResourcesFromRecipe(r, asServer);
-        }
-
-
-        /// <summary>
-        /// Converts this inventories ActiveBags to Json.
-        /// </summary>
-        /// <returns></returns>
-        private List<SerializableActiveBag> ActiveBagsToSerializable()
-        {
-            List<SerializableActiveBag> sab = CollectionCaches<SerializableActiveBag>.RetrieveList();
-
-            List<ActiveBag> ab = CollectionCaches<ActiveBag>.RetrieveList();
-            ActiveBags.ValuesToList(ref ab);
-
-            ab.ToSerializable(ref sab);
-            CollectionCaches<ActiveBag>.Store(ab);
-
-            return sab;
-        }
-
-        /// <summary>
-        /// Adds a Bag using an ActiveBag.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddBag(SerializableActiveBag sab, bool sendToClient = true)
-        {
-            ActiveBag ab = new ActiveBag(sab, _bagManager);
-            AddBag(ab, sendToClient);
         }
 
         /// <summary>
@@ -133,27 +60,15 @@ namespace GameKit.Core.Inventories
         /// </summary>
         /// <param name="bag">Adds an ActiveBag for bag with no entries.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddBag(BagData bag, uint activeBagUniqueId = InventoryConsts.UNSET_BAG_ID, bool sendToClient = true)
-        {
-            int currentActiveBagsCount = ActiveBags.Count;
-            if (activeBagUniqueId == InventoryConsts.UNSET_BAG_ID)
-                activeBagUniqueId = ((uint)currentActiveBagsCount + 1);
-            ActiveBag ab = new ActiveBag(activeBagUniqueId, bag, currentActiveBagsCount);
-            AddBag(ab, sendToClient);
-        }
+        public void AddBag(InventoryBase inventoryBase, BagData bag, uint activeBagUniqueId = InventoryConsts.UNSET_BAG_ID, bool sendToClient = true)
+            => inventoryBase.AddBag(bag, activeBagUniqueId, sendToClient);
 
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
         /// <param name="activeBag">ActiveBag information to add.</param>
-        public void AddBag(ActiveBag activeBag, bool sendToClient = true)
-        {
-            ActiveBags[activeBag.UniqueId] = activeBag;
-            OnBagsChanged?.Invoke(true, activeBag);
-
-            if (base.IsServerInitialized && sendToClient)
-                TgtAddBag(base.Owner, activeBag.ToSerializable());
-        }
+        public void AddBag(InventoryBase inventoryBase, ActiveBag activeBag, bool sendToClient = true)
+            =>  inventoryBase.AddBag(activeBag, sendToClient);
 
         /// <summary>
         /// Adds or removes a resource quantity. Values can be negative to subtract quantity.
@@ -216,24 +131,6 @@ namespace GameKit.Core.Inventories
         /// <returns></returns>
         public int GetResourceQuantity(InventoryBase inventoryBase, uint uniqueId)
             => inventoryBase.GetResourceQuantity(uniqueId);
-
-
-        /// <summary>
-        /// Returns if a slot exists.
-        /// </summary>
-        /// <param name="activeBagUniqueId">Bag index to check.</param>
-        /// <param name="slotIndex">Slot index to check.</param>
-        /// <returns></returns>
-        private bool IsValidBagSlot(InventoryBase inventoryBase, uint activeBagUniqueId, int slotIndex)
-        {
-            if (!inventoryBase.ActiveBags.TryGetValue(activeBagUniqueId, out ActiveBag ab))
-                return false;
-            if (slotIndex < 0 || slotIndex >= ab.Slots.Length)
-                return false;
-
-            //All conditions pass.
-            return true;
-        }
 
     }
 
