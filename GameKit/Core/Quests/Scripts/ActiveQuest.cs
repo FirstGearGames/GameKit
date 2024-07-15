@@ -2,11 +2,12 @@ using GameKit.Core.Dependencies;
 using GameKit.Core.Inventories;
 using GameKit.Core.Providers;
 using GameKit.Core.Resources;
+using GameKit.Dependencies.Utilities;
 using System.Collections.Generic;
 
 namespace GameKit.Core.Quests
 {
-    public class ActiveQuest
+    public class ActiveQuest : IResettable
     {
         /// <summary>
         /// Called when any ActiveQuest state changes.
@@ -25,12 +26,8 @@ namespace GameKit.Core.Quests
         /// Called when this ActiveQuest has a condition met change for a quest condition.
         /// </summary>
         public static event QuestObjectiveState OnQuestObjectiveStateChange;
-
         public delegate void QuestObjectiveState(ActiveQuest activeQuest, QuestObjectiveState state);
-        /// <summary>
-        /// ClientInstance this quest is for.
-        /// </summary>
-        public ClientInstance ClientInstance { get; private set; }
+
         /// <summary>
         /// Quest which is active.
         /// </summary>
@@ -44,6 +41,10 @@ namespace GameKit.Core.Quests
         /// </summary>
         private HashSet<uint> _gatherableResourceIds = new HashSet<uint>();
         /// <summary>
+        /// Inventory to check for quest items.
+        /// </summary>
+        private InventoryBase _inventory;
+        /// <summary>
         /// Cached value of if conditions are met.
         /// Value will be null if this has not yet been checked.
         /// </summary>
@@ -52,11 +53,11 @@ namespace GameKit.Core.Quests
         /* initialize with quest manager as well.
          * If a condition becomes met then QuestManager sends
          * a rpc to the server asking server to check. */
-        public ActiveQuest(QuestData quest, Provider provider, ClientInstance clientInstance)
+        public ActiveQuest(QuestData quest, Provider provider, Inventory inventory)
         {
             Quest = quest;
             Provider = provider;
-            ClientInstance = clientInstance;
+            _inventory = inventory.GetInventoryBase(InventoryCategory.Character, error: true);
 
             foreach (QuestConditionBase item in quest.Conditions)
             {
@@ -78,8 +79,6 @@ namespace GameKit.Core.Quests
             if (_isConditionsMet.HasValue)
                 return _isConditionsMet.Value;
 
-            //Most if not all conditions will require access to the inventory.
-            Inventory inv = ClientInstance.Inventory;
             foreach (QuestConditionBase item in Quest.Conditions)
             {
                 //Check gather condition.
@@ -91,7 +90,7 @@ namespace GameKit.Core.Quests
                         if (gr.ResourceData.IsBaggable)
                         {
                             List<BagSlot> abr;
-                            inv.BaggedResources.TryGetValue(uniqueId, out abr);
+                            _inventory.BaggedResources.TryGetValue(uniqueId, out abr);
                             //If resource doesnt exist or count is less than required then condition is not met.
                             if (abr == null || abr.Count < gr.Quantity)
                             {
@@ -102,7 +101,7 @@ namespace GameKit.Core.Quests
                         //Not able to be in a bag.
                         else
                         {
-                            inv.HiddenResources.TryGetValue(uniqueId, out int quantity);
+                            _inventory.HiddenResources.TryGetValue(uniqueId, out int quantity);
                             if (quantity < gr.Quantity)
                             {
                                 _isConditionsMet = false;
@@ -119,7 +118,7 @@ namespace GameKit.Core.Quests
                     foreach (ResourceData rd in tc.Objects)
                     {
                         List<BagSlot> abr;
-                        inv.BaggedResources.TryGetValue(rd.UniqueId, out abr);
+                        _inventory.BaggedResources.TryGetValue(rd.UniqueId, out abr);
                         //Travel conditions only require one of the item.
                         if (abr == null || abr.Count <= 0)
                         {
@@ -171,7 +170,7 @@ namespace GameKit.Core.Quests
 
                 GatherCondition go = (GatherCondition)item;
                 //If gatherables contains the resource data see if it's completed.
-                foreach  (GatherableResource gr in go.Resources)
+                foreach (GatherableResource gr in go.Resources)
                 {
                     if (gr.ResourceData.UniqueId != resourceUniqueId)
                         continue;
@@ -182,6 +181,17 @@ namespace GameKit.Core.Quests
             }
 
         }
+
+        public void ResetState()
+        {
+            Quest = null;
+            Provider = null;
+            _gatherableResourceIds.Clear();
+            _inventory = null;
+            _isConditionsMet = null;
+        }
+
+        public void InitializeState() { }
     }
 
 }

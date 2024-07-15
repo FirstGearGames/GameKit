@@ -90,9 +90,9 @@ namespace GameKit.Core.Crafting.Canvases
         /// </summary>
         private Crafter _crafter => _clientInstance.Crafter;
         /// <summary>
-        /// Inventory for the local client.
+        /// CharacterInventory for the local client.
         /// </summary>
-        private Inventory _inventory => _clientInstance.Inventory;
+        private InventoryBase _inventory;
         /// <summary>
         /// ClientInstance for the local client.
         /// </summary>
@@ -175,6 +175,7 @@ namespace GameKit.Core.Crafting.Canvases
                 _clientInstance = instance;
                 _craftingManager = instance.NetworkManager.GetInstance<CraftingManager>();
                 _resourceManager = instance.NetworkManager.GetInstance<ResourceManager>();
+                _inventory = _clientInstance.Inventory.GetInventoryBase(InventoryCategory.Character, error: true);
                 Initialize();
             }
         }

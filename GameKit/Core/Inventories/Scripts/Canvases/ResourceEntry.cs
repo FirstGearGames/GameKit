@@ -57,7 +57,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// InventoryCanvas for this entry.
         /// </summary>
-        private InventoryCanvas _inventoryCanvas;
+        private InventoryCanvasBase _inventoryCanvas;
         /// <summary>
         /// TooltipCanvas to use.
         /// </summary>
@@ -93,7 +93,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(ClientInstance clientInstance, InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, SerializableResourceQuantity rq, BagSlot bagSlot)
+        public void Initialize(ClientInstance clientInstance, InventoryCanvasBase inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, SerializableResourceQuantity rq, BagSlot bagSlot)
         {
             //If no data then initialize empty.
             if (rq.IsUnset)
@@ -116,7 +116,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this with no data, resetting values.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, BagSlot bagSlot)
+        public void Initialize(InventoryCanvasBase inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, BagSlot bagSlot)
         {
             SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;

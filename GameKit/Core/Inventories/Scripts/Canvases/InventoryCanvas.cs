@@ -14,7 +14,7 @@ using Sirenix.OdinInspector;
 namespace GameKit.Core.Inventories.Canvases
 {
 
-    public class InventoryCanvas : MonoBehaviour
+    public class InventoryCanvasBase : MonoBehaviour
     {
         #region Serialized.
         /// <summary>

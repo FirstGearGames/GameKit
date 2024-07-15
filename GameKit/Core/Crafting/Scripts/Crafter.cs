@@ -115,7 +115,7 @@ namespace GameKit.Core.Crafting
         /// <summary>
         /// Inventory for this client.
         /// </summary>
-        private Inventory _inventory;
+        private InventoryBase _inventory;
         /// <summary>
         /// Multiplier gradually applied to crafting speed when crafting many objects at once.
         /// </summary>
@@ -138,7 +138,8 @@ namespace GameKit.Core.Crafting
         #endregion
         private void Awake()
         {
-            _inventory = GetComponent<Inventory>();
+            Inventory inv = GetComponent<Inventory>();
+            _inventory = inv.GetInventoryBase(InventoryCategory.Character, error: true);
         }
 
         public override void OnStartNetwork()

@@ -27,13 +27,13 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="inv">Inventory of the player this is for.</param>
-        public BagSlot(SerializableBagSlot sbs, Inventory inv) : this()
+        /// <param name="inventoryBase">Inventory of the player this is for.</param>
+        public BagSlot(SerializableBagSlot sbs, InventoryBase inventoryBase) : this()
         {
-            if (!inv.ActiveBags.TryGetValue(sbs.ActiveBagUniqueId, out ActiveBag))
+            if (!inventoryBase.ActiveBags.TryGetValue(sbs.ActiveBagUniqueId, out ActiveBag))
                 SlotIndex = sbs.SlotIndex;
             else
-                inv.NetworkManager.LogError($"UniqueId {sbs.ActiveBagUniqueId} could not be found in Inventory for client {inv.Owner.ToString()}");
+                inventoryBase.NetworkManager.LogError($"UniqueId {sbs.ActiveBagUniqueId} could not be found in Inventory for client {inventoryBase.Owner.ToString()}");
         }
 
         /// <summary>
@@ -87,13 +87,13 @@ namespace GameKit.Core.Inventories
         /// Returns a native type.
         /// </summary>
         /// <returns></returns>
-        /// <param name="inv">Inventory of the client this BagSlot is for.</param>
-        public static BagSlot ToNative(this SerializableBagSlot sbs, Inventory inv)
+        /// <param name="inventoryBase">Inventory of the client this BagSlot is for.</param>
+        public static BagSlot ToNative(this SerializableBagSlot sbs, InventoryBase inventoryBase)
         {
-            if (inv.ActiveBags.TryGetValue(sbs.ActiveBagUniqueId, out ActiveBag ab))
+            if (inventoryBase.ActiveBags.TryGetValue(sbs.ActiveBagUniqueId, out ActiveBag ab))
                 return new BagSlot(ab, sbs.SlotIndex);
 
-            inv.NetworkManager.LogError($"UniqueId {sbs.ActiveBagUniqueId} could not be found in Inventory for client {inv.Owner.ToString()}");
+            inventoryBase.NetworkManager.LogError($"UniqueId {sbs.ActiveBagUniqueId} could not be found in Inventory for client {inventoryBase.Owner.ToString()}");
             return default;
         }
 

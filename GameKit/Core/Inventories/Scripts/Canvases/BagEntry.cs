@@ -76,7 +76,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Inventory canvas this entry is for.
         /// </summary>
-        private InventoryCanvas _inventoryCanvas;
+        private InventoryCanvasBase _inventoryCanvas;
         /// <summary>
         /// True if RectTransform needs to be resized.
         /// </summary>
@@ -91,7 +91,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this script for use.
         /// </summary>
-        public void Initialize(InventoryCanvas inventoryCanvas, ClientInstance clientInstance, FloatingTooltipCanvas tooltipCanvas, ActiveBag activeBag)
+        public void Initialize(InventoryCanvasBase inventoryCanvas, ClientInstance clientInstance, FloatingTooltipCanvas tooltipCanvas, ActiveBag activeBag)
         {
             //Destroy any content which may have been placed for testing.
             _content.DestroyChildren<ResourceEntry>(false);
