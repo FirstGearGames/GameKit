@@ -34,17 +34,17 @@ namespace GameKit.Core.Crafting.Canvases
         /// <summary>
         /// Inventory to pull information from.
         /// </summary>
-        private Inventory _inventory;
+        private InventoryBase _inventory;
 
         /// <summary>
         /// Initializes with values.
         /// </summary>
         /// <param name="rm">ResourceManager reference.</param>
         /// <param name="rq">Resource information to display.</param>
-        public void Initialize(ResourceManager rm, SerializableResourceQuantity rq, Inventory inventory)
+        public void Initialize(ResourceManager rm, SerializableResourceQuantity rq, InventoryBase inventoryBase)
         {
             _resourceQuantity = rq;
-            _inventory = inventory;
+            _inventory = inventoryBase;
             ResourceData rd = rm.GetResourceData(rq.UniqueId);
             _nameText.text = rd.DisplayName;
             _icon.sprite = rd.Icon;

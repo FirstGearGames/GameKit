@@ -17,7 +17,7 @@ namespace GameKit.Core.Inventories
         /// Saves the clients sorted bagged inventory.
         /// </summary>
         [Client]
-        private void SaveBaggedSorted_Client(bool sendToServer)
+        public void SaveBaggedSorted_Client(bool sendToServer)
         {
             List<SerializableActiveBag> sabs = ActiveBagsToSerializable();
             //Save locally.

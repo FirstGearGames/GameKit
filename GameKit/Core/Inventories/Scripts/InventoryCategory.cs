@@ -1,10 +1,11 @@
 namespace GameKit.Core.Inventories
 {
 
-    public enum InventoryCategory : byte
+    public enum InventoryCategory : ushort
     {
-        Unset = 0,
+        Unset = InventoryConsts.UNSET_CATEGORY_ID,
         Character = 1,
+        Bank = 2,
     }
 
 }

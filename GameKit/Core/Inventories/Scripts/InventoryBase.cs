@@ -47,7 +47,7 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// CategoryId for this inventory.
         /// </summary>
-        public ushort CategoryId { get; private set; } = InventoryConsts.UNSET_CATEGORY_ID;
+        public virtual ushort CategoryId { get; private set; } = InventoryConsts.UNSET_CATEGORY_ID;
         /// <summary>
         /// Quantities of each resource.
         /// Key: the resource UniqueId.

@@ -92,6 +92,12 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Returns a registered InventoryBase.
         /// </summary>
+        public InventoryBase GetInventoryBase(InventoryCategory category, bool error = true)
+            => GetInventoryBase((ushort)category, error);
+
+        /// <summary>
+        /// Returns a registered InventoryBase.
+        /// </summary>
         public InventoryBase GetInventoryBase(ushort categoryId, bool error = true)
         {
             InventoryBase result;
@@ -162,6 +168,16 @@ namespace GameKit.Core.Inventories
         /// <returns>True if the return was successful.</returns>
         public bool GetResourceQuantity(InventoryBase inventoryBase, BagSlot bs, out SerializableResourceQuantity rq)
             => inventoryBase.GetResourceQuantity(bs, out rq);
+
+        /// <summary>
+        /// Outputs resource quantities of a BagSlot.
+        /// </summary>
+        /// <returns>True if the return was successful.</returns>
+        public bool GetResourceQuantity(BagSlot bs, out SerializableResourceQuantity rq)
+        {
+            InventoryBase ib = bs.ActiveBag.InventoryBase;
+            return ib.GetResourceQuantity(bs, out rq);
+        }
 
         /// <summary>
         /// Gets a ResourceQuantity using an ActiveBag.UniqueId, and SlotIndex.

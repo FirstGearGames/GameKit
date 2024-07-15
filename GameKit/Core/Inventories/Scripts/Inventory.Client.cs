@@ -19,9 +19,12 @@ namespace GameKit.Core.Inventories
         [Client]
         public virtual bool MoveResource(BagSlot from, BagSlot to, int quantity = -1)
         {
-            if (!GetResourceQuantity(from, out SerializableResourceQuantity fromRq))
+            InventoryBase fromInventoryBase = from.ActiveBag.InventoryBase;
+            InventoryBase toInventoryBase = to.ActiveBag.InventoryBase;
+
+            if (!GetResourceQuantity(fromInventoryBase, from, out SerializableResourceQuantity fromRq))
                 return false;
-            if (!GetResourceQuantity(to, out SerializableResourceQuantity toRq))
+            if (!GetResourceQuantity(toInventoryBase, to, out SerializableResourceQuantity toRq))
                 return false;
             if (from.Equals(to))
                 return false;
@@ -63,9 +66,14 @@ namespace GameKit.Core.Inventories
 
             //   public delegate void BagSlotUpdatedDel(ActiveBag activeBag, int slotIndex, ResourceQuantity resource);
             //Invoke changes.
-            OnBagSlotUpdated?.Invoke(from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
-            OnBagSlotUpdated?.Invoke(to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
-            SaveBaggedSorted_Client(true);
+            OnBagSlotUpdated?.Invoke(fromInventoryBase, from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
+            OnBagSlotUpdated?.Invoke(toInventoryBase, to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
+
+
+            fromInventoryBase.SaveBaggedSorted_Client(true);
+            //If to is different then also save for the to inventory.
+            if (fromInventoryBase.CategoryId != toInventoryBase.CategoryId)
+                toInventoryBase.SaveBaggedSorted_Client(true);
 
             return true;
 
