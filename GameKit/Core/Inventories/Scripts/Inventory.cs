@@ -1,7 +1,5 @@
 using FishNet.Object;
 using System.Collections.Generic;
-using UnityEngine;
-using GameKit.Dependencies.Utilities;
 using GameKit.Core.Crafting;
 using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
