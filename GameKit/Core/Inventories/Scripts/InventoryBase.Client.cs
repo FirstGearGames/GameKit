@@ -154,7 +154,7 @@ namespace GameKit.Core.Inventories
                         rqs[item.Slot] = new SerializableResourceQuantity(item.ResourceQuantity.UniqueId, item.ResourceQuantity.Quantity);
                 }
                 //Create active bag and add.
-                ActiveBag ab = new ActiveBag(sab.UniqueId, bagData, sab.LayoutIndex, rqs);
+                ActiveBag ab = new ActiveBag(sab.UniqueId, this, bagData, sab.LayoutIndex, rqs);
                 AddBag(ab, false);
             }
 

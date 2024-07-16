@@ -87,7 +87,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Inventory being used.
         /// </summary>
-        private Inventory _inventory;
+        private InventoryBase _inventory;
         /// <summary>
         /// TooltipCanvas to use.
         /// </summary>
@@ -138,7 +138,7 @@ namespace GameKit.Core.Inventories.Canvases
 
         private void OnDestroy()
         {
-            ChangeSubscription(ClientInstance.Instance, false);
+            ChangeSubscription(false);
             ClientInstance.OnClientInstanceChange -= ClientInstance_OnClientInstanceChange;
             _searchInput.onValueChanged.AddListener(_searchInput_OnValueChanged);
         }
@@ -163,23 +163,24 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Changes subscription status to events.
         /// </summary>
-        private void ChangeSubscription(ClientInstance ci, bool subscribe)
+        private void ChangeSubscription(bool subscribe)
         {
             if (subscribe == _subscribed)
                 return;
             _subscribed = subscribe;
-            if (ci == null)
+
+            if (_inventory == null)
                 return;
 
             if (subscribe)
             {
-                ci.Inventory.OnBagsChanged += Inventory_OnBagsChanged;
-                ci.Inventory.OnBagSlotUpdated += Inventory_OnBagSlotUpdated;
+                _inventory.OnBagsChanged += Inventory_OnBagsChanged;
+                _inventory.OnBagSlotUpdated += Inventory_OnBagSlotUpdated;
             }
             else
             {
-                ci.Inventory.OnBagsChanged -= Inventory_OnBagsChanged;
-                ci.Inventory.OnBagSlotUpdated -= Inventory_OnBagSlotUpdated;
+                _inventory.OnBagsChanged -= Inventory_OnBagsChanged;
+                _inventory.OnBagSlotUpdated -= Inventory_OnBagSlotUpdated;
             }
         }
 
@@ -317,12 +318,17 @@ namespace GameKit.Core.Inventories.Canvases
             }
 
             bool started = (state == ClientInstanceState.PostInitialize);
-            ChangeSubscription(instance, started);
+            //If started then get the character inventory and initialize bags.
             if (started)
             {
+                Inventory inv = instance.Inventory;
+                _inventory = inv.GetInventoryBase(InventoryCategory.Character, true);
+
                 _tooltipCanvas = instance.NetworkManager.GetInstance<FloatingTooltipCanvas>();
                 InitializeBags();
             }
+
+            ChangeSubscription(started);
         }
 
         /// <summary>
@@ -373,8 +379,6 @@ namespace GameKit.Core.Inventories.Canvases
                 return;
             }
 
-            //Cannot update without the inventory.
-            _inventory = ClientInstance.Instance?.Inventory;
             if (_inventory == null)
                 return;
 

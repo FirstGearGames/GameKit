@@ -135,6 +135,12 @@ namespace GameKit.Core.Inventories
         private BagManager _bagManager;
         #endregion
 
+        protected virtual void Awake()
+        {
+            Inventory inv = GetComponentInParent<Inventory>();
+            inv.RegisterInventoryBase(this);
+        }
+
         public override void OnStartNetwork()
         {
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
@@ -164,7 +170,7 @@ namespace GameKit.Core.Inventories
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddBag(SerializableActiveBag sab, bool sendToClient = true)
         {
-            ActiveBag ab = new ActiveBag(sab, _bagManager);
+            ActiveBag ab = new ActiveBag(sab, this, _bagManager);
             AddBag(ab, sendToClient);
         }
 
@@ -178,7 +184,7 @@ namespace GameKit.Core.Inventories
             int currentActiveBagsCount = ActiveBags.Count;
             if (activeBagUniqueId == InventoryConsts.UNSET_BAG_ID)
                 activeBagUniqueId = ((uint)currentActiveBagsCount + 1);
-            ActiveBag ab = new ActiveBag(activeBagUniqueId, bag, currentActiveBagsCount);
+            ActiveBag ab = new ActiveBag(activeBagUniqueId, this, bag, currentActiveBagsCount);
             AddBag(ab, sendToClient);
         }
 

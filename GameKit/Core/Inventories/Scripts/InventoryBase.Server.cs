@@ -103,7 +103,7 @@ namespace GameKit.Core.Inventories
 
             foreach (SerializableActiveBag item in baggedResources)
             {
-                ActiveBag ab = item.ToNative(_bagManager);
+                ActiveBag ab = item.ToNative(this, _bagManager);
                 AddBag(ab, false);
             }
 

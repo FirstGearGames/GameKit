@@ -1,6 +1,7 @@
 using FishNet.Connection;
 using FishNet.Managing.Logging;
 using FishNet.Object;
+using GameKit.Core.Inventories;
 using GameKit.Core.Resources;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,7 +37,8 @@ namespace GameKit.Core.Crafting
 
         public override void OnStartClient()
         {
-            base.OnStartClient();
+            Inventory inv = GetComponent<Inventory>();
+            _inventory = inv.GetInventoryBase(InventoryCategory.Character, error: true);
             _clientCraftingProgress = new CraftingProgress();
         }
 

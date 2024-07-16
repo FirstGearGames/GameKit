@@ -57,6 +57,7 @@ namespace GameKit.Crafting.Testing
             foreach (ClientInstance ci in ClientInstance.Instances)
             {
                 Inventory inv = ci.Inventory;
+                InventoryBase invBase = inv.GetInventoryBase(InventoryCategory.Character);
                 int tryModify = 0;
                 int notModified = 0;
                 const int maxIterations = 1;
@@ -66,7 +67,7 @@ namespace GameKit.Crafting.Testing
                     if (!add)
                         count *= -1;
                     int index = Ints.RandomExclusiveRange(0, rds.Count);
-                    notModified += inv.ModifiyResourceQuantity(rds[index].UniqueId, count);
+                    notModified += invBase.ModifyResourceQuantity(rds[index].UniqueId, count);
                     tryModify += Mathf.Abs(count);
                 }
 

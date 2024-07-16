@@ -136,15 +136,9 @@ namespace GameKit.Core.Crafting
         /// </summary>
         private const int MAXIMUM_SEQUENTIAL_REQUIREMENT = 10;
         #endregion
-        private void Awake()
-        {
-            Inventory inv = GetComponent<Inventory>();
-            _inventory = inv.GetInventoryBase(InventoryCategory.Character, error: true);
-        }
 
         public override void OnStartNetwork()
         {
-            base.OnStartNetwork();
             _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
             _craftingManager = base.NetworkManager.GetInstance<CraftingManager>();
         }
@@ -154,7 +148,6 @@ namespace GameKit.Core.Crafting
         {
             ProgressCrafting();
         }
-
 
         /// <summary>
         /// Returns craft time including speed multipliers for the current crafting progress.

@@ -4,6 +4,7 @@ using GameKit.Core.Resources;
 using GameKit.Dependencies.Utilities;
 using System.Collections.Generic;
 
+
 namespace GameKit.Core.Inventories.Bags
 {
     [System.Serializable]
@@ -105,9 +106,10 @@ namespace GameKit.Core.Inventories.Bags
         public SerializableResourceQuantity[] Slots = new SerializableResourceQuantity[0];
         #endregion
 
-        public ActiveBag(uint uniqueId, BagData b, int layoutIndex)
+        public ActiveBag(uint uniqueId, InventoryBase inventoryBase, BagData b, int layoutIndex)
         {
             UniqueId = uniqueId;
+            InventoryBase = inventoryBase;
             BagData = b;
             LayoutIndex = layoutIndex;
             Slots = new SerializableResourceQuantity[b.Space];
@@ -118,15 +120,16 @@ namespace GameKit.Core.Inventories.Bags
             }
         }
 
-        public ActiveBag(uint uniqueId, BagData b, int layoutIndex, SerializableResourceQuantity[] slots)
+        public ActiveBag(uint uniqueId, InventoryBase inventoryBase, BagData b, int layoutIndex, SerializableResourceQuantity[] slots)
         {
             UniqueId = uniqueId;
+            InventoryBase = inventoryBase;
             BagData = b;
             LayoutIndex = layoutIndex;
             Slots = slots;
         }
 
-        public ActiveBag(SerializableActiveBag sab, BagManager bagManager = null)
+        public ActiveBag(SerializableActiveBag sab, InventoryBase inventoryBase, BagManager bagManager = null)
         {
             if (bagManager == null)
             {
@@ -138,6 +141,7 @@ namespace GameKit.Core.Inventories.Bags
             }
 
             UniqueId = sab.UniqueId;
+            InventoryBase = inventoryBase;
             BagData = bagManager.GetBagData(sab.BagDataUniqueId);
             if (BagData == null)
                 return;
@@ -184,9 +188,9 @@ namespace GameKit.Core.Inventories.Bags
         /// </summary>
         /// <returns></returns>
         /// <param name="bagManager">BagManager to use. If left null InstanceFinder will be used.</param>
-        public static ActiveBag ToNative(this SerializableActiveBag sab, BagManager bagManager = null)
+        public static ActiveBag ToNative(this SerializableActiveBag sab, InventoryBase inventoryBase, BagManager bagManager = null)
         {
-            ActiveBag result = new(sab, bagManager);
+            ActiveBag result = new(sab, inventoryBase, bagManager);
             return result;
         }
 

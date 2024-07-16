@@ -8,7 +8,7 @@ namespace GameKit.Core.Inventories
 
         public override void OnStartServer()
         {
-            Crafter crafter = GetComponent<Crafter>();
+            Crafter crafter = GetComponentInParent<Crafter>();
             crafter.OnCraftingResult += Crafter_OnCraftingResult;
         }
 
