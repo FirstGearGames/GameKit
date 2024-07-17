@@ -60,7 +60,7 @@ namespace GameKit.Core.Crafting.Canvases
                 return;
 
             int current = _inventory.GetResourceQuantity(_resourceQuantity.UniqueId);
-            _quantityText.text = $"{current} / {_resourceQuantity.Quantity}";
+            _quantityText.text = $"{_resourceQuantity.Quantity} / {current}";
         }
 
         /// <summary>
