@@ -80,16 +80,6 @@ namespace GameKit.Core.Inventories.Canvases
         private readonly Vector2 _tooltipOffset = new Vector2(0f, -64f);
         #endregion
 
-        private void Awake()
-        {
-            _button.onClick.AddListener(OnClick_Button);
-        }
-
-        private void OnDestroy()
-        {
-            _button.onClick.RemoveListener(OnClick_Button);
-        }
-
         /// <summary>
         /// Initializes this entry.
         /// </summary>
@@ -159,14 +149,6 @@ namespace GameKit.Core.Inventories.Canvases
 
             _icon.color = c;
             _stackText.color = c;
-        }
-
-        /// <summary>
-        /// Called when the entry is pressed.
-        /// </summary>
-        public void OnClick_Button()
-        {
-            _inventoryCanvas.SelectResourceEntry(this);
         }
 
         /// <summary>

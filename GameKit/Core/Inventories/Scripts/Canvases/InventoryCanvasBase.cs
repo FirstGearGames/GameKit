@@ -396,6 +396,19 @@ namespace GameKit.Core.Inventories.Canvases
         }
 
         /// <summary>
+        /// Called when a split should occur on a bag entry.
+        /// </summary>
+        /// <param name="entry"></param>
+        public void OnSplit_ResourceEntry(BagSlot bagEntry, ResourceEntry entry)
+        {
+            ResourceData data = entry.ResourceData;
+            if (data == null)
+                return;
+
+            //Get stack size. if more than 1 see if split key is held. then show split canvas if so.
+        }
+
+        /// <summary>
         /// Called when a bag entry is pressed.
         /// </summary>
         /// <param name="entry">Entry being held.</param>
