@@ -13,6 +13,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Sirenix.OdinInspector;
+using GameKit.Core.Utilities;
 
 namespace GameKit.Core.Chats.Canvases
 {
@@ -22,12 +23,6 @@ namespace GameKit.Core.Chats.Canvases
     public abstract class ChatCanvasBase : MonoBehaviour
     {
         #region Serialized.
-        /// <summary>
-        /// Hotkey checker for the chat.
-        /// </summary>
-        [Tooltip("Hotkey checker for the chat.")]
-        [SerializeField, BoxGroup("Misc")]
-        private Keybinds _keybinds;
         /// <summary>
         /// CanvasGroup for the entire chat canvas.
         /// </summary>
@@ -250,7 +245,7 @@ namespace GameKit.Core.Chats.Canvases
             {
                 /* If the outbound chat is selected, escape is pressed,
                  * and this canvas is the last blocking canvas open. */
-                if (_outboundSelected && _keybinds.GetEscapePressed() && CanvasTracker.IsLastInputBlockingCanvas(this))
+                if (_outboundSelected && Keybinds.IsEscapePressed && CanvasTracker.IsLastInputBlockingCanvas(this))
                 {
                     SetOutboundSelection(false);
                     EventSystem.current.SetSelectedGameObject(null);
@@ -259,11 +254,11 @@ namespace GameKit.Core.Chats.Canvases
             //Checks only allowed when no blocking canvases are open.
             else
             {
-                if (_keybinds.GetEnterPressed())
+                if (Keybinds.IsEnterPressed)
                 {
                     SetOutboundSelection(true);
                 }
-                else if (_keybinds.GetSlashPressed() || _keybinds.GetBackslashPressed())
+                else if (Keybinds.IsSlashPressed|| Keybinds.IsBackslashPressed)
                 {
                     _outboundText.text = "/";
                     _outboundText.caretPosition = _outboundText.text.Length;
@@ -277,7 +272,7 @@ namespace GameKit.Core.Chats.Canvases
         /// </summary>
         private void CheckChangeChatType()
         {
-            if (_outboundSelected && _keybinds.GetTabPressed())
+            if (_outboundSelected && Keybinds.IsTabPressed)
             {
                 int startValue = (int)_currentTargetType;
                 int nextValue = startValue;
