@@ -106,6 +106,10 @@ namespace GameKit.Core.Inventories.Bags
         public SerializableResourceQuantity[] Slots = new SerializableResourceQuantity[0];
         #endregion
 
+        public ActiveBag()
+        {
+        }
+
         public ActiveBag(uint uniqueId, InventoryBase inventoryBase, BagData b, int layoutIndex)
         {
             UniqueId = uniqueId;

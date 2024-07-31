@@ -6191,7 +6191,6 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
-  _scenePathHash: 1177379513
   <SceneId>k__BackingField: 5056806504035768284
   <AssetPathHash>k__BackingField: 0
 --- !u!1 &1547008549
@@ -8986,7 +8985,6 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
-  _scenePathHash: 1177379513
   <SceneId>k__BackingField: 5056806507164655317
   <AssetPathHash>k__BackingField: 0
 --- !u!4 &2142677669
