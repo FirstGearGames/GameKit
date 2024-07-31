@@ -15,6 +15,12 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
     {
         #region Serialized.
         /// <summary>
+        /// Transform to move where canvas should be.
+        /// </summary>
+        [Tooltip("Transform to move where canvas should be.")]
+        [SerializeField, BoxGroup("Components")]
+        private RectTransform _rectTransform;
+        /// <summary>
         /// Image to show the item being split.
         /// </summary>
         [Tooltip("Image to show the item being split.")]
@@ -119,6 +125,7 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
 
             OnSliderValueChange(_slider.value);
 
+            _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
             base.Show();
         }
 

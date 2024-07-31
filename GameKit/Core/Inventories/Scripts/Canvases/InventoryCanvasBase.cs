@@ -34,7 +34,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// </summary>
         [Tooltip("ScrollRect to disable when dragging entries.")]
         [SerializeField, BoxGroup("Collection")]
-        private ScrollRect _scrollRect;
+        protected ScrollRect ScrollRect;
         /// <summary>
         /// Prefab to use for resource entries.
         /// </summary>
@@ -350,7 +350,7 @@ namespace GameKit.Core.Inventories.Canvases
             _visible = false;
             _heldEntry = null;
             _hoveredEntry = null;
-            _scrollRect.enabled = true;
+            ScrollRect.enabled = true;
         }
 
         /// <summary>
@@ -392,7 +392,7 @@ namespace GameKit.Core.Inventories.Canvases
 
             InitializeFloatingInventoryItem(entry);
             _heldEntry = entry;
-            _scrollRect.enabled = false;
+            ScrollRect.enabled = false;
         }
 
         /// <summary>
@@ -422,7 +422,7 @@ namespace GameKit.Core.Inventories.Canvases
 
             _heldEntry?.CanvasGroup.SetActive(true, true);
             _heldEntry = null;
-            _scrollRect.enabled = true;
+            ScrollRect.enabled = true;
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ namespace GameKit.Core.Inventories
                 }
 
                 inventoryDb = SaveAllInventory_Server();
-                Debug.Log($"Inventory did not exist for {c.ToString()}. They were created with default bags.");
+                Debug.Log($"Inventory did not exist for {c.ToString()}. They were created with default bags. {_defaultBags.Length} bags were added.");
             }
 
             List<SerializableActiveBag> baggedUnsorted = inventoryDb.ActiveBags;
