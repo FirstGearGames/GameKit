@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using System.Runtime.CompilerServices;
-using System;
 using UnityEngine.UI;
 using GameKit.Dependencies.Utilities;
 using GameKit.Core.FloatingContainers.Tooltips;
@@ -63,6 +62,21 @@ namespace GameKit.Core.Inventories.Canvases
         private TextMeshProUGUI _inventorySpaceText;
         #endregion
 
+        #region Protected.
+        /// <summary>
+        /// Inventory being used.
+        /// </summary>
+        protected InventoryBase Inventory;
+        /// <summary>
+        /// TooltipCanvas to use.
+        /// </summary>
+        protected FloatingTooltipCanvas TooltipCanvas;
+        /// <summary>
+        /// ClientInstance for the local client.
+        /// </summary>
+        protected ClientInstance ClientInstance;
+        #endregion
+
         #region Private.
         /// <summary>
         /// Entries for resources.
@@ -85,14 +99,6 @@ namespace GameKit.Core.Inventories.Canvases
         /// </summary>
         private float _nextSearchUnscaledTime;
         /// <summary>
-        /// Inventory being used.
-        /// </summary>
-        private InventoryBase _inventory;
-        /// <summary>
-        /// TooltipCanvas to use.
-        /// </summary>
-        private FloatingTooltipCanvas _tooltipCanvas;
-        /// <summary>
         /// Entry currently being held.
         /// </summary>
         private ResourceEntry _heldEntry;
@@ -104,10 +110,6 @@ namespace GameKit.Core.Inventories.Canvases
         /// Currently instantiated floating inventory item.
         /// </summary>
         private FloatingResourceEntry _floatingInventoryItem;
-        /// <summary>
-        /// ClientInstance for the local client.
-        /// </summary>
-        private ClientInstance _clientInstance;
         #endregion
 
         #region Const.
@@ -163,24 +165,24 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Changes subscription status to events.
         /// </summary>
-        private void ChangeSubscription(bool subscribe)
+        protected void ChangeSubscription(bool subscribe)
         {
             if (subscribe == _subscribed)
                 return;
             _subscribed = subscribe;
 
-            if (_inventory == null)
+            if (Inventory == null)
                 return;
 
             if (subscribe)
             {
-                _inventory.OnBagsChanged += Inventory_OnBagsChanged;
-                _inventory.OnBagSlotUpdated += Inventory_OnBagSlotUpdated;
+                Inventory.OnBagsChanged += Inventory_OnBagsChanged;
+                Inventory.OnBagSlotUpdated += Inventory_OnBagSlotUpdated;
             }
             else
             {
-                _inventory.OnBagsChanged -= Inventory_OnBagsChanged;
-                _inventory.OnBagSlotUpdated -= Inventory_OnBagSlotUpdated;
+                Inventory.OnBagsChanged -= Inventory_OnBagsChanged;
+                Inventory.OnBagSlotUpdated -= Inventory_OnBagSlotUpdated;
             }
         }
 
@@ -267,9 +269,9 @@ namespace GameKit.Core.Inventories.Canvases
              * did not call Show will result in the tooltip ignoring
              * the command. */
             if (re.ResourceData != null && re.ResourceData.UniqueId != rq.UniqueId)
-                _tooltipCanvas.Hide(re);
+                TooltipCanvas.Hide(re);
 
-            re.Initialize(ClientInstance.Instance, this, _tooltipCanvas, rq, new BagSlot(activeBag, slotIndex));
+            re.Initialize(ClientInstance.Instance, this, TooltipCanvas, rq, new BagSlot(activeBag, slotIndex));
             SetUsedInventorySpaceText();
             _bagEntries[activeBag.LayoutIndex].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);
@@ -294,10 +296,10 @@ namespace GameKit.Core.Inventories.Canvases
         {
             int used = 0;
             int max = 0;
-            if (_inventory != null)
+            if (Inventory != null)
             {
-                used = _inventory.UsedSlots;
-                max = _inventory.MaximumSlots;
+                used = Inventory.UsedSlots;
+                max = Inventory.MaximumSlots;
             }
 
             _inventorySpaceText.text = $"Used {used} / {max} Space";
@@ -306,13 +308,13 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Called when OnStartClient occurs on this local clients ClientInstance.
         /// </summary>
-        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
+        protected virtual void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
             if (asServer)
                 return;
             if (state.IsPreState())
             {
-                _clientInstance = instance;
+                ClientInstance = instance;
                 instance.NetworkManager.RegisterInstance(this);
                 return;
             }
@@ -320,15 +322,7 @@ namespace GameKit.Core.Inventories.Canvases
             bool started = (state == ClientInstanceState.PostInitialize);
             //If started then get the character inventory and initialize bags.
             if (started)
-            {
-                Inventory inv = instance.Inventory;
-                _inventory = inv.GetInventoryBase(InventoryCategory.Character, true);
-
-                _tooltipCanvas = instance.NetworkManager.GetInstance<FloatingTooltipCanvas>();
-                InitializeBags();
-            }
-
-            ChangeSubscription(started);
+                TooltipCanvas = instance.NetworkManager.GetInstance<FloatingTooltipCanvas>();
         }
 
         /// <summary>
@@ -360,14 +354,6 @@ namespace GameKit.Core.Inventories.Canvases
         }
 
         /// <summary>
-        /// Selects a resource entry.
-        /// </summary>
-        public void SelectResourceEntry(ResourceEntry re)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Initializes bags with data from inventory.
         /// </summary>
         /// <param name="force">True to update immediately even if this canvas is not shown.</param>
@@ -379,16 +365,16 @@ namespace GameKit.Core.Inventories.Canvases
                 return;
             }
 
-            if (_inventory == null)
+            if (Inventory == null)
                 return;
 
             _bagContent.DestroyChildren<BagEntry>(true);
             _bagEntries.Clear();
 
-            foreach (ActiveBag b in _inventory.ActiveBags.Values)
+            foreach (ActiveBag b in Inventory.ActiveBags.Values)
             {
                 BagEntry be = Instantiate(_bagEntryPrefab, _bagContent);
-                be.Initialize(this, _clientInstance, _tooltipCanvas, b);
+                be.Initialize(this, ClientInstance, TooltipCanvas, b);
                 _bagEntries.Add(be);
             }
 
@@ -412,28 +398,26 @@ namespace GameKit.Core.Inventories.Canvases
         /// Called when a bag entry is pressed.
         /// </summary>
         /// <param name="entry">Entry being held.</param>
-        public void OnHeld_ResourceEntry(ResourceEntry entry)
+        public void OnPressed_ResourceEntry(ResourceEntry entry)
         {
             if (entry.ResourceData == null)
                 return;
 
-            TryInitializeFloatingInventoryItem();
+            InitializeFloatingInventoryItem(entry);
             _heldEntry = entry;
             _scrollRect.enabled = false;
-
-            /* Tries to initialize the floating inventory item
-             * if it has not already been done so. */
-            void TryInitializeFloatingInventoryItem()
-            {
-                if (_floatingInventoryItem.IsHiding)
-                {
-                    _floatingInventoryItem.Initialize(entry.ResourceData.Icon, _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
-                    _floatingInventoryItem.Show(entry.transform);
-                    entry.CanvasGroup.SetActive(false, true);
-                }
-            }
         }
 
+        /// <summary>
+        /// Initializes a floating item canvas for an entry.
+        /// </summary>
+        /// <param name="entry"></param>
+        protected void InitializeFloatingInventoryItem(ResourceEntry entry)
+        {
+            _floatingInventoryItem.Initialize(entry.ResourceData.Icon, _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
+            _floatingInventoryItem.Show(entry.transform);
+            entry.CanvasGroup.SetActive(false, true);
+        }
 
         /// <summary>
         /// Called when a bag entry is no longer held.
@@ -445,7 +429,7 @@ namespace GameKit.Core.Inventories.Canvases
              * stack items. Inventory performs error checking
              * so no need to here. */
             if (_heldEntry != null && _hoveredEntry != null)
-                _inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot);
+                Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot);
 
             _floatingInventoryItem.Hide();
 

@@ -160,7 +160,7 @@ namespace GameKit.Core.Inventories.Canvases
             if (pressed != _pressed)
             {
                 if (pressed)
-                    _inventoryCanvas.OnHeld_ResourceEntry(this);
+                    _inventoryCanvas.OnPressed_ResourceEntry(this);
                 else
                     _inventoryCanvas.OnRelease_ResourceEntry(this);
             }
