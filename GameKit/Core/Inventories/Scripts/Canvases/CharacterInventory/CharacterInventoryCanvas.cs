@@ -5,11 +5,9 @@ using GameKit.Core.Utilities;
 using GameKit.Dependencies.Utilities;
 using GameKit.Dependencies.Utilities.Types;
 using GameKit.Dependencies.Utilities.Types.CanvasContainers;
-using UnityEngine;
 
 namespace GameKit.Core.Inventories.Canvases.Characters
 {
-
     public class CharacterInventoryCanvas : InventoryCanvasBase
     {
         /// <summary>
@@ -17,7 +15,8 @@ namespace GameKit.Core.Inventories.Canvases.Characters
         /// </summary>
         private SplittingCanvas _splittingCanvas;
 
-        protected override void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
+        protected override void ClientInstance_OnClientInstanceChange(ClientInstance instance,
+            ClientInstanceState state, bool asServer)
         {
             base.ClientInstance_OnClientInstanceChange(instance, state, asServer);
 
@@ -45,9 +44,13 @@ namespace GameKit.Core.Inventories.Canvases.Characters
                 return;
             }
 
-            ImageButtonData imd = ObjectCaches<ImageButtonData>.Retrieve();
-            imd.Initialize(data.Icon, data.DisplayName, new ButtonData.PressedDelegate(OnSplitConfirmed));
-            _splittingCanvas.Show(entry.transform, imd, new IntRange(1, entry.StackCount));
+            SplittingCanvasConfig config = new()
+            {
+                Item = data,
+                ConfirmCallback = new PressedDelegateData(new(OnSplitConfirmed)),
+                SplitValues = new IntRange(1, entry.StackCount),
+            };
+            _splittingCanvas.Show(entry.transform, config);
 
             base.ScrollRect.enabled = false;
         }
@@ -56,6 +59,4 @@ namespace GameKit.Core.Inventories.Canvases.Characters
         {
         }
     }
-
-
 }

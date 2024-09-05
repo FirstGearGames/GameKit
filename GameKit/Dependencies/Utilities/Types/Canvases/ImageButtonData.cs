@@ -19,9 +19,9 @@ namespace GameKit.Dependencies.Utilities.Types.CanvasContainers
         /// <param name="text">Text to display on the button.</param>
         /// <param name="callback">Callback when OnPressed is called.</param>
         /// <param name="key">Optional key to include within the callback.</param>
-        public void Initialize(Sprite sprite, string text, PressedDelegate callback, string key = "")
+        public void Initialize(Sprite sprite, string text, PressedDelegateData pressedDelegate)
         {
-            base.Initialize(text, callback, key);
+            base.Initialize(text, pressedDelegate);
             DisplayImage = sprite;
         }
 

@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using GameKit.Core.FloatingContainers.Tooltips;
 using GameKit.Core.Resources;
 using GameKit.Core.Dependencies;
+using GameKit.Dependencies.Utilities;
 
 namespace GameKit.Core.Inventories.Canvases
 {

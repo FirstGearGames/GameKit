@@ -2,6 +2,7 @@ using UnityEngine;
 using GameKit.Core.FloatingContainers.Tooltips;
 using GameKit.Core.Inventories.Bags;
 using UnityEngine.EventSystems;
+using GameKit.Dependencies.Utilities;
 
 namespace GameKit.Core.Inventories.Canvases
 {

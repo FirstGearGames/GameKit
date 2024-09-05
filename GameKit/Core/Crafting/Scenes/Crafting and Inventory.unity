@@ -487,7 +487,20 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 92007492}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1447773079}
+        m_TargetAssemblyTypeName: GameKit.Core.FloatingContainers.OptionMenuButtons.SplittingCanvas,
+          GameKit.Core
+        m_MethodName: OnClick_Confirm
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &92007492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -706,10 +719,12 @@ MonoBehaviour:
   CanvasGroup: {fileID: 122878881}
   UpdateCanvasBlocking: 1
   FadeInDuration: 0.1
-  FadeOutDuration: 0.3
+  FadeOutDuration: 0.2
+  _closeButton: {fileID: 1977173218}
   _rectTransform: {fileID: 1547008550}
   _paddingTransform: {fileID: 912195796}
   _content: {fileID: 293119845}
+  LayoutGroup: {fileID: 0}
   _buttonPrefab: {fileID: -4016503704004821730, guid: d9ee5cd05b7ecb84095f0c2513632cfb, type: 3}
   _sizeLimits: {x: 1400, y: 800}
 --- !u!1 &155021932
@@ -3889,7 +3904,20 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 900026184}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1447773079}
+        m_TargetAssemblyTypeName: GameKit.Core.FloatingContainers.OptionMenuButtons.SplittingCanvas,
+          GameKit.Core
+        m_MethodName: OnClick_Close
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &900026184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5870,7 +5898,7 @@ MonoBehaviour:
   CanvasGroup: {fileID: 1447773075}
   UpdateCanvasBlocking: 1
   FadeInDuration: 0.1
-  FadeOutDuration: 0.3
+  FadeOutDuration: 0.2
   _rectTransform: {fileID: 696233306}
   _itemImage: {fileID: 845742803255809471}
   _itemText: {fileID: 3423374989658151658}
@@ -6163,14 +6191,10 @@ MonoBehaviour:
   <IsNested>k__BackingField: 0
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
-  _networkBehaviours:
-  - {fileID: 1533198127}
-  <SerializedRootNetworkBehaviour>k__BackingField: {fileID: 0}
-  <NestedRootNetworkBehaviours>k__BackingField: []
-  SerializedTransformProperties:
-    Position: {x: 706.6875, y: 386.0661, z: 0.2473836}
-    Rotation: {x: -0, y: -0, z: -0, w: 1}
-    LocalScale: {x: 1, y: 1, z: 1}
+  <PredictedOwner>k__BackingField: {fileID: 0}
+  NetworkBehaviours: []
+  <InitializedParentNetworkBehaviour>k__BackingField: {fileID: 0}
+  <InitializedNestedNetworkObjects>k__BackingField: []
   _isNetworked: 1
   _isSpawnable: 1
   _isGlobal: 0
@@ -6192,8 +6216,12 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
-  <SceneId>k__BackingField: 5056806504035768284
   <AssetPathHash>k__BackingField: 0
+  <SceneId>k__BackingField: 5056806504035768284
+  SerializedTransformProperties:
+    Position: {x: 706.6875, y: 386.0661, z: 0.2473836}
+    Rotation: {x: -0, y: -0, z: -0, w: 1}
+    LocalScale: {x: 1, y: 1, z: 1}
 --- !u!1 &1547008549
 GameObject:
   m_ObjectHideFlags: 0
@@ -6962,6 +6990,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7443408886601438479}
     m_Modifications:
+    - target: {fileID: 818862022, guid: 0570b6f7f713dc44a90463654bbcd8d0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 155.1001
+      objectReference: {fileID: 0}
+    - target: {fileID: 818862022, guid: 0570b6f7f713dc44a90463654bbcd8d0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -52.69995
+      objectReference: {fileID: 0}
+    - target: {fileID: 3414662637240338350, guid: 0570b6f7f713dc44a90463654bbcd8d0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 78.1001
+      objectReference: {fileID: 0}
+    - target: {fileID: 3414662637240338350, guid: 0570b6f7f713dc44a90463654bbcd8d0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -121.400024
+      objectReference: {fileID: 0}
     - target: {fileID: 4393252310969058989, guid: 0570b6f7f713dc44a90463654bbcd8d0, type: 3}
       propertyPath: m_BlockingMask.m_Bits
       value: 55
@@ -8536,7 +8580,20 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1977173220}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 122878887}
+        m_TargetAssemblyTypeName: GameKit.Core.FloatingContainers.OptionMenuButtons.FloatingOptionsCanvas,
+          GameKit.Core
+        m_MethodName: OnClick_Close
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1977556404
 GameObject:
   m_ObjectHideFlags: 0
@@ -9064,17 +9121,10 @@ MonoBehaviour:
   <IsNested>k__BackingField: 0
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
-  _networkBehaviours:
-  - {fileID: 2142677670}
-  - {fileID: 2142677671}
-  - {fileID: 2142677672}
-  - {fileID: 2142677673}
-  <SerializedRootNetworkBehaviour>k__BackingField: {fileID: 0}
-  <NestedRootNetworkBehaviours>k__BackingField: []
-  SerializedTransformProperties:
-    Position: {x: 622.6176, y: -314.5649, z: 413.08014}
-    Rotation: {x: 0, y: 0, z: 0, w: 1}
-    LocalScale: {x: 1, y: 1, z: 1}
+  <PredictedOwner>k__BackingField: {fileID: 0}
+  NetworkBehaviours: []
+  <InitializedParentNetworkBehaviour>k__BackingField: {fileID: 0}
+  <InitializedNestedNetworkObjects>k__BackingField: []
   _isNetworked: 1
   _isSpawnable: 1
   _isGlobal: 0
@@ -9096,8 +9146,12 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 65535
   <SpawnableCollectionId>k__BackingField: 0
-  <SceneId>k__BackingField: 5056806507164655317
   <AssetPathHash>k__BackingField: 0
+  <SceneId>k__BackingField: 5056806507164655317
+  SerializedTransformProperties:
+    Position: {x: 622.6176, y: -314.5649, z: 413.08014}
+    Rotation: {x: 0, y: 0, z: 0, w: 1}
+    LocalScale: {x: 1, y: 1, z: 1}
 --- !u!4 &2142677669
 Transform:
   m_ObjectHideFlags: 0

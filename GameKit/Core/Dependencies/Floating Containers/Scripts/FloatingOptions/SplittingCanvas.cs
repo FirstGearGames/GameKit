@@ -1,4 +1,3 @@
-using GameKit.Dependencies.Utilities.Types.CanvasContainers;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using GameKit.Core.Dependencies;
@@ -14,59 +13,67 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
     public class SplittingCanvas : CanvasGroupFader
     {
         #region Serialized.
+
+        [Header("SplittingCanvas")]
         /// <summary>
         /// Transform to move where canvas should be.
         /// </summary>
         [Tooltip("Transform to move where canvas should be.")]
-        [SerializeField, BoxGroup("Components")]
+        [SerializeField, Indent(1), TabGroup("Components")]
         private RectTransform _rectTransform;
+
         /// <summary>
         /// Image to show the item being split.
         /// </summary>
-        [Tooltip("Image to show the item being split.")]
-        [SerializeField, BoxGroup("Components")]
+        [Tooltip("Image to show the item being split.")] [SerializeField, Indent(1), TabGroup("Components")]
         private Image _itemImage;
+
         /// <summary>
         /// Text showing the item name.
         /// </summary>
-        [Tooltip("Text showing the item name.")]
-        [SerializeField, BoxGroup("Components")]
+        [Tooltip("Text showing the item name.")] [SerializeField, Indent(1), TabGroup("Components")]
         private TextMeshProUGUI _itemText;
+
         /// <summary>
         /// Text showing how many to split of total.
         /// </summary>
-        [Tooltip("Text showing how many to split of total.")]
-        [SerializeField, BoxGroup("Components")]
+        [Tooltip("Text showing how many to split of total.")] [SerializeField, Indent(1), TabGroup("Components")]
         private TextMeshProUGUI _splitText;
+
         /// <summary>
         /// Slider component.
         /// </summary>
-        [Tooltip("Slider component.")]
-        [SerializeField]
+        [Tooltip("Slider component.")] [SerializeField, Indent(1), TabGroup("Components")]
         private Slider _slider;
+
         /// <summary>
         /// Text showing how many remaining after the split.
         /// </summary>
         [Tooltip("Text showing how many remaining after the split.")]
-        [SerializeField, BoxGroup("Components")]
+        [SerializeField, Indent(1), TabGroup("Components")]
         private TextMeshProUGUI _remainingText;
+
         #endregion
 
         #region Private.
+
         /// <summary>
         /// ClientInstance for the local client.
         /// </summary>
         private ClientInstance _clientInstance;
+
         /// <summary>
-        /// Data for when confirming a split.
+        /// Configuration for the current split.
         /// </summary>
-        private ImageButtonData _buttonData;
+        private SplittingCanvasConfig _config;
+
         #endregion
 
         private void Awake()
         {
             _slider.onValueChanged.AddListener(OnSliderValueChange);
-            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
+            ClientInstance.OnClientInstanceChangeInvoke(
+                new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
         }
 
         private void OnDestroy()
@@ -77,15 +84,11 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
                 _clientInstance.NetworkManager.UnregisterInstance<SplittingCanvas>();
         }
 
-        protected override void Update()
-        {
-            base.Update();
-        }
-
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
+        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state,
+            bool asServer)
         {
             if (asServer)
                 return;
@@ -108,24 +111,22 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// <param name="position">Position of canvas.</param>
         /// <param name="buttonPrefab">Button prefab to use. If null DefaultButtonPrefab will be used.</param>
         /// <param name="buttonDatas">Datas to use.</param>
-        public virtual void Show(Vector2 position, ImageButtonData buttonData, IntRange splitValues)
+        public virtual void Show(Vector2 position, SplittingCanvasConfig config)
         {
-            if (_buttonData != null)
-                ObjectCaches<ImageButtonData>.Store(_buttonData);
-            _buttonData = buttonData;
 
             //Slider min/max with values.
             _slider.minValue = 1;
-            _slider.value = splitValues.Minimum;
-            _slider.maxValue = splitValues.Maximum;
+            _slider.value = config.SplitValues.Minimum;
+            _slider.maxValue = config.SplitValues.Maximum;
 
             //Update visuals.
-            _itemImage.sprite = buttonData.DisplayImage;
-            _itemText.text = buttonData.Text;
+            _itemImage.sprite = config.Item.Icon;
+            _itemText.text = config.Item.DisplayName;
 
             OnSliderValueChange(_slider.value);
 
-            _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
+            _rectTransform.position =
+                _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
             base.Show();
         }
 
@@ -134,15 +135,41 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// <param name="buttonPrefab">Button prefab to use. If null DefaultButtonPrefab will be used.</param>
         /// <param name="buttonDatas">Datas to use.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Show(Transform startingPoint, ImageButtonData buttonData, IntRange splitValues)
+        public virtual void Show(Transform startingPoint, SplittingCanvasConfig config)
         {
             if (startingPoint == null)
             {
-                NetworkManagerExtensions.LogError($"A null Transform cannot be used as the starting point.");                
+                NetworkManagerExtensions.LogError($"A null Transform cannot be used as the starting point.");
                 return;
             }
 
-            Show(startingPoint.position, buttonData, splitValues);
+            Show(startingPoint.position, config);
+        }
+
+        /// <summary>
+        /// Hides while optionally resetting state.
+        /// </summary>
+        public void Hide(bool resetState = true)
+        {
+            if (resetState)
+                ResetState();
+
+            base.Hide();
+        }
+        
+        public void OnClick_Confirm()
+        {
+            _config.ConfirmCallback.Invoke();
+            Hide(resetState: true);
+        }
+
+        /// <summary>
+        /// Called when close is pressed.
+        /// </summary>
+        public void OnClick_Close()
+        {
+            _config.CancelCallback.Invoke();
+            Hide(resetState: true);
         }
 
         /// <summary>
@@ -158,7 +185,9 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
             _splitText.text = $"{currentValue} / {maxValue}";
         }
 
+        private void ResetState()
+        {
+            _config = default;
+        }
     }
-
-
 }
