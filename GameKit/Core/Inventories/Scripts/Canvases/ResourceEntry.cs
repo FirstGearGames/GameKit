@@ -84,10 +84,10 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Initializes this entry.
         /// </summary>
-        public void Initialize(ClientInstance clientInstance, InventoryCanvasBase inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, SerializableResourceQuantity rq, BagSlot bagSlot)
+        public void Initialize(ClientInstance clientInstance, InventoryCanvasBase inventoryCanvas, FloatingTooltipCanvas tooltipCanvas, SerializableResourceQuantity srq, BagSlot bagSlot)
         {
             //If no data then initialize empty.
-            if (rq.IsUnset)
+            if (srq.IsUnset)
             {
                 Initialize(inventoryCanvas, tooltipCanvas, bagSlot);
                 return;
@@ -96,10 +96,10 @@ namespace GameKit.Core.Inventories.Canvases
             SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
-            ResourceData = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetResourceData(rq.UniqueId);
+            ResourceData = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetResourceData(srq.UniqueId);
             _icon.sprite = ResourceData.Icon;
-            StackCount = rq.Quantity;
-            _stackText.text = (StackCount > 1) ? $"{rq.Quantity}" : string.Empty;
+            StackCount = srq.Quantity;
+            _stackText.text = (StackCount > 1) ? $"{srq.Quantity}" : string.Empty;
 
             UpdateComponentStates();
         }

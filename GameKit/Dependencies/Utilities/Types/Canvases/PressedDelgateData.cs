@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace GameKit.Dependencies.Utilities.Types.CanvasContainers
 {
     public struct PressedDelegateData

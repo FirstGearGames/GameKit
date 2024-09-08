@@ -7,12 +7,12 @@ using FishNet.Managing;
 using System.Collections.Generic;
 using GameKit.Dependencies.Utilities;
 using GameKit.Core.Databases.LiteDb;
+using GameKit.Core.Inventories.Canvases;
 
 namespace GameKit.Core.Inventories
 {
     public partial class InventoryBase : NetworkBehaviour
     {
-
         /// <summary>
         /// Saves the clients sorted bagged inventory.
         /// </summary>
@@ -48,6 +48,7 @@ namespace GameKit.Core.Inventories
                 SaveBaggedSorted_Client(false);
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// Applies a sorted inventory.
         /// Include data for the proper 
@@ -62,7 +63,7 @@ namespace GameKit.Core.Inventories
             /* ResourceQuantities which are handled inside the users saved inventory
              * are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
              * inventory are added to whichever slots are available in the users inventory.
-             * 
+             *
              * If a user doesn't have the bag entirely which is in their saved inventory
              * then it's skipped over. This will result in any skipped entries filling slots
              * as described above. */
@@ -81,9 +82,9 @@ namespace GameKit.Core.Inventories
             }
 
             /* First check if unsorted contains all the bags used
-           * in sortedInv. If sortedI says a bag is used that the client
-           * does not have then the bag is unset from sorted which will
-           * cause the resources to be placed wherever available. */
+             * in sortedInv. If sortedI says a bag is used that the client
+             * does not have then the bag is unset from sorted which will
+             * cause the resources to be placed wherever available. */
             for (int i = 0; i < baggedSorted.Count; i++)
             {
                 int bagIndex = GetUnsortedIndex(baggedSorted[i].UniqueId);
@@ -182,7 +183,6 @@ namespace GameKit.Core.Inventories
             return sortedChanged;
         }
 
-
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
@@ -212,7 +212,7 @@ namespace GameKit.Core.Inventories
         /// <param name="quantity">Quantity to move. If -1 the entire stack will move, if greater than 0 up to specified amount will move if target can accept.</param>
         /// <returns>True if the move was successful.</returns>
         [Client]
-        public virtual bool MoveResource(BagSlot from, BagSlot to, int quantity = -1)
+        public virtual bool MoveResource(BagSlot from, BagSlot to, int quantity = InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY)
         {
             if (!GetResourceQuantity(from, out SerializableResourceQuantity fromRq))
                 return false;
@@ -227,13 +227,11 @@ namespace GameKit.Core.Inventories
                 return false;
             }
 
-            const int defaultQuantity = -1;
-
             //If the to is empty just simply move.
             if (toRq.IsUnset)
             {
                 //If a quantity is specified then move this amount.
-                if (quantity != defaultQuantity)
+                if (quantity != InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY)
                     MoveQuantity();
                 else
                     SwapEntries();
@@ -244,7 +242,7 @@ namespace GameKit.Core.Inventories
                 /* If an amount is specified this would suggest a split.
                  * If the split amount is not the full amount of from then
                  * the operation fails. */
-                if (quantity != defaultQuantity && quantity != fromRq.Quantity)
+                if (quantity != InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY && quantity != fromRq.Quantity)
                     return false;
                 else
                     SwapEntries();
@@ -255,11 +253,10 @@ namespace GameKit.Core.Inventories
                 MoveQuantity();
             }
 
-
-            //   public delegate void BagSlotUpdatedDel(ActiveBag activeBag, int slotIndex, ResourceQuantity resource);
             //Invoke changes.
             OnBagSlotUpdated?.Invoke(from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
             OnBagSlotUpdated?.Invoke(to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
+
             SaveBaggedSorted_Client(true);
 
             return true;
@@ -267,6 +264,7 @@ namespace GameKit.Core.Inventories
             //Swaps the to and from entries.
             void SwapEntries()
             {
+                Debug.Log(("Doing swap"));
                 from.ActiveBag.Slots[from.SlotIndex] = toRq;
                 to.ActiveBag.Slots[to.SlotIndex] = fromRq;
             }
@@ -282,7 +280,7 @@ namespace GameKit.Core.Inventories
                 //If quantity is unset then set move amount to stack size.
                 //Set the move amount to max possible amount to complete the stack, or from quantity.
 
-                bool unsetQuantity = (quantity == defaultQuantity);
+                bool unsetQuantity = (quantity == InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY);
                 /* If quantity is unset then the goal is to move as much
                  * as possible onto the To slot. If the To slot is at maximum
                  * stacks then swap entries. */
@@ -297,6 +295,11 @@ namespace GameKit.Core.Inventories
                      * remainders. */
                     if (unsetQuantity)
                         quantity = fromRq.Quantity;
+
+
+                    /* Be it moving all or some, the toRq uniqueId will
+                     * become the from Id. */
+                    toRq.UniqueId = fromRq.UniqueId;
 
                     /* Move whichever is less of availability on To stack,
                      * or specified quantity. */
@@ -315,5 +318,4 @@ namespace GameKit.Core.Inventories
             }
         }
     }
-
 }

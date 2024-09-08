@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Flask_ResourceData
   m_EditorClassIdentifier: 
   Enabled: 1
-  StackLimit: 3
+  StackLimit: 4
   QuantityLimit: 65535
   IsBaggable: 1
   Category: 3

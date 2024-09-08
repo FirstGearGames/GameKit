@@ -3,6 +3,7 @@ using UnityEngine;
 using GameKit.Core.Dependencies;
 using UnityEngine.UI;
 using FishNet.Managing;
+using GameKit.Core.Resources;
 using Sirenix.OdinInspector;
 using TMPro;
 using GameKit.Dependencies.Utilities.Types;
@@ -13,7 +14,6 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
     public class SplittingCanvas : CanvasGroupFader
     {
         #region Serialized.
-
         [Header("SplittingCanvas")]
         /// <summary>
         /// Transform to move where canvas should be.
@@ -25,25 +25,29 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// <summary>
         /// Image to show the item being split.
         /// </summary>
-        [Tooltip("Image to show the item being split.")] [SerializeField, Indent(1), TabGroup("Components")]
+        [Tooltip("Image to show the item being split.")]
+        [SerializeField, Indent(1), TabGroup("Components")]
         private Image _itemImage;
 
         /// <summary>
         /// Text showing the item name.
         /// </summary>
-        [Tooltip("Text showing the item name.")] [SerializeField, Indent(1), TabGroup("Components")]
+        [Tooltip("Text showing the item name.")]
+        [SerializeField, Indent(1), TabGroup("Components")]
         private TextMeshProUGUI _itemText;
 
         /// <summary>
         /// Text showing how many to split of total.
         /// </summary>
-        [Tooltip("Text showing how many to split of total.")] [SerializeField, Indent(1), TabGroup("Components")]
+        [Tooltip("Text showing how many to split of total.")]
+        [SerializeField, Indent(1), TabGroup("Components")]
         private TextMeshProUGUI _splitText;
 
         /// <summary>
         /// Slider component.
         /// </summary>
-        [Tooltip("Slider component.")] [SerializeField, Indent(1), TabGroup("Components")]
+        [Tooltip("Slider component.")]
+        [SerializeField, Indent(1), TabGroup("Components")]
         private Slider _slider;
 
         /// <summary>
@@ -52,11 +56,9 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         [Tooltip("Text showing how many remaining after the split.")]
         [SerializeField, Indent(1), TabGroup("Components")]
         private TextMeshProUGUI _remainingText;
-
         #endregion
 
         #region Private.
-
         /// <summary>
         /// ClientInstance for the local client.
         /// </summary>
@@ -66,14 +68,12 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// Configuration for the current split.
         /// </summary>
         private SplittingCanvasConfig _config;
-
         #endregion
 
         private void Awake()
         {
             _slider.onValueChanged.AddListener(OnSliderValueChange);
-            ClientInstance.OnClientInstanceChangeInvoke(
-                new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
+            ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientInstanceChange), false);
         }
 
         private void OnDestroy()
@@ -87,8 +87,7 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// <summary>
         /// Called when a ClientInstance runs OnStop or OnStartClient.
         /// </summary>
-        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state,
-            bool asServer)
+        private void ClientInstance_OnClientInstanceChange(ClientInstance instance, ClientInstanceState state, bool asServer)
         {
             if (asServer)
                 return;
@@ -113,6 +112,7 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// <param name="buttonDatas">Datas to use.</param>
         public virtual void Show(Vector2 position, SplittingCanvasConfig config)
         {
+            _config = config;
 
             //Slider min/max with values.
             _slider.minValue = 1;
@@ -120,13 +120,14 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
             _slider.maxValue = config.SplitValues.Maximum;
 
             //Update visuals.
-            _itemImage.sprite = config.Item.Icon;
-            _itemText.text = config.Item.DisplayName;
+            ResourceData rd = config.ResourceEntry.ResourceData;
+            _itemImage.sprite = rd.Icon;
+            _itemText.text = rd.DisplayName;
 
             OnSliderValueChange(_slider.value);
 
-            _rectTransform.position =
-                _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
+            _rectTransform.position = _rectTransform.GetOnScreenPosition(position, Constants.FLOATING_CANVAS_EDGE_PADDING);
+
             base.Show();
         }
 
@@ -156,10 +157,17 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
 
             base.Hide();
         }
-        
+
+        /// <summary>
+        /// Called when confirm is pressed.
+        /// </summary>
         public void OnClick_Confirm()
         {
-            _config.ConfirmCallback.Invoke();
+            if (_config.ConfirmedCallback != null)
+            {
+                int moveCount = (int)System.Math.Clamp(_slider.value, 0, _slider.maxValue);
+                _config.ConfirmedCallback.Invoke(_config.ResourceEntry, moveCount);
+            }
             Hide(resetState: true);
         }
 
@@ -168,7 +176,8 @@ namespace GameKit.Core.FloatingContainers.OptionMenuButtons
         /// </summary>
         public void OnClick_Close()
         {
-            _config.CancelCallback.Invoke();
+            if (_config.CanceledCallback != null)
+                _config.CanceledCallback.Invoke();
             Hide(resetState: true);
         }
 

@@ -7,12 +7,14 @@ using GameKit.Dependencies.Utilities;
 using GameKit.Core.FloatingContainers.Tooltips;
 using GameKit.Core.Resources;
 using GameKit.Core.Dependencies;
+using GameKit.Core.FloatingContainers.OptionMenuButtons;
 using GameKit.Core.Inventories.Bags;
+using GameKit.Core.Utilities;
+using GameKit.Dependencies.Utilities.Types;
 using Sirenix.OdinInspector;
 
 namespace GameKit.Core.Inventories.Canvases
 {
-
     public class InventoryCanvasBase : MonoBehaviour
     {
         #region Serialized.
@@ -79,6 +81,10 @@ namespace GameKit.Core.Inventories.Canvases
 
         #region Private.
         /// <summary>
+        /// Canvas used to show stack splitting options.
+        /// </summary>
+        private SplittingCanvas _splittingCanvas;
+        /// <summary>
         /// Entries for resources.
         /// </summary>
         private List<BagEntry> _bagEntries = new List<BagEntry>();
@@ -107,6 +113,11 @@ namespace GameKit.Core.Inventories.Canvases
         /// </summary>
         private ResourceEntry _hoveredEntry;
         /// <summary>
+        /// How many resources to move within an inventory.
+        /// </summary>
+        /// <remarks>When value is unset all quantities should be moved.</remarks>
+        protected int EntryMoveQuantity = UNSET_ENTRY_MOVE_QUANTITY;
+        /// <summary>
         /// Currently instantiated floating inventory item.
         /// </summary>
         private FloatingResourceEntry _floatingInventoryItem;
@@ -117,6 +128,10 @@ namespace GameKit.Core.Inventories.Canvases
         /// How often searches may occur.
         /// </summary>
         private float SEARCH_INTERVAL = 0.15f;
+        /// <summary>
+        /// Indicates that the amount to move is unset.
+        /// </summary>
+        public const int UNSET_ENTRY_MOVE_QUANTITY = -1;
         #endregion
 
         private void Awake()
@@ -254,7 +269,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// Called when inventory space is updated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Inventory_OnBagSlotUpdated(ActiveBag activeBag, int slotIndex, SerializableResourceQuantity rq)
+        private void Inventory_OnBagSlotUpdated(ActiveBag activeBag, int slotIndex, SerializableResourceQuantity srq)
         {
             if (UpdateOnShow())
                 return;
@@ -264,14 +279,15 @@ namespace GameKit.Core.Inventories.Canvases
             /* If the new resource is not the same as existing then
              * try to hide the tooltip using existing reference. If the
              * modified bag is the one showing the tooltip then the tooltip
-             * will reset, which we want due to item change. 
+             * will reset, which we want due to item change.
              * Keep in mind that calling hide from the object which
              * did not call Show will result in the tooltip ignoring
              * the command. */
-            if (re.ResourceData != null && re.ResourceData.UniqueId != rq.UniqueId)
+            if (re.ResourceData != null && re.ResourceData.UniqueId != srq.UniqueId)
                 TooltipCanvas.Hide(re);
 
-            re.Initialize(ClientInstance.Instance, this, TooltipCanvas, rq, new BagSlot(activeBag, slotIndex));
+            re.Initialize(ClientInstance.Instance, this, TooltipCanvas, srq, new BagSlot(activeBag, slotIndex));
+
             SetUsedInventorySpaceText();
             _bagEntries[activeBag.LayoutIndex].SetUsedInventorySpaceText();
             UpdateSearch(re, _searchInput.text);
@@ -312,6 +328,7 @@ namespace GameKit.Core.Inventories.Canvases
         {
             if (asServer)
                 return;
+
             if (state.IsPreState())
             {
                 ClientInstance = instance;
@@ -322,7 +339,10 @@ namespace GameKit.Core.Inventories.Canvases
             bool started = (state == ClientInstanceState.PostInitialize);
             //If started then get the character inventory and initialize bags.
             if (started)
+            {
                 TooltipCanvas = instance.NetworkManager.GetInstance<FloatingTooltipCanvas>();
+                _splittingCanvas = instance.NetworkManager.GetInstance<SplittingCanvas>();
+            }
         }
 
         /// <summary>
@@ -340,7 +360,6 @@ namespace GameKit.Core.Inventories.Canvases
             }
             _updateOnShow = false;
         }
-
 
         /// <summary>
         /// Hides this canvas.
@@ -390,20 +409,24 @@ namespace GameKit.Core.Inventories.Canvases
             if (entry.ResourceData == null)
                 return;
 
-            InitializeFloatingInventoryItem(entry);
-            _heldEntry = entry;
-            ScrollRect.enabled = false;
-        }
 
-        /// <summary>
-        /// Initializes a floating item canvas for an entry.
-        /// </summary>
-        /// <param name="entry"></param>
-        protected virtual void InitializeFloatingInventoryItem(ResourceEntry entry)
-        {
-            _floatingInventoryItem.Initialize(entry.ResourceData.Icon, _bagEntryPrefab.GridLayoutGroup.cellSize, entry.StackCount);
-            _floatingInventoryItem.Show(entry.transform);
-            entry.CanvasGroup.SetActive(false, true);
+            ResourceData data = entry.ResourceData;
+            if (data == null || entry.StackCount == 1 || !Keybinds.IsShiftHeld)
+            {
+                MoveResource(entry, UNSET_ENTRY_MOVE_QUANTITY);
+                return;
+            }
+
+            SplittingCanvasConfig config = new()
+            {
+                ConfirmedCallback = new ConfirmedDel(OnSplitConfirmed),
+                ResourceEntry = entry,
+                SplitValues = new IntRange(1, entry.StackCount),
+            };
+
+            _splittingCanvas.Show(entry.transform, config);
+
+            ScrollRect.enabled = false;
         }
 
         /// <summary>
@@ -416,7 +439,7 @@ namespace GameKit.Core.Inventories.Canvases
              * stack items. Inventory performs error checking
              * so no need to here. */
             if (_heldEntry != null && _hoveredEntry != null)
-                Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot);
+                Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot, EntryMoveQuantity);
 
             _floatingInventoryItem.Hide();
 
@@ -440,7 +463,41 @@ namespace GameKit.Core.Inventories.Canvases
         {
             _hoveredEntry = null;
         }
+
+        /// <summary>
+        /// Shows and initializes a moving resource canvas with a set quantity.
+        /// </summary>
+        protected virtual void MoveResource(ResourceEntry entry, int quantity)
+        {
+            EntryMoveQuantity = quantity;
+            InitializeFloatingInventoryItem(entry, quantity);
+            _heldEntry = entry;
+            ScrollRect.enabled = false;
+        }
+
+        /// <summary>
+        /// Initializes a floating item canvas for an entry.
+        /// </summary>
+        /// <param name="entry"></param>
+        protected virtual void InitializeFloatingInventoryItem(ResourceEntry entry, int moveQuantity)
+        {
+            _floatingInventoryItem.Initialize(entry.ResourceData.Icon, _bagEntryPrefab.GridLayoutGroup.cellSize, moveQuantity);
+            _floatingInventoryItem.Show(entry.transform);
+            entry.CanvasGroup.SetActive(false, true);
+        }
+
+        /// <summary>
+        /// Called when confirmed is pressed on an item split.
+        /// </summary>
+        private void OnSplitConfirmed(ResourceEntry resourceEntry, int moveCount)
+        {
+            //Splitter starts minimum at 1 so this shouldn't be possible.
+            if (moveCount == 0) return;
+            //If move count is all values then set count to unset, which indicates all values.
+            if (moveCount == resourceEntry.StackCount)
+                moveCount = UNSET_ENTRY_MOVE_QUANTITY;
+
+            MoveResource(resourceEntry, moveCount);
+        }
     }
-
-
 }
