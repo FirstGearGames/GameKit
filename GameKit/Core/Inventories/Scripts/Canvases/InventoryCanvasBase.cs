@@ -435,6 +435,8 @@ namespace GameKit.Core.Inventories.Canvases
         /// <param name="entry">The entry which the pointer was released over.</param>
         public void OnRelease_ResourceEntry(ResourceEntry entry)
         {
+            Debug.LogError($"moving a split stack onto a slot with another item gobbles the stack. this happens because _hoveredEntry becomes null after the new slot is pressed. _hovedEntry does not become null when dragging over slots and released.");
+            Debug.Log("Also need to make it so original doesnt disappear when doing a split move, and temporarily updates with proposed new value after the move.");
             /* Tell inventory to try and move, swap, or
              * stack items. Inventory performs error checking
              * so no need to here. */

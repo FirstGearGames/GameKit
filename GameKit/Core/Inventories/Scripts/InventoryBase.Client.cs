@@ -264,7 +264,6 @@ namespace GameKit.Core.Inventories
             //Swaps the to and from entries.
             void SwapEntries()
             {
-                Debug.Log(("Doing swap"));
                 from.ActiveBag.Slots[from.SlotIndex] = toRq;
                 to.ActiveBag.Slots[to.SlotIndex] = fromRq;
             }
