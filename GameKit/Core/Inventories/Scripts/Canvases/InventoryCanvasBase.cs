@@ -434,7 +434,7 @@ namespace GameKit.Core.Inventories.Canvases
              *      This happens when split canvas was already shown and
              *      the resource is attempted ot be moved onto another stack. */
 
-            bool pressedHasData = (entry.StackCount > 0);
+            bool pressedHasData = (entry.Quantity > 0);
             //If entry has data and there is no current held reason, check to set one.
             if (pressedHasData && _heldResourceReason == HeldResourceReason.Unset)
             {
@@ -442,7 +442,7 @@ namespace GameKit.Core.Inventories.Canvases
                 if (Keybinds.IsShiftHeld)
                 {
                     //Splitting requires at least 2 quantity.
-                    if (entry.StackCount > 1)
+                    if (entry.Quantity > 1)
                     {
                         /* Do not set to split here. The resource is not considered held until
                          * the user completes the split canvas. */
@@ -451,7 +451,7 @@ namespace GameKit.Core.Inventories.Canvases
                             CanceledCallback = new(OnSplitCanceled),
                             ConfirmedCallback = new(OnSplitConfirmed),
                             ResourceEntry = entry,
-                            SplitValues = new IntRange(1, entry.StackCount),
+                            SplitValues = new IntRange(1, entry.Quantity),
                         };
 
                         _splittingCanvas.Show(entry.transform, config);
@@ -527,7 +527,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// </summary>
         protected virtual void BeginMoveResource(ResourceEntry entry)
         {
-            BeginMoveResource(entry, entry.StackCount);
+            BeginMoveResource(entry, entry.Quantity);
             entry.CanvasGroup.SetActive(false, true);
         }
 

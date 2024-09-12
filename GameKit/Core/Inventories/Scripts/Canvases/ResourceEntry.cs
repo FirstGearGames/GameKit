@@ -25,7 +25,7 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Current number of items on the stack.
         /// </summary>
-        public int StackCount { get; private set; }
+        public int Quantity { get; private set; }
         #endregion
 
         #region Serialized.
@@ -98,8 +98,8 @@ namespace GameKit.Core.Inventories.Canvases
             _tooltipCanvas = tooltipCanvas;
             ResourceData = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetResourceData(srq.UniqueId);
             _icon.sprite = ResourceData.Icon;
-            StackCount = srq.Quantity;
-            _stackText.text = (StackCount > 1) ? $"{srq.Quantity}" : string.Empty;
+            Quantity = srq.Quantity;
+            _stackText.text = (Quantity > 1) ? $"{srq.Quantity}" : string.Empty;
 
             UpdateComponentStates();
         }
