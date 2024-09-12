@@ -17,6 +17,18 @@ namespace GameKit.Core.Inventories.Canvases
 {
     public class InventoryCanvasBase : MonoBehaviour
     {
+        #region Types.
+        /// <summary>
+        /// Reason a resource is being held.
+        /// </summary>
+        protected enum HeldResourceReason
+        {
+            Unset = 0,
+            Move = 1,
+            Split = 2,
+        }
+        #endregion
+
         #region Serialized.
         /// <summary>
         /// TextMeshPro to show which category is selected.
@@ -120,7 +132,11 @@ namespace GameKit.Core.Inventories.Canvases
         /// <summary>
         /// Currently instantiated floating inventory item.
         /// </summary>
-        private FloatingResourceEntry _floatingInventoryItem;
+        private FloatingResourceEntry _floatingResourceEntry;
+        /// <summary>
+        /// Reason for heldResource value.
+        /// </summary>
+        private HeldResourceReason _heldResourceReason;
         #endregion
 
         #region Const.
@@ -136,10 +152,10 @@ namespace GameKit.Core.Inventories.Canvases
 
         private void Awake()
         {
-            _floatingInventoryItem = Instantiate(_floatingInventoryItemPrefab);
-            _floatingInventoryItem.Hide();
+            _floatingResourceEntry = Instantiate(_floatingInventoryItemPrefab);
+            _floatingResourceEntry.Hide();
             //Attach floating to this canvas so the rect transforms on it works.
-            _floatingInventoryItem.transform.SetParentAndKeepTransform(transform);
+            _floatingResourceEntry.transform.SetParentAndKeepTransform(transform);
 
             //Destroy content children. There may be some present from testing.
             _bagContent.DestroyChildren<BagEntry>(true);
@@ -171,10 +187,10 @@ namespace GameKit.Core.Inventories.Canvases
         /// </summary>
         private void MoveFloatingInventoryItem()
         {
-            if (_floatingInventoryItem.IsHiding)
+            if (_floatingResourceEntry.IsHiding)
                 return;
 
-            _floatingInventoryItem.UpdatePosition(Input.mousePosition);
+            _floatingResourceEntry.UpdatePosition(Input.mousePosition);
         }
 
         /// <summary>
@@ -406,27 +422,54 @@ namespace GameKit.Core.Inventories.Canvases
         /// <param name="entry">Entry being held.</param>
         public virtual void OnPressed_ResourceEntry(ResourceEntry entry)
         {
-            if (entry.ResourceData == null)
-                return;
+            Debug.LogError($"make it so split move shows count if split were to succeed. This behavior only happens when a split is confirmed. The update should be temporary until the move is canceled. If full stack is moved then hide the hide the item per usual. this all might be possible to do in the BeginMoveEntry(entry, quantity)");
+            /* Pressed callbacks can be for a variety of things.
+             * - Creating a hovering icon to move an entire stack.
+             *      This happens when an entry with a quantity > 0 is pressed
+             *      and split key is not held.
+             * - Begin a split to prompt split stack canvas.
+             *      This happens when an entry with a quantity > 1 is pressed
+             *      and split key is held.
+             * - Complete split movement.
+             *      This happens when split canvas was already shown and
+             *      the resource is attempted ot be moved onto another stack. */
 
-
-            ResourceData data = entry.ResourceData;
-            if (data == null || entry.StackCount == 1 || !Keybinds.IsShiftHeld)
+            bool pressedHasData = (entry.StackCount > 0);
+            //If entry has data and there is no current held reason, check to set one.
+            if (pressedHasData && _heldResourceReason == HeldResourceReason.Unset)
             {
-                MoveResource(entry, UNSET_ENTRY_MOVE_QUANTITY);
-                return;
+                //Show split.
+                if (Keybinds.IsShiftHeld)
+                {
+                    //Splitting requires at least 2 quantity.
+                    if (entry.StackCount > 1)
+                    {
+                        /* Do not set to split here. The resource is not considered held until
+                         * the user completes the split canvas. */
+                        SplittingCanvasConfig config = new()
+                        {
+                            CanceledCallback = new(OnSplitCanceled),
+                            ConfirmedCallback = new(OnSplitConfirmed),
+                            ResourceEntry = entry,
+                            SplitValues = new IntRange(1, entry.StackCount),
+                        };
+
+                        _splittingCanvas.Show(entry.transform, config);
+                    }
+                }
+                //Split key is not held, move entire stack.
+                else
+                {
+                    _heldResourceReason = HeldResourceReason.Move;
+                    BeginMoveResource(entry);
+                }
             }
-
-            SplittingCanvasConfig config = new()
+            //Split held reason.
+            else if (_heldResourceReason == HeldResourceReason.Split)
             {
-                ConfirmedCallback = new ConfirmedDel(OnSplitConfirmed),
-                ResourceEntry = entry,
-                SplitValues = new IntRange(1, entry.StackCount),
-            };
-
-            _splittingCanvas.Show(entry.transform, config);
-
-            ScrollRect.enabled = false;
+                OnRelease_ResourceEntry(_heldEntry);
+            }
+            //Do not need to check Move as the action completes in OnRelease.
         }
 
         /// <summary>
@@ -435,19 +478,32 @@ namespace GameKit.Core.Inventories.Canvases
         /// <param name="entry">The entry which the pointer was released over.</param>
         public void OnRelease_ResourceEntry(ResourceEntry entry)
         {
-            Debug.LogError($"moving a split stack onto a slot with another item gobbles the stack. this happens because _hoveredEntry becomes null after the new slot is pressed. _hovedEntry does not become null when dragging over slots and released.");
-            Debug.Log("Also need to make it so original doesnt disappear when doing a split move, and temporarily updates with proposed new value after the move.");
+            EndMoveResource();
+        }
+
+        /// <summary>
+        /// Ends moving of a resource.
+        /// </summary>
+        private void EndMoveResource()
+        {
+            //There is no action to take when theres no held reason.
+            if (_heldResourceReason == HeldResourceReason.Unset)
+                return;
+
             /* Tell inventory to try and move, swap, or
              * stack items. Inventory performs error checking
              * so no need to here. */
             if (_heldEntry != null && _hoveredEntry != null)
                 Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot, EntryMoveQuantity);
 
-            _floatingInventoryItem.Hide();
+            _floatingResourceEntry.Hide();
 
-            _heldEntry?.CanvasGroup.SetActive(true, true);
+            if (_heldEntry != null)
+                _heldEntry.CanvasGroup.SetActive(true, true);
             _heldEntry = null;
             ScrollRect.enabled = true;
+
+            _heldResourceReason = HeldResourceReason.Unset;
         }
 
         /// <summary>
@@ -467,9 +523,19 @@ namespace GameKit.Core.Inventories.Canvases
         }
 
         /// <summary>
-        /// Shows and initializes a moving resource canvas with a set quantity.
+        /// Shows a moving resource canvas with the full quantity of entry.
         /// </summary>
-        protected virtual void MoveResource(ResourceEntry entry, int quantity)
+        protected virtual void BeginMoveResource(ResourceEntry entry)
+        {
+            BeginMoveResource(entry, entry.StackCount);
+            entry.CanvasGroup.SetActive(false, true);
+        }
+
+        /// <summary>
+        /// Shows a moving resource canvas with a specified quantity of entry.
+        /// </summary>
+        /// <remarks>>This is typically used to split resources.</remarks>
+        protected virtual void BeginMoveResource(ResourceEntry entry, int quantity)
         {
             EntryMoveQuantity = quantity;
             InitializeFloatingInventoryItem(entry, quantity);
@@ -483,9 +549,17 @@ namespace GameKit.Core.Inventories.Canvases
         /// <param name="entry"></param>
         protected virtual void InitializeFloatingInventoryItem(ResourceEntry entry, int moveQuantity)
         {
-            _floatingInventoryItem.Initialize(entry.ResourceData.Icon, _bagEntryPrefab.GridLayoutGroup.cellSize, moveQuantity);
-            _floatingInventoryItem.Show(entry.transform);
-            entry.CanvasGroup.SetActive(false, true);
+            _floatingResourceEntry.Initialize(entry.ResourceData.Icon, _bagEntryPrefab.GridLayoutGroup.cellSize, moveQuantity);
+            _floatingResourceEntry.Show(entry.transform);
+        }
+
+        /// <summary>
+        /// Called when cancel is pressed on an item split.
+        /// </summary>
+        private void OnSplitCanceled()
+        {
+            EntryMoveQuantity = UNSET_ENTRY_MOVE_QUANTITY;
+            _heldEntry = null;
         }
 
         /// <summary>
@@ -494,12 +568,17 @@ namespace GameKit.Core.Inventories.Canvases
         private void OnSplitConfirmed(ResourceEntry resourceEntry, int moveCount)
         {
             //Splitter starts minimum at 1 so this shouldn't be possible.
-            if (moveCount == 0) return;
-            //If move count is all values then set count to unset, which indicates all values.
-            if (moveCount == resourceEntry.StackCount)
-                moveCount = UNSET_ENTRY_MOVE_QUANTITY;
-
-            MoveResource(resourceEntry, moveCount);
+            if (moveCount == 0)
+            {
+                OnSplitCanceled();
+            }
+            //Partial quantity move.
+            else
+            {
+                _heldResourceReason = HeldResourceReason.Split;
+                _heldEntry = resourceEntry;
+                BeginMoveResource(resourceEntry, moveCount);
+            }
         }
     }
 }
