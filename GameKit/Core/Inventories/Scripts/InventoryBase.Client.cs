@@ -295,7 +295,6 @@ namespace GameKit.Core.Inventories
                     if (unsetQuantity)
                         quantity = fromRq.Quantity;
 
-
                     /* Be it moving all or some, the toRq uniqueId will
                      * become the from Id. */
                     toRq.UniqueId = fromRq.UniqueId;

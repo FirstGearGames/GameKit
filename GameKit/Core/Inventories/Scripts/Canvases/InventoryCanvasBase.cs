@@ -29,6 +29,13 @@ namespace GameKit.Core.Inventories.Canvases
         }
         #endregion
 
+        #region Public.
+        /// <summary>
+        /// Inventory being used.
+        /// </summary>
+        public InventoryBase Inventory { get; protected set; }
+        #endregion
+
         #region Serialized.
         /// <summary>
         /// TextMeshPro to show which category is selected.
@@ -77,10 +84,6 @@ namespace GameKit.Core.Inventories.Canvases
         #endregion
 
         #region Protected.
-        /// <summary>
-        /// Inventory being used.
-        /// </summary>
-        protected InventoryBase Inventory;
         /// <summary>
         /// TooltipCanvas to use.
         /// </summary>
@@ -422,7 +425,6 @@ namespace GameKit.Core.Inventories.Canvases
         /// <param name="entry">Entry being held.</param>
         public virtual void OnPressed_ResourceEntry(ResourceEntry entry)
         {
-            Debug.LogError($"make it so split move shows count if split were to succeed. This behavior only happens when a split is confirmed. The update should be temporary until the move is canceled. If full stack is moved then hide the hide the item per usual. this all might be possible to do in the BeginMoveEntry(entry, quantity)");
             /* Pressed callbacks can be for a variety of things.
              * - Creating a hovering icon to move an entire stack.
              *      This happens when an entry with a quantity > 0 is pressed
@@ -494,8 +496,17 @@ namespace GameKit.Core.Inventories.Canvases
              * stack items. Inventory performs error checking
              * so no need to here. */
             if (_heldEntry != null && _hoveredEntry != null)
-                Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot, EntryMoveQuantity);
-
+            {
+                bool moved = Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot, EntryMoveQuantity);
+                /* If move failed then refresh the display on held and hovered.
+                 * This is done because the displays may have been altered to show
+                 * effects of the move. */
+                if (!moved)
+                {
+                    _heldEntry.UpdateQuantityDisplay();
+                    _hoveredEntry.UpdateQuantityDisplay();
+                }
+            }
             _floatingResourceEntry.Hide();
 
             if (_heldEntry != null)
@@ -576,6 +587,7 @@ namespace GameKit.Core.Inventories.Canvases
             else
             {
                 _heldResourceReason = HeldResourceReason.Split;
+                resourceEntry.UpdateQuantityDisplay(resourceEntry.Quantity - moveCount);
                 _heldEntry = resourceEntry;
                 BeginMoveResource(resourceEntry, moveCount);
             }

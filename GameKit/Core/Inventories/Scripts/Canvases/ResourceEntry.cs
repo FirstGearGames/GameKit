@@ -10,7 +10,6 @@ using GameKit.Dependencies.Utilities;
 
 namespace GameKit.Core.Inventories.Canvases
 {
-
     public class ResourceEntry : PointerMonoBehaviour
     {
         #region Public.
@@ -99,8 +98,8 @@ namespace GameKit.Core.Inventories.Canvases
             ResourceData = clientInstance.NetworkManager.GetInstance<ResourceManager>().GetResourceData(srq.UniqueId);
             _icon.sprite = ResourceData.Icon;
             Quantity = srq.Quantity;
-            _stackText.text = (Quantity > 1) ? $"{srq.Quantity}" : string.Empty;
 
+            UpdateQuantityDisplay();
             UpdateComponentStates();
         }
 
@@ -137,16 +136,15 @@ namespace GameKit.Core.Inventories.Canvases
             _icon.enabled = hasData;
             _button.enabled = hasData;
             SetSelectable(hasData);
-
         }
+
         /// <summary>
         /// Modifies this entries selectability. 
         /// </summary>
         /// <param name="matches"></param>
         public void SetSelectable(bool selectable)
         {
-            Color c = (selectable) ?
-                Color.white : (Color.white * 0.4f);
+            Color c = (selectable) ? Color.white : (Color.white * 0.4f);
 
             _icon.color = c;
             _stackText.color = c;
@@ -169,6 +167,7 @@ namespace GameKit.Core.Inventories.Canvases
             _pressed = pressed;
             SetTooltip();
         }
+
         /// <summary>
         /// Sets hovered and updates tooltip if needed.
         /// </summary>
@@ -186,6 +185,23 @@ namespace GameKit.Core.Inventories.Canvases
             _hovered = hovered;
             SetTooltip();
         }
+
+        /// <summary>
+        /// Updates the quantity display with a value. This does not change the actual Quantity of the resource.
+        /// </summary>
+        /// <param name="value">When null value is fetched from Inventory, otherwise value is used.</param>
+        public void UpdateQuantityDisplay(int? value = null)
+        {
+            int quantity;
+            if (value.HasValue)
+                quantity = value.Value;
+            else
+                quantity = Quantity;
+
+            _stackText.text = (quantity > 1) ? $"{quantity}" : string.Empty;
+            _icon.enabled = (quantity > 0);
+        }
+
         /// <summary>
         /// Shows or hides the tooltip for this entry.
         /// </summary>
@@ -204,6 +220,4 @@ namespace GameKit.Core.Inventories.Canvases
             }
         }
     }
-
-
 }
