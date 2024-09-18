@@ -13,6 +13,16 @@ namespace GameKit.Core.Inventories
 {
     public partial class InventoryBase : NetworkBehaviour
     {
+        #region Public.
+        /// <summary>
+        /// Called when a move attempt is processed.
+        /// This invokes after bag slot update events.
+        /// </summary>
+        public event OnMoveDel OnMove;
+
+        public delegate void OnMoveDel(BagSlot from, BagSlot to, bool moved);
+        #endregion
+
         /// <summary>
         /// Saves the clients sorted bagged inventory.
         /// </summary>
@@ -215,16 +225,16 @@ namespace GameKit.Core.Inventories
         public virtual bool MoveResource(BagSlot from, BagSlot to, int quantity = InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY)
         {
             if (!GetResourceQuantity(from, out SerializableResourceQuantity fromRq))
-                return false;
+                return InvokeMoveResult(passed: false);
             if (!GetResourceQuantity(to, out SerializableResourceQuantity toRq))
-                return false;
+                return InvokeMoveResult(passed: false);
             if (from.Equals(to))
-                return false;
+                return InvokeMoveResult(passed: false);
 
             if (quantity == 0)
             {
                 base.NetworkManager.LogError($"Quantity of {quantity} cannot be moved. Value must be -1 to move an entire slot, or a value greater than 0 to partial move a slot.");
-                return false;
+                return InvokeMoveResult(passed: false);
             }
 
             //If the to is empty just simply move.
@@ -236,21 +246,29 @@ namespace GameKit.Core.Inventories
                 else
                     SwapEntries();
             }
-            //If different items in each slot they cannot be stacked.
+            /* If different items in each slot they cannot be stacked.
+             * Check if stacking is possible, and if not then swap entries. */
             else if (fromRq.UniqueId != toRq.UniqueId)
             {
                 /* If an amount is specified this would suggest a split.
                  * If the split amount is not the full amount of from then
                  * the operation fails. */
                 if (quantity != InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY && quantity != fromRq.Quantity)
-                    return false;
+                    return InvokeMoveResult(passed: false);
                 else
                     SwapEntries();
             }
             //Same resource if here. Try to stack.
             else
             {
-                MoveQuantity();
+                //Since the same resource stack limit can be from either from or to.
+                ResourceData fromRd = _resourceManager.GetResourceData(fromRq.UniqueId);
+                ResourceData toRd = _resourceManager.GetResourceData(toRq.UniqueId);
+                //If either stack is already full then swap, otherwise move.
+                if (fromRq.Quantity == fromRd.StackLimit || toRq.Quantity == toRd.StackLimit)
+                    SwapEntries();
+                else
+                    MoveQuantity();
             }
 
             //Invoke changes.
@@ -259,7 +277,7 @@ namespace GameKit.Core.Inventories
 
             SaveBaggedSorted_Client(true);
 
-            return true;
+            return InvokeMoveResult(passed: true);
 
             //Swaps the to and from entries.
             void SwapEntries()
@@ -313,6 +331,14 @@ namespace GameKit.Core.Inventories
                     to.ActiveBag.Slots[to.SlotIndex] = toRq;
                     from.ActiveBag.Slots[from.SlotIndex] = fromRq;
                 }
+            }
+
+            bool InvokeMoveResult(bool passed)
+            {
+                if (OnMove != null)
+                    OnMove.Invoke(from, to, passed);
+
+                return passed;
             }
         }
     }

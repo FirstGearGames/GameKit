@@ -182,7 +182,22 @@ namespace GameKit.Core.Inventories.Canvases
         private void Update()
         {
             TrySearch();
+            CheckKeybinds();
             MoveFloatingInventoryItem();
+        }
+
+        /// <summary>
+        /// Checks for keybinds related to the inventory.
+        /// </summary>
+        private void CheckKeybinds()
+        {
+            /* If escape is pressed this might cancel any
+             * number of current actions. */
+            if (Keybinds.IsEscapePressed)
+            {
+                //Call the move change to cancel any visuals if was in a move.
+                CancelMove();
+            }
         }
 
         /// <summary>
@@ -212,11 +227,13 @@ namespace GameKit.Core.Inventories.Canvases
             {
                 Inventory.OnBagsChanged += Inventory_OnBagsChanged;
                 Inventory.OnBagSlotUpdated += Inventory_OnBagSlotUpdated;
+                Inventory.OnMove += Inventory_OnMove;
             }
             else
             {
                 Inventory.OnBagsChanged -= Inventory_OnBagsChanged;
                 Inventory.OnBagSlotUpdated -= Inventory_OnBagSlotUpdated;
+                Inventory.OnMove -= Inventory_OnMove;
             }
         }
 
@@ -285,6 +302,36 @@ namespace GameKit.Core.Inventories.Canvases
         }
 
         /// <summary>
+        /// Called when an inventory move is attempted.
+        /// </summary>
+        private void Inventory_OnMove(BagSlot from, BagSlot to, bool moved)
+        {
+            //There is no action to take when theres no held reason.
+            if (_heldResourceReason == HeldResourceReason.Unset)
+                return;
+
+            _heldResourceReason = HeldResourceReason.Unset;
+            /* We really only need to perform bag visual updates
+             * if the move fails because the OnBagSlotUpdated callbacks
+             * should result in the related slots updating then.
+             *
+             * But the cost to tell them to refresh is nil and
+             * it ensures they refresh even if something goes
+             * wonky with the other callback. */
+            if (_heldEntry != null)
+            {
+                _heldEntry.UpdateQuantityDisplay();
+                _heldEntry = null;
+            }
+            if (_hoveredEntry != null)
+            {
+                _hoveredEntry.UpdateQuantityDisplay();
+                _hoveredEntry = null;
+            }
+            _floatingResourceEntry.Hide();
+        }
+
+        /// <summary>
         /// Called when inventory space is updated.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -306,6 +353,7 @@ namespace GameKit.Core.Inventories.Canvases
                 TooltipCanvas.Hide(re);
 
             re.Initialize(ClientInstance.Instance, this, TooltipCanvas, srq, new BagSlot(activeBag, slotIndex));
+            re.UpdateQuantityDisplay();
 
             SetUsedInventorySpaceText();
             _bagEntries[activeBag.LayoutIndex].SetUsedInventorySpaceText();
@@ -420,6 +468,14 @@ namespace GameKit.Core.Inventories.Canvases
         }
 
         /// <summary>
+        /// Cancels a move if one is present.
+        /// </summary>
+        private void CancelMove() 
+        {
+            Inventory_OnMove(from: default, to: default, moved: false);
+        }
+        
+        /// <summary>
         /// Called when a bag entry is pressed.
         /// </summary>
         /// <param name="entry">Entry being held.</param>
@@ -466,11 +522,6 @@ namespace GameKit.Core.Inventories.Canvases
                     BeginMoveResource(entry);
                 }
             }
-            //Split held reason.
-            else if (_heldResourceReason == HeldResourceReason.Split)
-            {
-                OnRelease_ResourceEntry(_heldEntry);
-            }
             //Do not need to check Move as the action completes in OnRelease.
         }
 
@@ -480,41 +531,12 @@ namespace GameKit.Core.Inventories.Canvases
         /// <param name="entry">The entry which the pointer was released over.</param>
         public void OnRelease_ResourceEntry(ResourceEntry entry)
         {
-            EndMoveResource();
-        }
-
-        /// <summary>
-        /// Ends moving of a resource.
-        /// </summary>
-        private void EndMoveResource()
-        {
-            //There is no action to take when theres no held reason.
-            if (_heldResourceReason == HeldResourceReason.Unset)
-                return;
-
-            /* Tell inventory to try and move, swap, or
-             * stack items. Inventory performs error checking
-             * so no need to here. */
+            //If values needed to move exist, then perform the move.
             if (_heldEntry != null && _hoveredEntry != null)
-            {
-                bool moved = Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot, EntryMoveQuantity);
-                /* If move failed then refresh the display on held and hovered.
-                 * This is done because the displays may have been altered to show
-                 * effects of the move. */
-                if (!moved)
-                {
-                    _heldEntry.UpdateQuantityDisplay();
-                    _hoveredEntry.UpdateQuantityDisplay();
-                }
-            }
-            _floatingResourceEntry.Hide();
-
-            if (_heldEntry != null)
-                _heldEntry.CanvasGroup.SetActive(true, true);
-            _heldEntry = null;
-            ScrollRect.enabled = true;
-
-            _heldResourceReason = HeldResourceReason.Unset;
+                Inventory.MoveResource(_heldEntry.BagSlot, _hoveredEntry.BagSlot, EntryMoveQuantity);
+            //Otherwise perform a move callback with failed to reset values.
+            else
+                CancelMove();
         }
 
         /// <summary>
@@ -539,7 +561,7 @@ namespace GameKit.Core.Inventories.Canvases
         protected virtual void BeginMoveResource(ResourceEntry entry)
         {
             BeginMoveResource(entry, entry.Quantity);
-            entry.CanvasGroup.SetActive(false, true);
+            entry.UpdateQuantityDisplay(0);
         }
 
         /// <summary>

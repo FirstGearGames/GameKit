@@ -91,7 +91,7 @@ namespace GameKit.Core.Inventories.Canvases
                 Initialize(inventoryCanvas, tooltipCanvas, bagSlot);
                 return;
             }
-
+            
             SetBagSlot(bagSlot);
             _inventoryCanvas = inventoryCanvas;
             _tooltipCanvas = tooltipCanvas;
@@ -113,6 +113,10 @@ namespace GameKit.Core.Inventories.Canvases
             _tooltipCanvas = tooltipCanvas;
             ResourceData = null;
             _stackText.text = string.Empty;
+            _icon.sprite = null;
+            Quantity = 0;
+
+            UpdateQuantityDisplay();
             UpdateComponentStates();
         }
 

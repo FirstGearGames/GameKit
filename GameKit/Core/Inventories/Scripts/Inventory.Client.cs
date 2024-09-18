@@ -68,8 +68,7 @@ namespace GameKit.Core.Inventories
             //Invoke changes.
             OnBagSlotUpdated?.Invoke(fromInventoryBase, from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
             OnBagSlotUpdated?.Invoke(toInventoryBase, to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
-
-
+            
             fromInventoryBase.SaveBaggedSorted_Client(true);
             //If to is different then also save for the to inventory.
             if (fromInventoryBase.CategoryId != toInventoryBase.CategoryId)
