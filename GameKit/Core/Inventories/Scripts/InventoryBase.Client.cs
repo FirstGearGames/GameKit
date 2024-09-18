@@ -48,11 +48,19 @@ namespace GameKit.Core.Inventories
         [TargetRpc(ExcludeServer = true)]
         private void TgtApplyInventory(NetworkConnection c, List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
         {
+            ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, baggedSorted);
+        }
+
+        /// <summary>
+        /// Applies inventory for a client.
+        /// </summary>
+        private void ApplyInventory_Client(List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
+        {
             bool changed;
             RebuildBaggedResourcesDel rebuildDel;
 
-            rebuildDel = new RebuildBaggedResourcesDel(RebuildBaggedResources);
-            changed = ApplyInventory(baggedUnsorted, baggedSorted, rebuildDel);
+            rebuildDel = new(RebuildBaggedResources);
+            changed = ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, baggedSorted, rebuildDel);
 
             if (changed)
                 SaveBaggedSorted_Client(false);
@@ -66,9 +74,13 @@ namespace GameKit.Core.Inventories
         /// <param name="activeBags">ActiveBags reference for the inventory.</param>
         /// <param name="baggedUnsorted">Unsorted ActiveBags received from the server.</param>
         /// <param name="baggedSorted">Sorted ActiveBags received from the server.</param>
-        private bool ApplyInventory(List<SerializableActiveBag> baggedUnsorted, List<SerializableActiveBag> baggedSorted, RebuildBaggedResourcesDel rebuildBaggedResourcesDel)
+        private bool ApplyInventory_Client(List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted, RebuildBaggedResourcesDel rebuildBaggedResourcesDel)
         {
             ActiveBags.Clear();
+            HiddenResources.Clear();
+
+            foreach (SerializableResourceQuantity item in hiddenUnsorted)
+                item.ToNativeReplace(HiddenResources);
 
             /* ResourceQuantities which are handled inside the users saved inventory
              * are removed from unsortedInventory. Any ResourceQuantities remaining in unsorted
@@ -236,15 +248,20 @@ namespace GameKit.Core.Inventories
                 base.NetworkManager.LogError($"Quantity of {quantity} cannot be moved. Value must be -1 to move an entire slot, or a value greater than 0 to partial move a slot.");
                 return InvokeMoveResult(passed: false);
             }
+            //If quantity is not specified then set it to quantity on from.
+            else if (quantity == InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY)
+            {
+                quantity = fromRq.Quantity;
+            }
+
+            //Since the same resource stack limit can be from either from or to.
+            ResourceData fromRd = _resourceManager.GetResourceData(fromRq.UniqueId);
+            ResourceData toRd = _resourceManager.GetResourceData(toRq.UniqueId);
 
             //If the to is empty just simply move.
             if (toRq.IsUnset)
             {
-                //If a quantity is specified then move this amount.
-                if (quantity != InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY)
-                    MoveQuantity();
-                else
-                    SwapEntries();
+                MoveQuantity();
             }
             /* If different items in each slot they cannot be stacked.
              * Check if stacking is possible, and if not then swap entries. */
@@ -253,7 +270,7 @@ namespace GameKit.Core.Inventories
                 /* If an amount is specified this would suggest a split.
                  * If the split amount is not the full amount of from then
                  * the operation fails. */
-                if (quantity != InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY && quantity != fromRq.Quantity)
+                if (quantity != fromRq.Quantity)
                     return InvokeMoveResult(passed: false);
                 else
                     SwapEntries();
@@ -261,11 +278,8 @@ namespace GameKit.Core.Inventories
             //Same resource if here. Try to stack.
             else
             {
-                //Since the same resource stack limit can be from either from or to.
-                ResourceData fromRd = _resourceManager.GetResourceData(fromRq.UniqueId);
-                ResourceData toRd = _resourceManager.GetResourceData(toRq.UniqueId);
                 //If either stack is already full then swap, otherwise move.
-                if (fromRq.Quantity == fromRd.StackLimit || toRq.Quantity == toRd.StackLimit)
+                if (quantity == fromRd.StackLimit || toRq.Quantity == toRd.StackLimit)
                     SwapEntries();
                 else
                     MoveQuantity();
@@ -275,7 +289,13 @@ namespace GameKit.Core.Inventories
             OnBagSlotUpdated?.Invoke(from.ActiveBag, from.SlotIndex, from.ActiveBag.Slots[from.SlotIndex]);
             OnBagSlotUpdated?.Invoke(to.ActiveBag, to.SlotIndex, to.ActiveBag.Slots[to.SlotIndex]);
 
-            SaveBaggedSorted_Client(true);
+            InventoryBase fromInventoryBase = from.ActiveBag.InventoryBase;
+            InventoryBase toInventoryBase = to.ActiveBag.InventoryBase;
+
+            //Save sorted.
+            fromInventoryBase.SaveBaggedSorted_Client(true);
+            if (fromInventoryBase.CategoryId != toInventoryBase.CategoryId)
+                toInventoryBase.SaveBaggedSorted_Client(true);
 
             return InvokeMoveResult(passed: true);
 
@@ -294,43 +314,24 @@ namespace GameKit.Core.Inventories
 
                 //Move as many as possible over.
                 int moveAmount;
-                //If quantity is unset then set move amount to stack size.
-                //Set the move amount to max possible amount to complete the stack, or from quantity.
 
-                bool unsetQuantity = (quantity == InventoryCanvasBase.UNSET_ENTRY_MOVE_QUANTITY);
-                /* If quantity is unset then the goal is to move as much
-                 * as possible onto the To slot. If the To slot is at maximum
-                 * stacks then swap entries. */
-                if (unsetQuantity && toRq.Quantity == stackLimit)
-                {
-                    SwapEntries();
-                }
-                else
-                {
-                    /* If no quantity was specified then try to move entire From.
-                     * This will result in stacking as many as possible while leaving
-                     * remainders. */
-                    if (unsetQuantity)
-                        quantity = fromRq.Quantity;
+                /* Be it moving all or some, the toRq uniqueId will
+                 * become the from Id. */
+                toRq.UniqueId = fromRq.UniqueId;
 
-                    /* Be it moving all or some, the toRq uniqueId will
-                     * become the from Id. */
-                    toRq.UniqueId = fromRq.UniqueId;
+                /* Move whichever is less of availability on To stack,
+                 * or specified quantity. */
+                moveAmount = Mathf.Min((stackLimit - toRq.Quantity), quantity);
+                //Update to quantities.
+                toRq.Quantity += moveAmount;
+                fromRq.Quantity -= moveAmount;
+                //If from is empty then unset.
+                if (fromRq.Quantity <= 0)
+                    fromRq.MakeUnset();
 
-                    /* Move whichever is less of availability on To stack,
-                     * or specified quantity. */
-                    moveAmount = Mathf.Min((stackLimit - toRq.Quantity), quantity);
-                    //Update to quantities.
-                    toRq.Quantity += moveAmount;
-                    fromRq.Quantity -= moveAmount;
-                    //If from is empty then unset.
-                    if (fromRq.Quantity <= 0)
-                        fromRq.MakeUnset();
-
-                    //Apply changes.
-                    to.ActiveBag.Slots[to.SlotIndex] = toRq;
-                    from.ActiveBag.Slots[from.SlotIndex] = fromRq;
-                }
+                //Apply changes.
+                to.ActiveBag.Slots[to.SlotIndex] = toRq;
+                from.ActiveBag.Slots[from.SlotIndex] = fromRq;
             }
 
             bool InvokeMoveResult(bool passed)

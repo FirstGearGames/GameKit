@@ -9,7 +9,6 @@ using GameKit.Core.Databases.LiteDb;
 
 namespace GameKit.Core.Inventories
 {
-
     public partial class InventoryBase : NetworkBehaviour
     {
         public override void OnSpawnServer(NetworkConnection connection)
@@ -41,16 +40,24 @@ namespace GameKit.Core.Inventories
             List<SerializableActiveBag> baggedUnsorted = inventoryDb.ActiveBags;
             List<SerializableResourceQuantity> hiddenUnsorted = inventoryDb.HiddenResources;
 
-            //Add bags and slots on server.                    
-            ApplyInventory_Server(baggedUnsorted, hiddenUnsorted);
-
-            if (sendToClient)
+            /* If clientHost then apply using client. It does the same as server but
+             * applies sorting. */
+            if (c.IsLocalClient)
             {
-                List<SerializableActiveBag> baggedSorted = InventoryDbService.Instance.GetSortedInventory((uint)c.ClientId);
-                TgtApplyInventory(base.Owner, baggedUnsorted, hiddenUnsorted, baggedSorted);
+                ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, GetBaggedSorted());
+            }
+            //Not clientHost.
+            else
+            {
+                //Add bags and slots on server.                    
+                ApplyInventory_Server(baggedUnsorted, hiddenUnsorted);
+                if (sendToClient)
+                    TgtApplyInventory(base.Owner, baggedUnsorted, hiddenUnsorted, GetBaggedSorted());
             }
 
             inventoryDb.ResetState();
+
+            List<SerializableActiveBag> GetBaggedSorted() => InventoryDbService.Instance.GetSortedInventory((uint)c.ClientId);
         }
 
         /// <summary>
@@ -92,7 +99,6 @@ namespace GameKit.Core.Inventories
             return result;
         }
 
-
         /// <summary>
         /// Uses serializable data to set inventory.
         /// </summary>
@@ -116,5 +122,4 @@ namespace GameKit.Core.Inventories
             RebuildBaggedResources();
         }
     }
-
 }
