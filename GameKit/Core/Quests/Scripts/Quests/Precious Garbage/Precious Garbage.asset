@@ -17,6 +17,7 @@ MonoBehaviour:
   Title: Precious Garbage
   Description: One animals garbage is another's ... not garbage.
   Conditions:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 2acde0524ec001b4db4eebafe19adf14, type: 2}
   Rewards:
   - {fileID: 0}
+  QuestDroppables: []
