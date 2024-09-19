@@ -2,6 +2,8 @@
 Pre-built commonly needed gameplay elements, with examples. Developed for Fish-Networking.
 https://github.com/FirstGearGames/FishNet
 
+GameKit software is sparsely maintained. Pull request are welcome.
+
 ![Simple Preview](https://github.com/FirstGearGames/GameKit/blob/main/FirstGearGames/GameKit/Repository/simple_preview.png?raw=true)
 
 
