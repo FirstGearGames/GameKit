@@ -13,11 +13,15 @@ Features:
     * Efficient action serialization.
     * Expand core types easily.
     * Built-in API to easily handle situational changes on most features.
+    * Basic new/old Unity input key checking.
 
     Utility:
     * FloatingResourceCanvas to easily show dragging icons.
     * TooltipCanvas to show tooltips anywhere.
     * Splitting canvas to split anything with quantities.
+    * Offline object pooling, such as for particles.
+    * Several general extensions and performance API such as RingBuffers and more...
+    
     
     Resources:
     * Categories (eg: Equipped, Food, Scraps).
