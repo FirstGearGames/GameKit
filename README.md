@@ -2,8 +2,6 @@
 Pre-built commonly needed gameplay elements, with examples. Developed for Fish-Networking.
 https://github.com/FirstGearGames/FishNet
 
-All features are server authoritative with client prediction.
-
 ![Simple Preview](https://github.com/FirstGearGames/GameKit/blob/main/FirstGearGames/GameKit/Repository/simple_preview.png?raw=true)
 
 
@@ -11,6 +9,7 @@ Features:
   
     General:
     * Efficient action serialization.
+    * Server authoritative with client prediction.
     * Expand core types easily.
     * Built-in API to easily handle situational changes on most features.
     * Basic new/old Unity input key checking.
