@@ -50,14 +50,14 @@ Features:
 
     Chat:
     * Message limits.
-    * Toggable bad word filters.
+    * Togglable bad word filters.
     * Private chat (whispers/tells).
     * Team chat.
     * Global chat.
     * UI including: message color indicators (for team, private, global), auto private chat completion, click to private chat, more...
 
     XP/Leveling:
-    * Easily modifable levleing template; can be used for skill levels, XP, more...
+    * Easily modifiable leveling template; can be used for skill levels, XP, more...
     * Example leveling template for XP.
 
     Providers (Placeholder/future prep):
@@ -77,6 +77,6 @@ Features:
       
       Incomplete:
       * Rewards: a placeholder has been made but not implemented.
-      * Inventory updates to automatically check completion. Quester(or own impleementation) should use Inventory API to review changes and see if they progress quests.
+      * Inventory updates to automatically check completion. Quester(or own implementation) should use Inventory API to review changes and see if they progress quests.
     
     
