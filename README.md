@@ -72,7 +72,7 @@ Features:
       * Gather, interact, travel condition. These can be used for virtually any kind of quest, including talk to.
       * Custom quest creation which includes: trackable, title, description, conditions, rewards, more...
       
-      Presumable Working (untested):
+      Presumably Working (untested):
       * Add, remove quests at runtime.
       * Check quest complete conditions.
       * Quest only droppable resources including Providers which can drop, quantity, rarity, more...
