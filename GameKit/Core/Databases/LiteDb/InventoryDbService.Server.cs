@@ -17,7 +17,7 @@ namespace GameKit.Core.Databases.LiteDb
 
         private void InitializeState_Server()
         {
-            string path = $"{Path.Combine(Application.persistentDataPath, "GameKit_Server.db")}";
+            string path = $"{Path.Combine(Application.persistentDataPath, "Inventory_Server.db")}";
             _databaseServer = new LiteDatabase(path);
         }
 

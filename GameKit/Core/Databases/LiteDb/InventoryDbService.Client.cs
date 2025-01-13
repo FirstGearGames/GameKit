@@ -23,7 +23,7 @@ namespace GameKit.Core.Databases.LiteDb
 
         private void InitializeState_Client()
         {
-            string path = $"{Path.Combine(Application.persistentDataPath, "GameKit_Client.db")}";
+            string path = $"{Path.Combine(Application.persistentDataPath, "Inventory_Client.db")}";
             _databaseClient = new LiteDatabase(path);
         }
 
