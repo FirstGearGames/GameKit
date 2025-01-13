@@ -35,31 +35,28 @@ namespace GameKit.Dependencies.Utilities.Types
         #endregion
 
         #region Serialized.
-        [Header("CanvasGroupFader")]
         /// <summary>
         /// CanvasGroup to fade in and out.
         /// </summary>
         [Tooltip("CanvasGroup to fade in and out.")]
-        [SerializeField,Indent(1),  TabGroup("Components")]
+        [SerializeField, TabGroup("Components")]
         protected CanvasGroup CanvasGroup;
-        
-        [Header("CanvasGroupFader")]
         /// <summary>
         /// True to update the CanvasGroup blocking settings when showing and hiding.
         /// </summary>
         [Tooltip("True to update the CanvasGroup blocking settings when showing and hiding.")]
-        [SerializeField, Indent(1), TabGroup("Effects")]
+        [SerializeField, TabGroup("Effects")]
         protected bool UpdateCanvasBlocking = true;
         /// <summary>
         /// How long it should take to fade in the CanvasGroup.
         /// </summary>
-        [SerializeField, Indent(1), TabGroup("Effects")]
+        [SerializeField, TabGroup("Effects")]
         protected float FadeInDuration = 0.1f;
         /// <summary>
         /// How long it should take to fade out the CanvasGroup.
         /// </summary>
-        [SerializeField,Indent(1),  TabGroup("Effects")]
-        protected float FadeOutDuration = 0.2f;
+        [SerializeField, TabGroup("Effects")]
+        protected float FadeOutDuration = 0.3f;
         #endregion
 
         #region Private.
