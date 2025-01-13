@@ -40,20 +40,10 @@ namespace GameKit.Core.Inventories
             List<SerializableActiveBag> baggedUnsorted = inventoryDb.ActiveBags;
             List<SerializableResourceQuantity> hiddenUnsorted = inventoryDb.HiddenResources;
 
-            /* If clientHost then apply using client. It does the same as server but
-             * applies sorting. */
-            if (c.IsLocalClient)
-            {
-                ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, GetBaggedSorted());
-            }
-            //Not clientHost.
-            else
-            {
-                //Add bags and slots on server.                    
-                ApplyInventory_Server(baggedUnsorted, hiddenUnsorted);
-                if (sendToClient)
-                    TgtApplyInventory(base.Owner, baggedUnsorted, hiddenUnsorted, GetBaggedSorted());
-            }
+            //Add bags and slots on server.                    
+            ApplyInventory_Server(baggedUnsorted, hiddenUnsorted);
+            if (sendToClient)
+                TgtApplyInventory(base.Owner, baggedUnsorted, hiddenUnsorted, GetBaggedSorted());
 
             inventoryDb.ResetState();
 

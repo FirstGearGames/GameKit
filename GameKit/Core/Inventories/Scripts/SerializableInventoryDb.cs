@@ -34,7 +34,13 @@ namespace GameKit.Core.Inventories
     {
         public static bool IsDefault(this SerializableInventoryDb inventoryDb)
         {
-            return (inventoryDb.ActiveBags == null && inventoryDb.HiddenResources == null);
+            if (inventoryDb.ActiveBags == null || inventoryDb.HiddenResources == null)
+                return true;
+
+            if (inventoryDb.ActiveBags.Count == 0 && inventoryDb.HiddenResources.Count == 0)
+                return true;
+
+            return false;
         }
     }
 

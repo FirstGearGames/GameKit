@@ -59,6 +59,9 @@ namespace GameKit.Core.Inventories
             bool changed;
             RebuildBaggedResourcesDel rebuildDel;
 
+            //If sorted does not exist then populate as new collection.
+            if (baggedSorted == null) baggedSorted = new();
+            
             rebuildDel = new(RebuildBaggedResources);
             changed = ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, baggedSorted, rebuildDel);
 
