@@ -3,7 +3,6 @@ using FishNet.Connection;
 using FishNet.Object;
 using GameKit.Core.Chats.Managers;
 using GameKit.Core.Dependencies;
-using GameKit.Core.Chats;
 using GameKit.Dependencies.Utilities;
 using GameKit.Dependencies.Utilities.ObjectPooling;
 using GameKit.Dependencies.Utilities.Types;
