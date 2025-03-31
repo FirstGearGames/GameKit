@@ -13,14 +13,14 @@ namespace GameKit.Core.Inventories
     {
         public override void OnSpawnServer(NetworkConnection connection)
         {
-            LoadInventoryFromDatabase_Server(connection);
+            LoadInventoryFromDatabase_Server(connection, sendToClient: true);
         }
 
         /// <summary>
         /// Called on the server when this spawns for a client.
         /// </summary>
         [Server]
-        private void LoadInventoryFromDatabase_Server(NetworkConnection c, bool sendToClient = true)
+        private void LoadInventoryFromDatabase_Server(NetworkConnection c, bool sendToClient)
         {
             SerializableInventoryDb inventoryDb = InventoryDbService.Instance.GetInventory((uint)c.ClientId, CategoryId);
             if (inventoryDb.IsDefault())
@@ -92,20 +92,33 @@ namespace GameKit.Core.Inventories
         /// <summary>
         /// Uses serializable data to set inventory.
         /// </summary>
-        private void ApplyInventory_Server(List<SerializableActiveBag> baggedResources, List<SerializableResourceQuantity> hiddenResources)
+        private void ApplyInventory_Server(List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted)
         {
             ActiveBags.Clear();
             HiddenResources.Clear();
 
-            foreach (SerializableActiveBag item in baggedResources)
+            foreach (SerializableActiveBag item in baggedUnsorted)
             {
+                foreach (SerializableFilledSlot sfs in item.FilledSlots)
+                {
+                    ResourceQuantities.TryGetValueIL2CPP(sfs.ResourceQuantity.UniqueId, out int currentValue);
+                    ResourceQuantities[sfs.ResourceQuantity.UniqueId] = ++currentValue;
+                }
+                
                 ActiveBag ab = item.ToNative(this, _bagManager);
                 AddBag(ab, false);
             }
 
-            foreach (SerializableResourceQuantity item in hiddenResources)
+            foreach (SerializableResourceQuantity item in hiddenUnsorted)
+            {
+                ResourceQuantities.TryGetValueIL2CPP(item.UniqueId, out int currentValue);
+                ResourceQuantities[item.UniqueId] = ++currentValue;
+                
                 item.ToNativeReplace(HiddenResources);
+            }
 
+            ApplyResourceQuantities(baggedUnsorted, hiddenUnsorted);
+            
             /* This builds a cache of resources currently in the inventory.
              * Since ActiveBags were set without allowing rebuild to save perf
              * it's called here after all bags are added. */

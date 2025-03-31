@@ -67,7 +67,7 @@ namespace GameKit.Crafting.Testing
                     if (!add)
                         count *= -1;
                     int index = Ints.RandomExclusiveRange(0, rds.Count);
-                    notModified += invBase.ModifyResourceQuantity(rds[index].UniqueId, count);
+                    notModified += invBase.ModifyResourceQuantity(rds[index].UniqueId, count, sendToClient: true);
                     tryModify += Mathf.Abs(count);
                 }
 

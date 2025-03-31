@@ -2,11 +2,13 @@ using FishNet.Managing;
 using GameKit.Core.Inventories.Bags;
 using LiteDB;
 using System.Collections.Generic;
+using System.IO;
+using GameKit.Core.Inventories;
+using UnityEngine;
 
 namespace GameKit.Core.Databases.LiteDb
 {
-
-    public partial class InventoryDbService : IInventoryDbService_Server
+    public partial class InventoryDbService
     {
         #region Types.
         private struct SerializableActiveBagContainer
@@ -19,8 +21,8 @@ namespace GameKit.Core.Databases.LiteDb
             }
         }
         #endregion
-
-        public static InventoryDbService Instance { get; private set; } = new InventoryDbService();
+        
+        public static InventoryDbService Instance { get; private set; } = new();
 
         public InventoryDbService()
         {
@@ -31,7 +33,7 @@ namespace GameKit.Core.Databases.LiteDb
         {
             ResetState();
         }
-
+        
         private void InitializeState()
         {
             BsonMapper mapper = BsonMapper.Global;
@@ -41,6 +43,28 @@ namespace GameKit.Core.Databases.LiteDb
 
             InitializeState_Server();
             InitializeState_Client();
+
+          //  DeleteInventories_Testing();
+        }
+
+        private void DeleteInventories_Testing()
+        {
+            ClearCollections(_databaseServer);
+            ClearCollections(_databaseClient);
+
+            void ClearCollections(LiteDatabase db)
+            {
+                if (db == null)
+                    return;
+
+                ILiteCollection<SerializableInventoryDb> c0 = db.GetCollection<SerializableInventoryDb>();
+                if (c0 != null)
+                    c0.DeleteAll();
+
+                ILiteCollection<SerializableActiveBagContainer> c1 = db.GetCollection<SerializableActiveBagContainer>();
+                if (c1 != null)
+                    c1.DeleteAll();
+            }
         }
 
         private void ResetState()
@@ -75,6 +99,4 @@ namespace GameKit.Core.Databases.LiteDb
             return hasValue;
         }
     }
-
-
 }

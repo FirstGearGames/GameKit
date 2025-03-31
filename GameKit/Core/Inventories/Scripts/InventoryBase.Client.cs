@@ -198,13 +198,21 @@ namespace GameKit.Core.Inventories
 
             //Add remaining resources to wherever they fit.
             foreach (KeyValuePair<uint, int> item in resourceQuantitiesLookup)
-                ModifyResourceQuantity(item.Key, item.Value, false);
+                ModifyResourceQuantity(item.Key, item.Value, sendToClient: false);
 
             /* If there were unsorted added then save clients new
              * layout after everything was added. */
             bool sortedChanged = (baggedUnsorted.Count > 0 || resourceQuantitiesLookup.Count > 0);
             CollectionCaches<uint, int>.Store(resourceQuantitiesLookup);
-
+            
+            /* It's really important to call this at the end
+             * after everything is in the inventory because calling
+             * ModifyResourceQuantity also modifies ResourceQuantities.
+             *
+             * We could simply trust that it was done correctly through modify calls,
+             * and it should be, but rebuilding at the end is much safer. */
+            ApplyResourceQuantities(baggedUnsorted, hiddenUnsorted);
+            
             return sortedChanged;
         }
 
@@ -214,7 +222,7 @@ namespace GameKit.Core.Inventories
         [TargetRpc(ExcludeServer = true)]
         private void TgtAddBag(NetworkConnection c, SerializableActiveBag bag)
         {
-            AddBag(bag);
+            AddBag(bag, sendToClient: false);
         }
 
         /// <summary>
@@ -226,7 +234,7 @@ namespace GameKit.Core.Inventories
         [TargetRpc(ExcludeServer = true)]
         private void TargetModifyResourceQuantity(NetworkConnection c, uint uniqueId, int quantity)
         {
-            ModifyResourceQuantity(uniqueId, quantity);
+            ModifyResourceQuantity(uniqueId, quantity, sendToClient: false);
         }
 
         /// <summary>

@@ -44,20 +44,11 @@ namespace GameKit.Core.Inventories
 
         #region Private.
         /// <summary>
-        /// ResourceManager to use.
-        /// </summary>
-        private ResourceManager _resourceManager;
-        /// <summary>
         /// Registered InventoryBase(s).
         /// </summary>
         private Dictionary<ushort, InventoryBase> _inventoryBases = new();
         #endregion
-
-        public override void OnStartNetwork()
-        {
-            _resourceManager = base.NetworkManager.GetInstance<ResourceManager>();
-        }
-
+        
         /// <summary>
         /// Registers an InventoryBase returning if successful.
         /// </summary>
@@ -110,14 +101,14 @@ namespace GameKit.Core.Inventories
         /// </summary>
         /// <param name="bag">Adds an ActiveBag for bag with no entries.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddBag(InventoryBase inventoryBase, BagData bag, uint activeBagUniqueId = InventoryConsts.UNSET_BAG_ID, bool sendToClient = true)
+        public void AddBag(InventoryBase inventoryBase, BagData bag, uint activeBagUniqueId, bool sendToClient)
             => inventoryBase.AddBag(bag, activeBagUniqueId, sendToClient);
 
         /// <summary>
         /// Adds a Bag to Inventory.
         /// </summary>
         /// <param name="activeBag">ActiveBag information to add.</param>
-        public void AddBag(InventoryBase inventoryBase, ActiveBag activeBag, bool sendToClient = true)
+        public void AddBag(InventoryBase inventoryBase, ActiveBag activeBag, bool sendToClient)
             => inventoryBase.AddBag(activeBag, sendToClient);
 
         /// <summary>
@@ -128,7 +119,7 @@ namespace GameKit.Core.Inventories
         /// <param name="sendToClient">True to send the changes to the client.</param>
         /// <returns>Quantity which could not be added or removed due to space limitations or missing resources.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int ModifyResourceQuantity(InventoryBase inventoryBase, uint uniqueId, int quantity, bool sendToClient = true)
+        public int ModifyResourceQuantity(InventoryBase inventoryBase, uint uniqueId, int quantity, bool sendToClient)
             => inventoryBase.ModifyResourceQuantity(uniqueId, quantity, sendToClient);
 
         /// <summary>
@@ -154,7 +145,7 @@ namespace GameKit.Core.Inventories
         /// Updates inventory resources using a recipe.
         /// This removes required resources while adding created.
         /// </summary>
-        private void UpdateResourcesFromRecipe(InventoryBase inventoryBase, RecipeData r, bool sendToClient = true)
+        private void UpdateResourcesFromRecipe(InventoryBase inventoryBase, RecipeData r, bool sendToClient)
         {
             inventoryBase.UpdateResourcesFromRecipe(r, sendToClient);
             OnBulkResourcesUpdated?.Invoke(inventoryBase);

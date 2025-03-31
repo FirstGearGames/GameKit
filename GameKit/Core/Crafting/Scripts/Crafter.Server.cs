@@ -186,7 +186,7 @@ namespace GameKit.Core.Crafting
             _lastCraftedRecipe = r;
             _failedActionTime = -1f;
             ResetCraftingProgress(true);
-            OnCraftingResult?.Invoke(r, CraftingResult.Completed, true);
+            OnCraftingResult?.Invoke(r, CraftingResult.Completed, asServer: true);
             TargetCraftingResult(base.Owner, r, CraftingResult.Completed);
         }
 
