@@ -21,6 +21,10 @@ namespace GameKit.Core.Inventories
         /// <param name="asServer">True if callback is for server.</param>
         private void Crafter_OnCraftingResult(RecipeData r, CraftingResult result, bool asServer)
         {
+            //Already invoked on server side.
+            if (!asServer && base.IsServerStarted)
+                return;
+            
             if (result == CraftingResult.Completed)
                 base.UpdateResourcesFromRecipe(r, asServer);
         }

@@ -3,6 +3,7 @@ using FishNet.Object;
 using GameKit.Core.Crafting;
 using GameKit.Core.Inventories;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace GameKit.Core.Dependencies
 {
@@ -30,13 +31,13 @@ namespace GameKit.Core.Dependencies
             {
                 foreach (ClientInstance item in Instances)
                 {
-                    if (item.IsSpawned)
-                        del?.Invoke(item, ClientInstanceState.PreInitialize, asServer);
+                    if (item.IsSpawned && del != null)
+                        del.Invoke(item, ClientInstanceState.PreInitialize, asServer);
                 }
                 foreach (ClientInstance item in Instances)
                 {
-                    if (item.IsSpawned)
-                        del?.Invoke(item, ClientInstanceState.PostInitialize, asServer);
+                    if (item.IsSpawned && del != null)
+                        del.Invoke(item, ClientInstanceState.PostInitialize, asServer);
                 }
             }
         }

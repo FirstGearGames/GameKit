@@ -178,20 +178,20 @@ namespace GameKit.Core.Inventories
         private void ApplyResourceQuantities(List<SerializableActiveBag> baggedResources, List<SerializableResourceQuantity> hiddenResources)
         {
             ResourceQuantities.Clear();
-            
+
             foreach (SerializableActiveBag item in baggedResources)
             {
                 foreach (SerializableFilledSlot sfs in item.FilledSlots)
                 {
                     ResourceQuantities.TryGetValueIL2CPP(sfs.ResourceQuantity.UniqueId, out int currentValue);
-                    ResourceQuantities[sfs.ResourceQuantity.UniqueId] = ++currentValue;
+                    ResourceQuantities[sfs.ResourceQuantity.UniqueId] = (currentValue + sfs.ResourceQuantity.Quantity);
                 }
             }
 
             foreach (SerializableResourceQuantity item in hiddenResources)
             {
                 ResourceQuantities.TryGetValueIL2CPP(item.UniqueId, out int currentValue);
-                ResourceQuantities[item.UniqueId] = ++currentValue;
+                ResourceQuantities[item.UniqueId] = (currentValue + item.Quantity);
             }
         }
 

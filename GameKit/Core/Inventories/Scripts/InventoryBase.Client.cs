@@ -5,6 +5,8 @@ using GameKit.Core.Resources;
 using GameKit.Core.Inventories.Bags;
 using FishNet.Managing;
 using System.Collections.Generic;
+using GameKit.Core.Crafting;
+using GameKit.Core.Crafting.Canvases;
 using GameKit.Dependencies.Utilities;
 using GameKit.Core.Databases.LiteDb;
 using GameKit.Core.Inventories.Canvases;
@@ -19,7 +21,6 @@ namespace GameKit.Core.Inventories
         /// This invokes after bag slot update events.
         /// </summary>
         public event OnMoveDel OnMove;
-
         public delegate void OnMoveDel(BagSlot from, BagSlot to, bool moved);
         #endregion
 
@@ -45,9 +46,16 @@ namespace GameKit.Core.Inventories
         /// <param name="baggedUnsorted">Bagged resources.</param>        
         /// <param name="hiddenUnsorted">Hidden resources.</param>
         /// <param name="baggedUnsorted">User sorted bags for the Character.</param>
-        [TargetRpc(ExcludeServer = true)]
+        [TargetRpc]
         private void TgtApplyInventory(NetworkConnection c, List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
         {
+            CraftingCanvas.Instance.RefreshAvailableRecipes();
+            
+            /* After updating crafting UI exit method if also server since
+             * server already applied the inventory. */
+            if (base.IsServerStarted)
+                return;
+            
             ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, baggedSorted);
         }
 
@@ -56,14 +64,11 @@ namespace GameKit.Core.Inventories
         /// </summary>
         private void ApplyInventory_Client(List<SerializableActiveBag> baggedUnsorted, List<SerializableResourceQuantity> hiddenUnsorted, List<SerializableActiveBag> baggedSorted)
         {
-            bool changed;
-            RebuildBaggedResourcesDel rebuildDel;
-
             //If sorted does not exist then populate as new collection.
             if (baggedSorted == null) baggedSorted = new();
             
-            rebuildDel = new(RebuildBaggedResources);
-            changed = ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, baggedSorted, rebuildDel);
+            RebuildBaggedResourcesDel rebuildDel = new(RebuildBaggedResources);
+            bool changed = ApplyInventory_Client(baggedUnsorted, hiddenUnsorted, baggedSorted, rebuildDel);
 
             if (changed)
                 SaveBaggedSorted_Client(false);

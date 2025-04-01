@@ -1,6 +1,6 @@
 using GameKit.Dependencies.Utilities;
 using System.Collections.Generic;
-
+using FishNet.Managing;
 using UnityEngine;
 using UnityEngine.UI;
 using GameKit.Core.Resources;
@@ -12,6 +12,13 @@ namespace GameKit.Core.Crafting.Canvases
 {
     public class CraftingCanvas : MonoBehaviour
     {
+        #region Public.
+        /// <summary>
+        /// Singleton instance of this component.
+        /// </summary>
+        public static CraftingCanvas Instance { get; private set; }
+        #endregion
+        
         /// <summary>
         /// Prefab for each recipe listing.
         /// </summary>
@@ -113,6 +120,14 @@ namespace GameKit.Core.Crafting.Canvases
 
         private void Awake()
         {
+            if (Instance != null)
+            {
+                DestroyImmediate(gameObject);
+                return;;
+            }
+            
+            Instance = this;
+            
             _recipesContent.DestroyChildren<RecipeEntry>();
             _previewRecipeContent.DestroyChildren<RequiredResourceEntry>();
             _previewResult.ResetValues();
@@ -121,7 +136,7 @@ namespace GameKit.Core.Crafting.Canvases
             _craftOneButton.onClick.AddListener(OnClick_CraftOne);
             _craftAllButton.onClick.AddListener(OnClick_CraftAll);
             EnableButtons(false);
-
+            
             ClientInstance.OnClientInstanceChangeInvoke(new ClientInstance.ClientInstanceChangeDel(ClientInstance_OnClientChange), false);
         }
 
